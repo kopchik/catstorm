@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-from peg import RE, SYM, ANY, SOMEOF, MAYBE, CSV
+from peg import RE, SYM, ANY, SOMEOF, MAYBE, CSV, test
 from interpreter import Int, Str
-from pratt import symap
+from pratt import symap, parse
 
 # BITS AND PIECES
 EOL = RE(r'$')
@@ -44,7 +44,6 @@ PROG = FUNC%'funcdef' | TYPEXPR%'typexpr' | EXPR%'expr'
 
 
 if __name__ == '__main__':
-  from useful.mystruct import Struct
   # import sys; sys.setrecursionlimit(20)
 
   # test(EXPR, "(1+1) if 2+2 else 3")
@@ -74,7 +73,7 @@ if __name__ == '__main__':
   # r = traverse(prog)
   # print(r)
   # test(PROG, ":: MyNewType = Tag1 | Tag2 Int64 Double")
-  toks = test(PROG, "1 + 2 + 3")
-  # print(toks['expr'])
-  print(parse(toks['expr']))
+  toks = test(PROG, "x = a,b,c -> y")
+  print(toks)
+  # print(parse(toks['expr']))
   # parse([Int(1),Plus(), Int(2)])
