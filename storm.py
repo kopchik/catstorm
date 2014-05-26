@@ -44,10 +44,8 @@ if __name__ == '__main__':
         if args.tokens:
           print(tokens)
         prog, r = PROG.match(tokens)
-        # print(tokens)
-        # prog = pratt_parse(tokens)
-        # print(prog)
-        # print("PROG", prog)
+        if args.ast:
+          print(prog)
         result = prog.eval(frame)
         print("result:", result)
     exit("DONE")
