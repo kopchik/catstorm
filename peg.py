@@ -44,7 +44,7 @@ class Grammar:
     return ANY(self, other)
 
   def __mod__(self, other):
-    return attr(self, attr=other)
+    return Attr(self, attr=other)
 
 
 class RE(Grammar):
@@ -97,10 +97,10 @@ class Composer(Grammar):
     return "%s(%s)" % (cls, self.things)
 
 
-class attr(Composer):
+class Attr(Composer):
   def __init__(self, thing, attr):
     super().__init__(thing)
-    assert isinstance(attr, str)
+    assert isinstance(attr, (str, None))
     self.attr = attr
 
   def match(self, tokens, pos=0):
@@ -187,6 +187,7 @@ def test(expr, text):
     print("not all chars were consumed. Pattern:\n",
           expr, "\ntext:\n", text)
   print(r)
+  return r
 
 
 if __name__ == '__main__':
