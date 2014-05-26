@@ -11,7 +11,7 @@ symbols = []
 
 
 def tokenize(text, pos=0):
-  ''' Split input into bunch of annotated tokens. '''
+  ''' Split input into a bunch of annotated tokens. '''
   result = []
   mysymbols = sorted(symbols, key=lambda x: x.pattern.pattern, reverse=True)
   while pos < len(text):
