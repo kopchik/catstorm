@@ -9,6 +9,27 @@ class NoMatch(Exception):
 symbols = []
 
 
+def tokenize(text, pos=0):
+  ''' Split input into bunch of annotated tokens. '''
+  result = []
+  mysymbols = sorted(symbols, key=lambda x: x.pattern.pattern, reverse=True)
+  while pos < len(text):
+    for p in mysymbols:
+      try:
+        r, pos = p.tokenize(text, pos)
+        result.append((r, p))
+        break
+      except NoMatch:
+        pass
+    else:
+      raise NoMatch("cannot tokenize at pos %s, text: %s" % (pos, text))
+  return result
+
+
+####################
+# PARSER PRIMITIVE #
+####################
+
 class Grammar:
   def __add__(self, other):
     if isinstance(self, ALL):
@@ -24,22 +45,6 @@ class Grammar:
 
   def __mod__(self, other):
     return attr(self, attr=other)
-
-
-def tokenize(text, pos=0):
-  result = []
-  mysymbols = sorted(symbols, key=lambda x: x.pattern.pattern, reverse=True)
-  while pos < len(text):
-    for p in mysymbols:
-      try:
-        r, pos = p.tokenize(text, pos)
-        result.append((r, p))
-        break
-      except NoMatch:
-        pass
-    else:
-      raise NoMatch("cannot tokenize at pos %s, text: %s" % (pos, text))
-  return result
 
 
 class RE(Grammar):
