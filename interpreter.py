@@ -1,5 +1,5 @@
-from pratt import *
-from ast import *
+from pratt import parse as pratt_parse, prefix, infix, postfix
+from ast import Leaf, Unary, Binary
 
 
 class Int(Leaf):
@@ -63,3 +63,54 @@ def newinfix(sym, prio, methname, sametype=True):
 
 newinfix('+', 20, 'Add')
 newinfix('-', 20, 'Sub')
+
+
+class Func:
+  def __init__(self, name, args, body):
+    self.name = name
+    self.args = args
+    self.body = pratt_parse(body)
+
+  def eval(self, frame):
+    frame[self.name] = self
+    return self
+
+  def Call(self, frame):
+    return self.body.eval(frame)
+
+  def __repr__(self):
+    return "({} {})".format(self.name, self.args)
+
+
+class Var(Leaf):
+  type = None
+
+  def Assign(self, value, frame):
+    # self.value actually holds the name
+    frame[self.value] = value
+    return value
+
+  def eval(self, frame):
+    try:
+      return frame[self.value]
+    except KeyError:
+      raise Exception("unknown variable \"%s\"" % self.value)
+
+  def __str__(self):
+    return str(self.value)
+
+
+class Expr:
+  def __init__(self, *expr):
+    self.expr = pratt_parse(expr)
+
+  def eval(self, frame):
+    return self.expr.eval(frame)
+
+
+@postfix('!', 3)
+class Call0(Unary):
+  def eval(self, frame):
+    with frame as newframe:
+      func = self.arg.eval(newframe)
+      return func.Call(newframe)
