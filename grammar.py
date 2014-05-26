@@ -41,16 +41,3 @@ TYPEXPR = NEWTYPE + TYPE%'typname' + ASSIGN + CSV(TYPEDEF, sep=BITOR)%'variants'
 FUNC = ID%'name' + ASSIGN%None + CSV(ID, sep=COMMA)%'args' + LAMBDA%None + EXPR%'body'
 # THE PROGRAM IS ... A BUNCH OF FUNCTIONS AND TYPE EXPRESSIONS
 PROG = FUNC/Func | TYPEXPR%'typexpr' | EXPR/Expr
-
-
-if __name__ == '__main__':
-  # import sys; sys.setrecursionlimit(20)
-
-  # test(EXPR, "(1+1) if 2+2 else 3")
-  # test(TYPEXPR, ":: MyType = Tag1 Int | Tag2")
-  # prog = test(PROG, "myfunc = x -> x + 1")
-  # print(prog)
-  toks = test(PROG, "x = a,b,c -> y")
-  print(toks)
-  # print(parse(toks['expr']))
-  # parse([Int(1),Plus(), Int(2)])
