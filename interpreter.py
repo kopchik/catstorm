@@ -1,6 +1,10 @@
-from pratt import parse as pratt_parse, prefix, infix, postfix
+from pratt import parse as pratt_parse, prefix, infix, infix_r, postfix
 from ast import Leaf, Unary, Binary
 
+
+##############
+# DATA TYPES #
+##############
 
 class Int(Leaf):
   def __init__(self, value):
@@ -29,6 +33,10 @@ class Str(Leaf):
   def Print(self, frame):
     return self.value
 
+
+#############
+# OPERATORS #
+#############
 
 @prefix('p ', 0)
 class Print(Unary):
@@ -65,6 +73,15 @@ newinfix('+', 20, 'Add')
 newinfix('-', 20, 'Sub')
 
 
+@infix_r('=', 2)
+class Assign(Binary):
+  def eval(self, frame):
+    key = self.left.value
+    value = self.right.eval(frame)
+    frame[key] = value
+    return value
+
+
 class Func:
   def __init__(self, name, args, body):
     self.name = name
@@ -87,7 +104,8 @@ class Var(Leaf):
 
   def Assign(self, value, frame):
     # self.value actually holds the name
-    frame[self.value] = value
+    print("!!! TODO: method is not called", self.value)
+    frame[self.value] = self
     return value
 
   def eval(self, frame):
@@ -107,6 +125,9 @@ class Expr:
   def eval(self, frame):
     return self.expr.eval(frame)
 
+  def __repr__(self):
+    return "({} {})".format(self.__class__.__name__, self.expr)
+
 
 @postfix('!', 3)
 class Call0(Unary):
@@ -114,3 +135,9 @@ class Call0(Unary):
     with frame as newframe:
       func = self.arg.eval(newframe)
       return func.Call(newframe)
+
+
+@infix_r('@', 5)
+class Call(Binary):
+  def eval(self, frame):
+    print("CALL:", self.left, self.right)
