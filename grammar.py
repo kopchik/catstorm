@@ -1,67 +1,80 @@
 #!/usr/bin/env python3
-from peg import *
+from peg import RE, SYM, ANY, SOMEOF, MAYBE, CSV
+from interpreter import Int, Str
+from pratt import symap
 
 # BITS AND PIECES
 EOL = RE(r'$')
-
-# KEWORDS
-IF   = SYM('if', 'IF')
-THEN = SYM('then', 'THEN')
-ELSE = SYM('else', 'ELSE')
-COMMA = SYM(',', 'COMMA')
-BRANCH = IF | THEN | ELSE
 
 # DATA AND TYPES
 TYPE = RE(r'[A-Z][A-Za-z0-9_]*', 'TYPE')
 ID = RE(r'[a-z_][A-Za-z0-9_]*', 'ID')
 FLOATCONST = RE(r'\d+\.\d*', 'FLOATCONST', conv=float)
-INTCONST = RE(r'\d+', 'INTCONST', conv=int)
-STRCONST   = RE(r'"(.*)"', 'STRCONST')
-SHELLCMD   = RE(r'`(.*)`', 'SHELLCMD')
-REGEX      = RE(r'/(.*)/', 'REGEX')
+INTCONST = RE(r'\d+', 'INTCONST', conv=Int)
+STRCONST   = RE(r'"(.*?)"', 'STRCONST', conv=Str)
+SHELLCMD   = RE(r'`(.*?)`', 'SHELLCMD')
+REGEX      = RE(r'/(.*?)/', 'REGEX')
 CONST = FLOATCONST | INTCONST | STRCONST | SHELLCMD | REGEX
 
-# OPERATORS
-ASSIGN = SYM('=', 'ASSIGN')
-PLUS = SYM('+', 'PLUS')
-MINUS = SYM('-', 'MINUS')
-MUL = SYM('*', 'MUL')
-DIV = SYM('/', 'DIV')
-ARITHMETIC = ASSIGN | PLUS | MINUS | MUL | DIV
 
-EQ = SYM('==', 'EQ')
-GT = SYM('>', 'GT')
-LT = SYM('<', 'LT')
-LE = SYM('<=', 'LE')
-GE = SYM('>=', 'GE')
-BOOL =  GE | LE | GT | LT | EQ
+operators = []
+""" We sort elements because for PEG parsers first-match-wins.
+    We must be sure that, e.g., '->' will be parsed as '->' and not
+    as '-' and '>'. For this, we first try longer operators.        """
+for sym in sorted(symap.keys(), key=len, reverse=True):
+  operators += [SYM(sym, conv=symap[sym])]
+OPS = ANY(*operators)
 
-BITAND = SYM('&', 'BITAND')
-BITOR = SYM('|', 'BITOR') 
-BITXOR = SYM('^', 'BITXOR')
-BITOPS = BITAND | BITOR | BITXOR
 
-# SPECIAL
-LAMBDA = SYM('->', 'LAMBDA')
-NEWTYPE = SYM('::')
-OPS = LAMBDA | ARITHMETIC | BITOPS | BOOL
-
-# PARENS
-LP = SYM('(')
-RP = SYM(')')
-PARENS = LP | RP
+ASSIGN = SYM('=')
+BITOR = SYM('|')
+COMMA = SYM(',')
+LAMBDA = SYM('->')
 
 # EXPRESSIONS
-EXPR = SOMEOF(OPS, PARENS, ID, BRANCH, CONST)
+EXPR = SOMEOF(OPS, ID, CONST)
 # TYPES
+NEWTYPE = SYM('::')
 TYPEDEF = TYPE%'tag' + MAYBE(SOMEOF(TYPE))%'members'
 TYPEXPR = NEWTYPE + TYPE%'typname' + ASSIGN + CSV(TYPEDEF, sep=BITOR)%'variants'
 # FUNCTIONS
-FUNC = CSV(ID, sep=COMMA)%'args' + LAMBDA + EXPR%'body'
+FUNC = ID%'name' + ASSIGN%None + CSV(ID, sep=COMMA)%'args' + LAMBDA%None + EXPR%'body'
 # THE PROGRAM IS ... A BUNCH OF FUNCTIONS AND TYPE EXPRESSIONS
-PROG = FUNC%'func' | TYPEXPR%'typexpr'
+PROG = FUNC%'funcdef' | TYPEXPR%'typexpr' | EXPR%'expr'
+
 
 if __name__ == '__main__':
+  from useful.mystruct import Struct
+  # import sys; sys.setrecursionlimit(20)
+
   # test(EXPR, "(1+1) if 2+2 else 3")
   # test(TYPEXPR, ":: MyType = Tag1 Int | Tag2")
-  test(PROG, "x -> x+1")
+  # prog = test(PROG, "myfunc = x -> x + 1")
+  # print(prog)
+  
+  def traverse(ast, d=0):
+    print("traversing", ast)
+    if isinstance(ast, dict):
+      obj = {}
+      for k,v in ast.items():
+        v = traverse(v, d+1)
+        # setattr(obj, k, v)
+        obj[k] = v
+      return obj
+    elif isinstance(ast, list):
+      result = {}
+      traversed = [traverse(v, d+1) for v in ast]
+      if all(isinstance(e, dict) for e in traversed):
+        for e in traversed:
+          result.update(e)
+      return result if result else traversed
+    else:
+      return ast
+
+  # r = traverse(prog)
+  # print(r)
+  # test(PROG, ":: MyNewType = Tag1 | Tag2 Int64 Double")
+  toks = test(PROG, "1 + 2 + 3")
+  # print(toks['expr'])
+  print(parse(toks['expr']))
+  # parse([Int(1),Plus(), Int(2)])
