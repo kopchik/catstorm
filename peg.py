@@ -26,9 +26,9 @@ def tokenize(text, pos=0):
   return result
 
 
-####################
-# PARSER PRIMITIVE #
-####################
+#####################
+# PARSER PRIMITIVES #
+#####################
 
 class Grammar:
   def __add__(self, other):
