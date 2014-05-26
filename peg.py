@@ -6,6 +6,7 @@ import re
 
 class NoMatch(Exception):
   pass
+
 symbols = []
 
 
@@ -100,7 +101,8 @@ class Composer(Grammar):
 class Attr(Composer):
   def __init__(self, thing, attr):
     super().__init__(thing)
-    assert isinstance(attr, (str, None))
+    assert isinstance(attr, str) or attr == None, \
+      "Attribute name should be a string or None"
     self.attr = attr
 
   def match(self, tokens, pos=0):
