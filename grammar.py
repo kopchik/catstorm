@@ -51,12 +51,17 @@ LP = SYM('(')
 RP = SYM(')')
 PARENS = LP | RP
 
+# EXPRESSIONS
 EXPR = SOMEOF(OPS, PARENS, ID, BRANCH, CONST)
+# TYPES
 TYPEDEF = TYPE%'tag' + MAYBE(SOMEOF(TYPE))%'members'
 TYPEXPR = NEWTYPE + TYPE%'typname' + ASSIGN + CSV(TYPEDEF, sep=BITOR)%'variants'
+# FUNCTIONS
 FUNC = CSV(ID, sep=COMMA)%'args' + LAMBDA + EXPR%'body'
-PROG = FUNC%'mmm' | TYPEXPR
+# THE PROGRAM IS ... A BUNCH OF FUNCTIONS AND TYPE EXPRESSIONS
+PROG = FUNC%'func' | TYPEXPR%'typexpr'
 
-# test(EXPR, "(1+1) if 2+2 else 3")
-# test(TYPEXPR, ":: MyType = Tag1 Int | Tag2")
-test(FUNC, "x -> x+1")
+if __name__ == '__main__':
+  # test(EXPR, "(1+1) if 2+2 else 3")
+  # test(TYPEXPR, ":: MyType = Tag1 Int | Tag2")
+  test(PROG, "x -> x+1")
