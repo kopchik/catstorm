@@ -15,12 +15,30 @@ class Int(Leaf):
   def Sub(self, right, frame):
     return Int(self.value - right.value)
 
+  def Print(self, frame):
+    return self.value
+
 
 class Str(Leaf):
   def eval(self, frame):
     return self
+
   def Add(self, other, frame):
     return Str(self.value + other.value)
+
+  def Print(self, frame):
+    return self.value
+
+
+@prefix('p ', 0)
+class Print(Unary):
+  def eval(self, frame):
+    value = self.arg.eval(frame)
+    if hasattr(value, 'Print'):
+      print(value.Print(frame))
+    else:
+      print(value)
+    return value
 
 
 def newinfix(sym, prio, methname, sametype=True):
