@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from peg import RE, SYM, ANY, SOMEOF, MAYBE, CSV, test
-from interpreter import Int, Str
+from interpreter import Int, Str, Func, Expr, Var
 from pratt import symap, parse
 
 # BITS AND PIECES
@@ -32,7 +32,7 @@ COMMA = SYM(',')
 LAMBDA = SYM('->')
 
 # EXPRESSIONS
-EXPR = SOMEOF(OPS, ID, CONST)
+EXPR = SOMEOF(OPS, ID/Var, CONST)
 # TYPES
 NEWTYPE = SYM('::')
 TYPEDEF = TYPE%'tag' + MAYBE(SOMEOF(TYPE))%'members'
@@ -40,7 +40,7 @@ TYPEXPR = NEWTYPE + TYPE%'typname' + ASSIGN + CSV(TYPEDEF, sep=BITOR)%'variants'
 # FUNCTIONS
 FUNC = ID%'name' + ASSIGN%None + CSV(ID, sep=COMMA)%'args' + LAMBDA%None + EXPR%'body'
 # THE PROGRAM IS ... A BUNCH OF FUNCTIONS AND TYPE EXPRESSIONS
-PROG = FUNC%'funcdef' | TYPEXPR%'typexpr' | EXPR%'expr'
+PROG = FUNC/Func | TYPEXPR%'typexpr' | EXPR/Expr
 
 
 if __name__ == '__main__':
@@ -50,29 +50,6 @@ if __name__ == '__main__':
   # test(TYPEXPR, ":: MyType = Tag1 Int | Tag2")
   # prog = test(PROG, "myfunc = x -> x + 1")
   # print(prog)
-  
-  def traverse(ast, d=0):
-    print("traversing", ast)
-    if isinstance(ast, dict):
-      obj = {}
-      for k,v in ast.items():
-        v = traverse(v, d+1)
-        # setattr(obj, k, v)
-        obj[k] = v
-      return obj
-    elif isinstance(ast, list):
-      result = {}
-      traversed = [traverse(v, d+1) for v in ast]
-      if all(isinstance(e, dict) for e in traversed):
-        for e in traversed:
-          result.update(e)
-      return result if result else traversed
-    else:
-      return ast
-
-  # r = traverse(prog)
-  # print(r)
-  # test(PROG, ":: MyNewType = Tag1 | Tag2 Int64 Double")
   toks = test(PROG, "x = a,b,c -> y")
   print(toks)
   # print(parse(toks['expr']))
