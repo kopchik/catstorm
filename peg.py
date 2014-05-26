@@ -47,6 +47,9 @@ class Grammar:
   def __mod__(self, other):
     return Attr(self, attr=other)
 
+  def __truediv__(self, other):
+    return Wrap(self, attr=other)
+
 
 class RE(Grammar):
   def __init__(self, pattern, name=None, conv=str):
@@ -109,8 +112,34 @@ class Attr(Composer):
     r, pos = self.things[0].match(tokens, pos)
     if self.attr is None:
       return {}, pos
-    return {self.attr: r}, pos 
+    return {self.attr: r}, pos
 
+class Wrap(Composer):
+  """ TODO: arg check and merge with class Attr? """
+  def __init__(self, thing, attr):
+    super().__init__(thing)
+    # assert isinstance(attr, object) \
+      # "Attribute name should be a string or None"
+    self.attr = attr
+
+  def match(self, tokens, pos=0):
+    result, pos = self.things[0].match(tokens, pos)
+    # print("wrap res", result)
+    if self.attr is None:
+      return None, pos
+    if isinstance(result, str):
+      return self.attr(result), pos
+    elif isinstance(result, list):
+      args = []
+      kwargs = {}
+      for r in result:
+        if isinstance(r, dict):
+          kwargs.update(r)
+        else:
+          args.append(r)
+      return self.attr(*args, **kwargs), pos
+    else:
+      raise Exception("do not know how to process this")
 
 class ALL(Composer):
   def match(self, tokens, pos=0):
@@ -183,7 +212,6 @@ class CSV(Composer):
 
 def test(expr, text):
   tokens = tokenize(text)
-  print(tokens)
   r, pos = (expr).match(tokens)
   if pos != len(tokens):
     print("not all chars were consumed. Pattern:\n",
