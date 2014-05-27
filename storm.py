@@ -48,7 +48,7 @@ if __name__ == '__main__':
           print(prog)
         result = prog.eval(frame)
         print("result:", result)
-    exit("DONE")
+    exit(result)
 
   with open(args.input) as fd:
     src = fd.read()
