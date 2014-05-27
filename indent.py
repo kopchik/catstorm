@@ -32,6 +32,11 @@ def process(it, cur, blk):
   return blk, pos, []
 
 
+def parse_indent(text):
+  blk, _, _ = process(annotate(data), 0, [])
+  return blk
+
+
 if __name__ == '__main__':
   data = """\
 1
