@@ -140,4 +140,7 @@ class Call0(Unary):
 @infix_r('@', 5)
 class Call(Binary):
   def eval(self, frame):
-    print("CALL:", self.left, self.right)
+    left = self.left.eval(frame)
+    right = self.right.eval(frame)
+    print(left, right)
+    return left.Call(right, frame)
