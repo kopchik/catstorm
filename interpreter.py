@@ -134,9 +134,11 @@ class Expr:
 @postfix('!', 3)
 class Call0(Unary):
   def eval(self, frame):
+    func = self.arg.eval(frame)
+    assert isinstance(func, Func), \
+      "I can only call functions, got %s instead" % func
     with frame as newframe:
-      func = self.arg.eval(newframe)
-      return func.Call(newframe)
+      return func.Call([], newframe)
 
 
 @infix_r('@', 5)
