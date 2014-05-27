@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from pratt import parse as pratt_parse
-from grammar import EXPR, PROG
+from grammar import PROG
 from log import logfilter
 from peg import tokenize
 from frame import Frame
