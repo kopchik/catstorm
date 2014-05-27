@@ -64,7 +64,7 @@ if __name__ == '__main__':
   def traverse(tree, blk):
     for e in tree:
       if isinstance(e, list):
-        traverse(e, prog.blk)
+        traverse(e, prog.body)
       else:
         tokens = tokenize(e)
         prog, r = PROG.match(tokens)  # TODO: check r
