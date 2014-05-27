@@ -1,37 +1,67 @@
-from pratt import pratt_parse, prefix, infix, infix_r, postfix
-from ast import Leaf, Unary, Binary, ListNode
+from pratt import pratt_parse, prefix, infix, infix_r, postfix, ifelse
+from ast import Leaf, Unary, Binary, Node, ListNode
+
+import re
 
 
 ##############
 # DATA TYPES #
 ##############
 
-class Int(Leaf):
+class Value(Leaf):
+  type = None
+  """ Base class for values. """
+
+  def eval(self, frame):
+    return self
+
+  def Eq(self, other):
+    return Bool(self.value == other.value)
+
+  def Bool(self, frame):
+    return TRUE if self.value else FALSE
+
+  def Add(self, other, frame):
+    return self.__class__(self.value + other.value)
+
+  def Sub(self, right, frame):
+    return self.__class__(self.value - right.value)
+
+  def Print(self, frame):
+    return self.value
+
+
+class TRUE:
+  def __bool__(self):
+    return True
+TRUE = TRUE()
+
+class FALSE:
+  def __bool__(self):
+    return False
+FALSE = FALSE()
+
+
+class Int(Value):
   def __init__(self, value):
     super().__init__(int(value))
 
+
+class Str(Value):
+  processed = False
   def eval(self, frame):
+    if not self.processed:
+      string = self.value
+      replace = {r'\n': '\n', r'\t': '\t'}
+      varnames = re.findall("\{([a-zA-Z\.]+)\}", string, re.M)
+      for name in varnames:
+          value = Var(name).eval(frame).Print(frame)
+          string = string.replace("{%s}" % name, value)
+      for k,v in replace.items():
+        string = string.replace(k, v)
+      self.value = string
+      self.processed = True
     return self
-
-  def Add(self, right, frame):
-    return Int(self.value + right.value)
-
-  def Sub(self, right, frame):
-    return Int(self.value - right.value)
-
-  def Print(self, frame):
-    return self.value
-
-
-class Str(Leaf):
-  def eval(self, frame):
-    return self
-
-  def Add(self, other, frame):
-    return Str(self.value + other.value)
-
-  def Print(self, frame):
-    return self.value
 
 
 #############
@@ -182,3 +212,13 @@ class Call(Binary):
       args = [args]
     with frame as newframe:
       return func.Call(args, newframe)
+
+@ifelse(lbp=2)
+class IfElse(Node):
+  fields = ['iff', 'then', 'otherwise']
+  def eval(self, frame):
+    iff = self.iff.eval(frame)
+    if iff.Bool(frame):
+      return self.then.eval(frame)
+    else:
+      return self.otherwise.eval(frame)
