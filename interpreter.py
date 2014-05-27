@@ -1,4 +1,4 @@
-from pratt import parse as pratt_parse, prefix, infix, infix_r, postfix
+from pratt import pratt_parse, prefix, infix, infix_r, postfix
 from ast import Leaf, Unary, Binary, ListNode
 
 

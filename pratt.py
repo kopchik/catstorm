@@ -178,7 +178,7 @@ def expr(rbp=0):
   return left
 
 
-def parse(tokens):
+def pratt_parse(tokens):
   global cur, nxt, e
   assert symap, "No operators registered." \
     "Please define at least one operator decorated with infix()/prefix()/etc"

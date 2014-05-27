@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 
-from pratt import parse as pratt_parse
+from pratt import pratt_parse
 from grammar import PROG
 from log import logfilter
 from peg import tokenize
+from indent import indent_parse
 from frame import Frame
 from sys import exit
 import argparse
