@@ -1,5 +1,5 @@
 from pratt import parse as pratt_parse, prefix, infix, infix_r, postfix
-from ast import Leaf, Unary, Binary
+from ast import Leaf, Unary, Binary, ListNode
 
 
 ##############
@@ -73,6 +73,25 @@ newinfix('+', 20, 'Add')
 newinfix('-', 20, 'Sub')
 
 
+@infix(',', 5)
+class Comma(ListNode):
+  """ Parses comma-separated values. It flattens the list,
+      e.g., Comma(1, Comma(2, 3)) transformed into Comma(1, 2, 3).
+  """
+  def __init__(self, left, right):
+    values = []
+    if isinstance(left, Comma):
+      values += left + [right]
+    else:
+      values = [left, right]
+    super().__init__(*values)
+
+  def eval(self, frame):
+    result = []
+    for value in self:
+      result.append(value.eval(frame))
+    return result
+
 @infix_r('=', 2)
 class Assign(Binary):
   def eval(self, frame):
@@ -93,6 +112,10 @@ class Func:
     return self
 
   def Call(self, args, frame):
+    assert len(args) == len(self.args), \
+      "The number of arguments must match function signature.\n" \
+      "Got {} ({}) instead of {} ({})." \
+      .format(len(args), args, len(self.args), self.args)
     for k, v in zip (self.args, args):
       frame[k] = v
     return self.body.eval(frame)
@@ -148,7 +171,7 @@ class Call(Binary):
     assert isinstance(func, Func), \
       "I can only call functions, got %s instead" % func
     args = self.right.eval(frame)
-    if not isinstance(args, list):
+    if not isinstance(args, list):  # TODO: this should be done in PEG
       args = [args]
     with frame as newframe:
       return func.Call(args, newframe)
