@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from peg import RE, SYM, ANY, SOMEOF, MAYBE, CSV, test
 from interpreter import Int, Str, Func, Expr, Var
-from pratt import symap, parse
+from pratt import symap, pratt_parse
 
 # BITS AND PIECES
 EOL = RE(r'$')

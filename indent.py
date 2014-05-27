@@ -32,8 +32,8 @@ def process(it, cur, blk):
   return blk, pos, []
 
 
-def parse_indent(text):
-  blk, _, _ = process(annotate(data), 0, [])
+def indent_parse(text):
+  blk, _, _ = process(annotate(text), 0, [])
   return blk
 
 

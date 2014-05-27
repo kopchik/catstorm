@@ -6,6 +6,7 @@ from log import logfilter
 from grammar import PROG
 from peg import tokenize
 from frame import Frame
+from interpreter import Block
 
 from sys import exit
 import argparse
@@ -23,11 +24,12 @@ if __name__ == '__main__':
                       default=False, help="do not execute the program")
   parser.add_argument('-c', '--check-types', action='store_const', const=True,
                       default=False, help="perform type inference and checking (disabled by default)")
-  # parser.add_argument('input', help="path to file")
   parser.add_argument('-r', '--raw', help="specify raw expression to execute",
                       nargs="*")
+  parser.add_argument('input', help="path to file")
   parser.add_argument('cmd', nargs="*")
   args = parser.parse_args()
+  print(args)
 
   logfilter.rules = [
     # ('interpreter.*', False),
@@ -37,6 +39,7 @@ if __name__ == '__main__':
   if args.debug: logfilter.default = True
   else:          logfilter.default = False
 
+  # ACCEPT INPUT FROM COMMAND LINE
   if args.raw:
     with Frame() as frame:
       for src in args.raw:
@@ -52,8 +55,25 @@ if __name__ == '__main__':
         print("result:", result)
     exit(result)
 
+  # INPUT FROM FILE
   with open(args.input) as fd:
     src = fd.read()
+
+  indented = indent_parse(src)
+  def traverse(tree, blk):
+    for e in tree:
+      if isinstance(e, list):
+        traverse(e, prog.blk)
+      else:
+        tokens = tokenize(e)
+        prog, r = PROG.match(tokens)  # TODO: check r
+        blk.append(prog)
+  mainblk = Block()
+  traverse(indented, mainblk)
+  with Frame() as frame:
+    ret = mainblk.eval(frame)
+  exit(ret)
+
 
   # split source into tokens
   tokens = tokenize(src)

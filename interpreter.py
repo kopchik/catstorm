@@ -101,11 +101,18 @@ class Assign(Binary):
     return value
 
 
+class Block(ListNode):
+  def eval(self, frame):
+    for expr in self:
+      r = expr.eval(frame)
+    return r
+
+
 class Func:
   def __init__(self, name, args, body):
     self.name = name
     self.args = args
-    self.body = pratt_parse(body)
+    self.body = Block(pratt_parse(body))
 
   def eval(self, frame):
     frame[self.name] = self
