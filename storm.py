@@ -44,6 +44,7 @@ if __name__ == '__main__':
   if args.raw:
     with Frame() as frame:
       for src in args.raw:
+        # parse
         if args.debug:
           print("parsing:", src)
         tokens = tokenize(src)
@@ -52,6 +53,7 @@ if __name__ == '__main__':
         prog, r = PROG.match(tokens)
         if args.ast:
           print(prog)
+        # execute
         result = prog.eval(frame)
         print("result:", result)
     exit(result)
