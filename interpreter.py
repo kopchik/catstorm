@@ -92,7 +92,9 @@ class Func:
     frame[self.name] = self
     return self
 
-  def Call(self, frame):
+  def Call(self, args, frame):
+    for k, v in zip (self.args, args):
+      frame[k] = v
     return self.body.eval(frame)
 
   def __repr__(self):
@@ -140,7 +142,11 @@ class Call0(Unary):
 @infix_r('@', 5)
 class Call(Binary):
   def eval(self, frame):
-    left = self.left.eval(frame)
-    right = self.right.eval(frame)
-    print(left, right)
-    return left.Call(right, frame)
+    func = self.left.eval(frame)
+    assert isinstance(func, Func), \
+      "I can only call functions, got %s instead" % func
+    args = self.right.eval(frame)
+    if not isinstance(args, list):
+      args = [args]
+    with frame as newframe:
+      return func.Call(args, newframe)
