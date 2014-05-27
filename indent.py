@@ -3,6 +3,7 @@
 def annotate(text):
   """ Annotate text lines with indendation. """
   for line in text.splitlines():
+    if line.isspace() or not line: continue
     pos = len(line) - len(line.lstrip())
     yield line.strip(), pos
 
