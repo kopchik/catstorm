@@ -16,20 +16,22 @@ SHELLCMD   = RE(r'`(.*?)`', 'SHELLCMD')
 REGEX      = RE(r'/(.*?)/', 'REGEX')
 CONST = FLOATCONST | INTCONST | STRCONST | SHELLCMD | REGEX
 
-
 operators = []
+opmap = {}
 """ We sort elements because for PEG parsers first-match-wins.
     We must be sure that, e.g., '->' will be parsed as '->' and not
     as '-' and '>'. For this, we first try longer operators.        """
 for sym in sorted(symap.keys(), key=len, reverse=True):
-  operators += [SYM(sym, conv=symap[sym])]
+  op = SYM(sym, conv=symap[sym])
+  operators.append(op)
+  opmap[sym] = op
 OPS = ANY(*operators)
 
 
-ASSIGN = SYM('=')
-BITOR = SYM('|')
-COMMA = SYM(',')
-LAMBDA = SYM('->')
+ASSIGN = opmap['=']
+BITOR = opmap.get('|', SYM('|'))
+COMMA = opmap.get(',', SYM(','))
+LAMBDA = opmap.get('->', SYM('->'))
 
 # EXPRESSIONS
 EXPR = SOMEOF(OPS, ID/Var, CONST)
