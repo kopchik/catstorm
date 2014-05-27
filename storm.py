@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 
 from pratt import pratt_parse
-from grammar import PROG
-from log import logfilter
-from peg import tokenize
 from indent import indent_parse
+from log import logfilter
+from grammar import PROG
+from peg import tokenize
 from frame import Frame
+
 from sys import exit
 import argparse
 
