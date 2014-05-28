@@ -210,12 +210,14 @@ class CSV(Composer):
     return result, pos
 
 
-def test(expr, text):
+def test(expr, text, verbose=True):
   tokens = tokenize(text)
+  if verbose: print("tokens:", tokens)
   r, pos = (expr).match(tokens)
   if pos != len(tokens):
     print("not all chars were consumed. Pattern:\n",
           expr, "\ntext:\n", text)
+  if verbose: print("result:", r)
   print(r)
   return r
 
