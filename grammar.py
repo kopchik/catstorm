@@ -1,10 +1,17 @@
 #!/usr/bin/env python3
 from peg import RE, SYM, ANY, SOMEOF, MAYBE, CSV, test
-from interpreter import Int, Str, Func, Expr, Var
+from interpreter import Int, Str, Func, Expr, Var, TypeExpr
 from pratt import symap, pratt_parse
 
 # BITS AND PIECES
 EOL = RE(r'$')
+
+# COMMENTS
+SHELLCOMMENT = RE(r'\#.*', "COMMENT")
+CPPCOMMENT   = RE(r'//.*', "COMMENT")
+CCOMMENT     = RE(r'/\*.*?\*/', "COMMENT")
+COMMENT = SHELLCOMMENT | CCOMMENT | CPPCOMMENT
+
 
 # DATA AND TYPES
 TYPE = RE(r'[A-Z][A-Za-z0-9_]*', 'TYPE')
@@ -42,4 +49,8 @@ TYPEXPR = NEWTYPE + TYPE%'typname' + ASSIGN + CSV(TYPEDEF, sep=BITOR)%'variants'
 # FUNCTIONS
 FUNC = ID%'name' + ASSIGN%None + CSV(ID, sep=COMMA)%'args' + LAMBDA%None + EXPR%'body'
 # THE PROGRAM IS ... A BUNCH OF FUNCTIONS AND TYPE EXPRESSIONS
-PROG = FUNC/Func | TYPEXPR%'typexpr' | EXPR/Expr
+PROG = COMMENT%None | FUNC/Func | TYPEXPR/TypExpr | EXPR/Expr
+
+
+if __name__ == '__main__':
+  test(COMMENT, "# test", verbose=True)
