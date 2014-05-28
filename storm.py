@@ -6,7 +6,7 @@ from log import logfilter
 from grammar import PROG
 from peg import tokenize
 from frame import Frame
-from interpreter import Block
+from interpreter import Block, Int
 
 from sys import exit
 import argparse
@@ -60,14 +60,17 @@ if __name__ == '__main__':
 
 
   # INPUT FROM FILE
-  # stage 1: parse
+  # parse the file
   def traverse(tree, blk):
+    """ Traverse raw AST tree and parse it. """
     for e in tree:
       if isinstance(e, list):
         traverse(e, prog.body)
       else:
         tokens = tokenize(e)
         prog, r = PROG.match(tokens)  # TODO: check r
+        if not prog:  # skip comments # TODO: make it better
+          continue
         blk.append(prog)
 
   with open(args.input) as fd:
@@ -78,7 +81,10 @@ if __name__ == '__main__':
   if args.ast:
     print(mainblk)
 
-  # stage 2: execute and return
+  # execute the code
   with Frame() as frame:
     ret = mainblk.eval(frame)
-  exit(ret)
+
+  # make proper exit status
+  if isinstance(ret, Int): exit(ret.value)
+  else: exit(ret)
