@@ -131,6 +131,13 @@ class Assign(Binary):
     return value
 
 
+class TypeExpr(ListNode):
+  def __init__(self, name=None, variants=None):
+    print("new ADT %s with the following variants:" % name)
+    for variant in variants:
+      print(variant)
+
+
 class Block(ListNode):
   def eval(self, frame):
     for expr in self:
