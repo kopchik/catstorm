@@ -44,12 +44,12 @@ LAMBDA = opmap.get('->', SYM('->'))
 EXPR = SOMEOF(OPS, ID/Var, CONST)
 # TYPES
 NEWTYPE = SYM('::')
-TYPEDEF = TYPE%'tag' + MAYBE(SOMEOF(TYPE))%'members'
-TYPEXPR = NEWTYPE + TYPE%'typname' + ASSIGN + CSV(TYPEDEF, sep=BITOR)%'variants'
+TYPEDEF = TYPE%'tag' * (MAYBE(SOMEOF(TYPE))%'members')
+TYPEXPR = NEWTYPE%None + TYPE%'name' + ASSIGN%None + CSV(TYPEDEF, sep=BITOR)%'variants'
 # FUNCTIONS
 FUNC = ID%'name' + ASSIGN%None + CSV(ID, sep=COMMA)%'args' + LAMBDA%None + EXPR%'body'
 # THE PROGRAM IS ... A BUNCH OF FUNCTIONS AND TYPE EXPRESSIONS
-PROG = COMMENT%None | FUNC/Func | TYPEXPR/TypExpr | EXPR/Expr
+PROG = COMMENT%None | FUNC/Func | TYPEXPR/TypeExpr | EXPR/Expr
 
 
 if __name__ == '__main__':
