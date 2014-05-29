@@ -44,6 +44,9 @@ class Grammar:
       return self
     return ANY(self, other)
 
+  def __mul__(self, other):
+    return MergeAttr(self, other)
+
   def __mod__(self, other):
     return Attr(self, attr=other)
 
@@ -101,6 +104,8 @@ class Composer(Grammar):
     return "%s(%s)" % (cls, self.things)
 
 
+
+
 class Attr(Composer):
   def __init__(self, thing, attr):
     super().__init__(thing)
@@ -113,6 +118,17 @@ class Attr(Composer):
     if self.attr is None:
       return {}, pos
     return {self.attr: r}, pos
+
+
+class MergeAttr(Composer):
+  def match(self, tokens, pos=0):
+    result = {}
+    for thing in self.things:
+      r, pos = thing.match(tokens, pos)
+      if r:
+        result.update(r)
+    return result, pos
+
 
 class Wrap(Composer):
   """ TODO: arg check and merge with class Attr? """
@@ -133,6 +149,7 @@ class Wrap(Composer):
       args = []
       kwargs = {}
       for r in result:
+        if not r: continue
         if isinstance(r, dict):
           kwargs.update(r)
         else:
@@ -141,25 +158,15 @@ class Wrap(Composer):
     else:
       raise Exception("do not know how to process this")
 
+
 class ALL(Composer):
   def match(self, tokens, pos=0):
     result = []
     for thing in self.things:
       r, pos = thing.match(tokens, pos)
-      result += [r]
+      if r:
+        result += [r]
     return result, pos
-
-
-class ANY(Composer):
-  """ First match wins
-  """
-  def match(self, tokens, pos=0):
-    for thing in self.things:
-      try:
-        return thing.match(tokens, pos)
-      except NoMatch:
-        pass
-    raise NoMatch("syntax error", tokens, pos)
 
 
 class SOMEOF(Composer):
@@ -169,7 +176,8 @@ class SOMEOF(Composer):
       for thing in self.things:
         try:
           r, pos = thing.match(tokens, pos)
-          result += [r]
+          if r:
+            result += [r]
           break  # break is neccessary because it's a PEG parser and the order does matter
         except NoMatch:
           pass
@@ -178,16 +186,6 @@ class SOMEOF(Composer):
     if not result:
       raise NoMatch("syntax error", tokens, pos)
     return result, pos
-
-
-class MAYBE(Composer):
-  def match(self, tokens, pos=0):
-    assert len(self.things) == 1, "accepts only one arg"
-    try:
-      r, pos = self.things[0].match(tokens, pos)
-      return r, pos
-    except NoMatch:
-      return [], pos
 
 
 class CSV(Composer):
@@ -201,13 +199,36 @@ class CSV(Composer):
     while True:
       try:
         r, pos = self.things[0].match(tokens, pos)
-        result.append(r)
+        if r:
+          result.append(r)
         r, pos = self.sep.match(tokens, pos)
       except NoMatch:
         if not result:
           raise
         break
     return result, pos
+
+# THESE RETURN ONLY ONE ELEMENT AT MOST
+class MAYBE(Composer):
+  def match(self, tokens, pos=0):
+    assert len(self.things) == 1, "accepts only one arg"
+    try:
+      r, pos = self.things[0].match(tokens, pos)
+      return r, pos
+    except NoMatch:
+      return None, pos
+
+
+class ANY(Composer):
+  """ First match wins
+  """
+  def match(self, tokens, pos=0):
+    for thing in self.things:
+      try:
+        return thing.match(tokens, pos)
+      except NoMatch:
+        pass
+    raise NoMatch("syntax error", tokens, pos)
 
 
 def test(expr, text, verbose=True):
