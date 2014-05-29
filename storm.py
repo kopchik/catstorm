@@ -14,8 +14,8 @@ import argparse
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()
-  # parser.add_argument('-t', '--tokens', action='store_const', const=True,
-  #                     default=False, help="show tokens")
+  parser.add_argument('-t', '--tokens', action='store_const', const=True,
+                      default=False, help="show tokens")
   parser.add_argument('-a', '--ast', action='store_const', const=True,
                       default=False, help="show abstract syntax tree")
   parser.add_argument('-d', '--debug', action='store_const', const=True,
@@ -26,11 +26,19 @@ if __name__ == '__main__':
   #                     default=False, help="perform type inference and checking (disabled by default)")
   parser.add_argument('-r', '--raw', help="specify raw expression to execute",
                       nargs="*")
-  parser.add_argument('input', help="path to file")
+  # parser.add_argument('input', help="path to file")
   parser.add_argument('cmd', nargs="*")
   args = parser.parse_args()
   if args.debug:
     print("arguments:", args)
+
+  if not (args.cmd or args.raw):
+    exit("please specify [input] or --raw ..")
+  if args.cmd and args.raw:
+    exit("[input] and --raw are mutually exclusive")
+    if args.raw and arg.cmd:
+      exit("[cmd] is ignored when using --raw")
+
 
   logfilter.rules = [
     # ('interpreter.*', False),
@@ -43,7 +51,7 @@ if __name__ == '__main__':
   # INPUT FROM COMMAND LINE
   if args.raw:
     with Frame() as frame:
-      for src in args.raw:
+      for i, src in enumerate(args.raw,1):
         # parse
         if args.debug:
           print("parsing:", src)
@@ -55,8 +63,8 @@ if __name__ == '__main__':
           print(prog)
         # execute
         result = prog.eval(frame)
-        print("result:", result)
-    exit(result)
+        print("result of expr %s:" % i, result)
+    exit()
 
 
   # INPUT FROM FILE
@@ -73,13 +81,15 @@ if __name__ == '__main__':
           continue
         blk.append(prog)
 
-  with open(args.input) as fd:
+  with open(args.cmd[0]) as fd:
     src = fd.read()
   indented = indent_parse(src)
   mainblk = Block()
   traverse(indented, mainblk)
   if args.ast:
     print(mainblk)
+
+  # TODO: the rest of cmd as arguments to main???
 
   # execute the code
   with Frame() as frame:
