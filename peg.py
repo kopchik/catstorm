@@ -38,18 +38,22 @@ class Grammar:
       return self
     return ALL(self, other)
 
+  # |
   def __or__(self, other):
     if isinstance(self, ANY):
       self.things += [other]
       return self
     return ANY(self, other)
 
-  def __mul__(self, other):
+  # &
+  def __and__(self, other):
     return MergeAttr(self, other)
 
+  # %
   def __mod__(self, other):
     return Attr(self, attr=other)
 
+  # /
   def __truediv__(self, other):
     return Wrap(self, attr=other)
 

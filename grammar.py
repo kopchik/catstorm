@@ -44,7 +44,7 @@ LAMBDA = opmap.get('->', SYM('->'))
 EXPR = SOMEOF(OPS, ID/Var, CONST)
 # TYPES
 NEWTYPE = SYM('::')
-TYPEDEF = TYPE%'tag' * (MAYBE(SOMEOF(TYPE))%'members')
+TYPEDEF = TYPE%'tag' & MAYBE(SOMEOF(TYPE))%'members'
 TYPEXPR = NEWTYPE%None + TYPE%'name' + ASSIGN%None + CSV(TYPEDEF, sep=BITOR)%'variants'
 # FUNCTIONS
 FUNC = ID%'name' + ASSIGN%None + CSV(ID, sep=COMMA)%'args' + LAMBDA%None + EXPR%'body'
