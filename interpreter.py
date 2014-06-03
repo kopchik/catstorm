@@ -1,4 +1,4 @@
-from pratt import pratt_parse, prefix, infix, infix_r, postfix, ifelse
+from pratt import pratt_parse, prefix, infix, infix_r, postfix, ifelse, brackets
 from ast import Leaf, Unary, Binary, Node, ListNode
 
 import re
@@ -15,8 +15,8 @@ class Value(Leaf):
   def eval(self, frame):
     return self
 
-  def Eq(self, other):
-    return Bool(self.value == other.value)
+  def Eq(self, other, frame):
+    return TRUE if self.value == other.value else FALSE
 
   def Bool(self, frame):
     return TRUE if self.value else FALSE
@@ -26,6 +26,9 @@ class Value(Leaf):
 
   def Sub(self, right, frame):
     return self.__class__(self.value - right.value)
+
+  def Mul(self, right, frame):
+    return self.__class__(self.value * right.value)
 
   def Print(self, frame):
     return self.value
@@ -79,8 +82,7 @@ class Print(Unary):
     return value
 
 
-def newinfix(sym, prio, methname, sametype=True):
-  @infix(sym, prio)
+def newinfix(sym, prio, methname, sametype=True, right=False):
   class Infix(Binary):
     def eval(self, frame):
       left = self.left.eval(frame)
@@ -95,12 +97,30 @@ def newinfix(sym, prio, methname, sametype=True):
         raise Exception("{} does not have {} method, \
                          operation ({}) not supported".format(left, methname, sym))
       return meth(right, frame)
+  func = infix_r if right else infix
+  Infix = func(sym, prio)(Infix)
   Infix.__name__ = Infix.__qualname__ = methname
   return Infix
 
 
 newinfix('+', 20, 'Add')
 newinfix('-', 20, 'Sub')
+newinfix('*', 30, 'Mul')
+newinfix('==', 10, 'Eq')
+
+@brackets('[',']')
+class Array(Unary):
+  def eval(self, frame):
+    return self
+
+  def Print(self, frame):
+    return self.arg.Print(frame)
+
+
+@brackets('(',')')
+class Parens(Unary):
+  def eval(self, frame):
+    return self.arg.eval(frame)
 
 
 @infix(',', 5)
@@ -122,11 +142,16 @@ class Comma(ListNode):
       result.append(value.eval(frame))
     return result
 
+  def Print(self, frame):
+    return ", ".join(s.Print(frame) for s in self)
+
+
 @infix_r('=', 2)
 class Assign(Binary):
   def eval(self, frame):
     key = self.left.value
     value = self.right.eval(frame)
+    # key.Assign(value, frame)
     frame[key] = value
     return value
 
@@ -135,7 +160,7 @@ class TypeExpr(ListNode):
   def __init__(self, name=None, variants=None):
     print("new ADT %s with the following variants:" % name)
     for variant in variants:
-      print(variant)
+      print("VARIANT:", variant)
 
 
 class Block(ListNode):
@@ -215,7 +240,7 @@ class Call(Binary):
     assert isinstance(func, Func), \
       "I can only call functions, got %s instead" % func
     args = self.right.eval(frame)
-    if not isinstance(args, list):  # TODO: this should be done in PEG
+    if not isinstance(args, Comma):  # TODO: this should be done in PEG
       args = [args]
     with frame as newframe:
       return func.Call(args, newframe)
@@ -229,3 +254,11 @@ class IfElse(Node):
       return self.then.eval(frame)
     else:
       return self.otherwise.eval(frame)
+
+@prefix('assert', 0)
+class Assert(Unary):
+  def eval(self, frame):
+    r = self.arg.eval(frame)
+    if not r:
+      raise Exception("Assertion failed on %s" % self.arg)
+    return r
