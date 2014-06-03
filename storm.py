@@ -6,7 +6,7 @@ from log import logfilter
 from grammar import PROG
 from peg import tokenize
 from frame import Frame
-from interpreter import Block, Int
+from interpreter import Block, Int, Str, Array
 
 from sys import exit
 import argparse
@@ -93,8 +93,13 @@ if __name__ == '__main__':
 
   # execute the code
   with Frame() as frame:
-    ret = mainblk.eval(frame)
+    mainblk.eval(frame)
+    progname = Str(args.cmd[0])
+    cmd = [Str(s) for s in args.cmd[1:]]
+    ret = frame['main'].Call((progname, Array(*cmd)), frame)
 
   # make proper exit status
-  if isinstance(ret, Int): exit(ret.value)
-  else: exit(ret)
+  if isinstance(ret, Int):
+    exit(ret.value)
+  else:
+    ret.Print({}) and exit(1)

@@ -60,6 +60,7 @@ class Int(Value):
 
 class Str(Value):
   processed = False
+
   def eval(self, frame):
     if not self.processed:
       string = self.value
@@ -122,12 +123,25 @@ newinfix('*', 30, 'Mul')
 newinfix('==', 10, 'Eq')
 
 @brackets('[',']')
-class Array(Unary):
+class Array(ListNode):
+  def __init__(self, *args):
+    # TODO: dirty code, separate it into "fabrics"
+    if len(args) == 1:
+      arg = args[0]
+      if isinstance(arg, Comma):
+        for e in arg:
+          self.append(e)
+      else:
+        self.append(arg)
+    else:
+      for e in args:
+        self.append(e)
+
   def eval(self, frame):
     return self
 
   def Print(self, frame):
-    return self.arg.Print(frame)
+    return ", ".join(e.Print(frame) for e in self)
 
 
 @brackets('(',')')
@@ -154,9 +168,6 @@ class Comma(ListNode):
     for value in self:
       result.append(value.eval(frame))
     return result
-
-  def Print(self, frame):
-    return ", ".join(s.Print(frame) for s in self)
 
 
 @infix_r('=', 2)
