@@ -1,7 +1,15 @@
-from pratt import pratt_parse, prefix, infix, infix_r, postfix, ifelse, brackets
+from pratt import pratt_parse, prefix, \
+  infix, infix_r, postfix, nullary, ifelse, brackets
 from ast import Leaf, Unary, Binary, Node, ListNode
 
 import re
+
+##############
+# MISC STUFF #
+##############
+
+class ReturnException(Exception):
+  """ To be raised by ret operator """
 
 
 ##############
@@ -70,6 +78,11 @@ class Str(Value):
 #############
 # OPERATORS #
 #############
+
+@nullary('ret')
+class Ret(Leaf):
+  def eval(self, frame):
+    raise ReturnException
 
 @prefix('p ', 0)
 class Print(Unary):
@@ -166,7 +179,10 @@ class TypeExpr(ListNode):
 class Block(ListNode):
   def eval(self, frame):
     for expr in self:
-      r = expr.eval(frame)
+      try:
+        r = expr.eval(frame)
+      except ReturnException:
+        break
     return r
 
 

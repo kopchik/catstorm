@@ -11,7 +11,8 @@ main =  argv -> p "Hello {argv}"
         assert (1 if 2 else 3) == 1
         assert (2 if 0 else 3) == 3
         a = 1
-        0 # return value
+        ret
+        p "You will never see this line!"
 
 
 main @ ["Haba!", "HABA!"]
