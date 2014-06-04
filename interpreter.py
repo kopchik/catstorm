@@ -154,6 +154,13 @@ class Array(ListNode):
   def Print(self, frame):
     return ", ".join(e.Print(frame) for e in self)
 
+  def Eq(self, other, frame):
+    if  isinstance(other, Array) \
+    and len(self) == len(other) \
+    and all(a.Eq(b, frame) for a,b in zip(self,other)):
+      return TRUE
+    return FALSE
+
 
 @brackets('(',')')
 class Parens(Unary):
