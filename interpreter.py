@@ -129,7 +129,9 @@ def newinfix(sym, prio, methname, sametype=True, right=False):
 newinfix('+', 20, 'Add')
 newinfix('-', 20, 'Sub')
 newinfix('*', 30, 'Mul')
-newinfix('==', 10, 'Eq')
+newinfix('==', 4, 'Eq')
+newinfix('>', 3, 'Gt')
+
 
 @brackets('[',']')
 class Array(ListNode):
