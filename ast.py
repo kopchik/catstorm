@@ -25,7 +25,6 @@ class Leaf:
     return self
 
   def led(self, left):
-    TODO
     print("on the left", left)
     return left
 
