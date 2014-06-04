@@ -111,8 +111,9 @@ def newinfix(sym, prio, methname, sametype=True, right=False):
       right = self.right.eval(frame)
       if sametype:
         assert type(left) == type(right), \
-          "Left and right operands of ({}) must have same type.\n" \
-          "Got {} and {}.".format(sym, type(left), type(right))
+          "Left and right operands of ({} {} {}) must have same type.\n" \
+          "Got {} and {}." \
+          .format(left, sym, right, type(left), type(right))
       try:
         meth = getattr(left, methname)
       except AttributeError:
