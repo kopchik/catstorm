@@ -26,6 +26,10 @@ class Value(Leaf):
   def Eq(self, other, frame):
     return TRUE if self.value == other.value else FALSE
 
+  def Gt(self, other, frame):
+    return TRUE if self.value > other.value else FALSE
+
+
   def Bool(self, frame):
     return TRUE if self.value else FALSE
 
