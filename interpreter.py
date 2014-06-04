@@ -227,7 +227,7 @@ class Func:
 
   def Call(self, args, frame):
     assert len(args) == len(self.args), \
-      "The number of arguments must match function signature.\n" \
+      "The number of arguments must match the function signature.\n" \
       "Got {} ({}) instead of {} ({})." \
       .format(len(args), args, len(self.args), self.args)
     for k, v in zip (self.args, args):
