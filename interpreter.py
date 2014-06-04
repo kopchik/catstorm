@@ -47,11 +47,15 @@ class Value(Leaf):
 
 
 class TRUE:
+  def Bool(self, frame):
+    return self
   def __bool__(self):
     return True
 TRUE = TRUE()
 
 class FALSE:
+  def Bool(self, frame):
+    return self
   def __bool__(self):
     return False
 FALSE = FALSE()
