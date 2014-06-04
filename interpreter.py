@@ -289,7 +289,8 @@ class Call(Binary):
     assert isinstance(func, Func), \
       "I can only call functions, got %s instead" % func
     args = self.right.eval(frame)
-    if not isinstance(args, Comma):  # TODO: this should be done in PEG
+    # TODO: this should be done in PEG and it should not be list but Comma!
+    if not isinstance(args, list):
       args = [args]
     with frame as newframe:
       return func.Call(args, newframe)
