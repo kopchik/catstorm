@@ -29,7 +29,6 @@ class Value(Leaf):
   def Gt(self, other, frame):
     return TRUE if self.value > other.value else FALSE
 
-
   def Bool(self, frame):
     return TRUE if self.value else FALSE
 
@@ -92,6 +91,7 @@ class Str(Value):
 class Ret(Leaf):
   def eval(self, frame):
     raise ReturnException
+
 
 @prefix('p ', 0)
 class Print(Unary):
@@ -282,6 +282,7 @@ class Call0(Unary):
 def call_r(left, right):
   return Call(right, left)
 
+
 @infix_r(' . ', 5)
 class Call(Binary):
   def eval(self, frame):
@@ -295,6 +296,7 @@ class Call(Binary):
     with frame as newframe:
       return func.Call(args, newframe)
 
+
 @ifelse(lbp=2)
 class IfElse(Node):
   fields = ['iff', 'then', 'otherwise']
@@ -304,6 +306,7 @@ class IfElse(Node):
       return self.then.eval(frame)
     else:
       return self.otherwise.eval(frame)
+
 
 @prefix('assert', 0)
 class Assert(Unary):
