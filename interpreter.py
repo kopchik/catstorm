@@ -278,7 +278,11 @@ class Call0(Unary):
       return func.Call([], newframe)
 
 
-@infix_r('@', 5)
+@infix('$', 5)  # TODO: does not work
+def call_r(left, right):
+  return Call(right, left)
+
+@infix_r(' . ', 5)
 class Call(Binary):
   def eval(self, frame):
     func = self.left.eval(frame)
