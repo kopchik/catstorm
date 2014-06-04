@@ -43,7 +43,7 @@ class Value(Leaf):
     return self.__class__(self.value * right.value)
 
   def Print(self, frame):
-    return self.value
+    return str(self.value)
 
 
 class TRUE:
