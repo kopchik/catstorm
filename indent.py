@@ -1,11 +1,22 @@
 #!/usr/bin/env python3
+def indent_parse(text):
+  it = text.splitlines()
+  blk, _, _ = process(annotate(preprocess(it)), 0, [])
+  return blk
 
-def annotate(text):
+
+class Str(str):
+  def __new__(cls, lineno, s):
+    self = str.__new__(cls, s)
+    self.lineno = lineno
+    return self
+
+
+def annotate(it):
   """ Annotate text lines with indendation. """
-  for line in text.splitlines():
-    if line.isspace() or not line: continue
+  for i, line in enumerate(it, 1):
     depth = len(line) - len(line.lstrip())
-    yield line.strip(), depth
+    yield Str(i, line.strip()), depth
 
 
 def process(it, cur, blk):
@@ -33,19 +44,31 @@ def process(it, cur, blk):
   return blk, pos, []
 
 
-def indent_parse(text):
-  blk, _, _ = process(annotate(text), 0, [])
-  return blk
+def preprocess(it):
+  """ Remove blank lines, merge lines ending with \. """
+  buf = ''
+  for line in it:
+    if line.isspace() or not line:
+      continue
+    if line.endswith('\\'):
+      buf += line.strip('\\')
+      continue
+    if buf:
+      yield buf+line
+      buf = ''
+      continue
+    yield line
+  assert not buf, "last non-empty line contains '\\'"
 
 
 if __name__ == '__main__':
   data = """\
 1
   2
-    3
+    3 \\
     4
   2
 """
-  print(data)
-  it = annotate(data)
+  it = data.splitlines()
+  it = annotate(preprocess(it))
   print(process(it, 0, []))
