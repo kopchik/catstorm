@@ -89,7 +89,6 @@ if __name__ == '__main__':
   if args.ast:
     print(mainblk)
 
-  # TODO: the rest of cmd as arguments to main???
 
   # execute the code
   with Frame() as frame:
