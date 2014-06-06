@@ -16,8 +16,9 @@ main =  progname, argv -> p "Hello, {argv}"
         assert succ . succ . 1 == 3
         assert succ . 0 $ succ $ succ == 3
 
-        add = val,i -> add . (val+1),(i-1) if i>0 else val
-        p (add . 2,3)
+        add = val,i -> add . (val+1),(i-1) \
+                       if i>0 else val
+        assert add . 2,3 == 5
 
         assert [1,2,3] == [1,2,3]
 
