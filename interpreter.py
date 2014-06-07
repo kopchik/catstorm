@@ -248,10 +248,7 @@ class Var(Leaf):
     return value
 
   def eval(self, frame):
-    try:
-      return frame[self.value]
-    except KeyError:
-      raise Exception("unknown variable \"%s\"" % self.value)
+    return frame[self.value]
 
   def __str__(self):
     return str(self.value)
