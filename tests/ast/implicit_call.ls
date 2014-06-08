@@ -1,4 +1,3 @@
-a = 1
-b = 2
-c = 3
-a b c!
+a = x -> p x
+b = -> 1
+main = name, argv -> a b!
