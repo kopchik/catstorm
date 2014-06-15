@@ -218,6 +218,7 @@ class Block(ListNode):
 class Func:
   def __init__(self, name, args, body):
     self.name = name
+    if not args: args = []
     self.args = args
     self.body = Block(pratt_parse(body))
 
