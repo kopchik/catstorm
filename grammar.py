@@ -47,7 +47,7 @@ NEWTYPE = SYM('::')
 TYPEDEF = TYPE%'tag' & MAYBE(SOMEOF(TYPE))%'members'
 TYPEXPR = NEWTYPE%None + TYPE%'name' + ASSIGN%None + CSV(TYPEDEF, sep=BITOR)%'variants'
 # FUNCTIONS
-FUNC = ID%'name' + ASSIGN%None + CSV(ID, sep=COMMA)%'args' + LAMBDA%None + EXPR%'body'
+FUNC = ID%'name' + ASSIGN%None + MAYBE(CSV(ID, sep=COMMA))%'args' + LAMBDA%None + EXPR%'body'
 # THE PROGRAM IS ... A BUNCH OF FUNCTIONS AND TYPE EXPRESSIONS
 PROG = COMMENT%None | FUNC/Func | TYPEXPR/TypeExpr | EXPR/Expr
 
