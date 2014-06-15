@@ -235,6 +235,9 @@ class Func:
       frame[k] = v
     return self.body.eval(frame)
 
+  def Print(self, frame):
+    return "<func %s>" % self.name
+
   def __repr__(self):
     return "({} {})".format(self.name, self.args)
 
