@@ -26,7 +26,6 @@ if __name__ == '__main__':
   #                     default=False, help="perform type inference and checking (disabled by default)")
   parser.add_argument('-r', '--raw', help="specify raw expression to execute",
                       nargs="*")
-  # parser.add_argument('input', help="path to file")
   parser.add_argument('cmd', nargs="*")
   args = parser.parse_args()
   if args.debug:
@@ -36,8 +35,6 @@ if __name__ == '__main__':
     exit("please specify [input] or --raw ..")
   if args.cmd and args.raw:
     exit("[input] and --raw are mutually exclusive")
-    if args.raw and arg.cmd:
-      exit("[cmd] is ignored when using --raw")
 
 
   logfilter.rules = [
