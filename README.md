@@ -1,7 +1,11 @@
 catstorm
 ========
 
-Yet another attempt to make my own programming language.
+Catstorm is my another attempt to make my own programming
+language. It should be as easy as python, but more feature-
+rich, expression-oriented and with hope to have a good FFI
+(foreign function interface).
+
 
 
 Design Goals
@@ -15,6 +19,7 @@ Design Goals
 1. Translates into C
 1. Public/Protected/Private attributes of the classes
 1. Custom operators
+1. Full threading support
 1. Garbage collection (Boehm GC)
 1. Built-in linter
 1. Built-in regexp support
