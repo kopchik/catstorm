@@ -37,7 +37,7 @@ Design Goals
 At the moment there is only interpreter.
 Here is the full set of features available:
 
-~~~
+````LiveScript
 main =  progname, argv -> p "Hello, {argv}"
         # string interpolation
         p "You've just launched {progname}"
@@ -71,4 +71,4 @@ main =  progname, argv -> p "Hello, {argv}"
         a = 1
         ret if a else 0
         p "You will never see this line!"
-~~~
+````
