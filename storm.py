@@ -69,14 +69,18 @@ if __name__ == '__main__':
   def traverse(tree, blk):
     """ Traverse raw AST tree and parse it. """
     for e in tree:
-      if isinstance(e, list):
-        traverse(e, prog.body)
-      else:
-        tokens = tokenize(e)
-        prog, r = PROG.match(tokens)  # TODO: check r
-        if not prog:  # skip comments # TODO: make it better
-          continue
-        blk.append(prog)
+        if isinstance(e, list):
+          assert hasattr(prog, 'body'), "cannot add statement %s to %s" % (e, prog)
+          traverse(e, prog.body)
+        else:
+          try:
+            tokens = tokenize(e)
+            prog, r = PROG.match(tokens)  # TODO: check r
+            if not prog:  # skip comments # TODO: make it better
+              continue
+            blk.append(prog)
+          except Exception as err:
+            raise Exception("line %s: %s" %(e.lineno, err))
 
   with open(args.cmd[0]) as fd:
     src = fd.read()
