@@ -254,6 +254,9 @@ class Var(Leaf):
   def eval(self, frame):
     return frame[self.value]
 
+  # def nud(self):
+  #   return self
+
   def __str__(self):
     return str(self.value)
 
