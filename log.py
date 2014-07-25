@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
-from termcolor import colored
 from fnmatch import fnmatch
 from copy import copy
 import sys
+
+try:
+  from termcolor import colored
+except ImportError:
+  colored = lambda s, *arg, **kwargs: s
 
 levels = ["debug", "info", "critical"]
 
