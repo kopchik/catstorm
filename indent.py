@@ -33,7 +33,7 @@ def process(it, cur, blk):
       # print(cur, "1returning", blk, pos, line)
       return blk, pos, [line]
     elif pos > cur:
-      ret, pos, rem = process(it, pos,[line])
+      ret, pos, rem = process(it, pos, [line])
       if pos < cur:
         # print(cur, "2returning", blk+[ret], pos, rem)
         return blk+[ret], pos, rem

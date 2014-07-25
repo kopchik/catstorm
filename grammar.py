@@ -40,14 +40,15 @@ BITOR = opmap.get('|', SYM('|'))
 COMMA = opmap.get(',', SYM(','))
 LAMBDA = opmap.get('->', SYM('->'))
 
-# EXPRESSIONS
-EXPR = SOMEOF(OPS, ID/Var, CONST)
 # TYPES
 NEWTYPE = SYM('::')
-TYPEDEF = TYPE%'tag' & MAYBE(SOMEOF(TYPE))%'members'
+TYPEDEF = TYPE%'tag' & MAYBE(CSV(TYPE, sep=COMMA))%'members'
+TYPECONS = TYPE%'tag' & MAYBE(CSV(TYPE, sep=COMMA))%'values'
 TYPEXPR = NEWTYPE%None + TYPE%'name' + ASSIGN%None + CSV(TYPEDEF, sep=BITOR)%'variants'
+# EXPRESSIONS
+EXPR = SOMEOF(OPS, ID/Var, CONST)
 # FUNCTIONS
-FUNC = ID%'name' + ASSIGN%None + MAYBE(CSV(ID, sep=COMMA))%'args' + LAMBDA%None + EXPR%'body'
+FUNC = ID%'name' + ASSIGN%None + MAYBE(CSV(ID, sep=COMMA))%'args' + LAMBDA%None + MAYBE(EXPR%'body')
 # THE PROGRAM IS ... A BUNCH OF FUNCTIONS AND TYPE EXPRESSIONS
 PROG = COMMENT%None | FUNC/Func | TYPEXPR/TypeExpr | EXPR/Expr
 

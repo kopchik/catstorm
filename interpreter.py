@@ -207,6 +207,7 @@ class TypeExpr(ListNode):
 
 class Block(ListNode):
   def eval(self, frame):
+    r = Int(0)  # TODO: return NONE
     for expr in self:
       try:
         r = expr.eval(frame)
@@ -216,11 +217,11 @@ class Block(ListNode):
 
 
 class Func:
-  def __init__(self, name, args, body):
+  def __init__(self, name, args, body=[]):
     self.name = name
     if not args: args = []
     self.args = args
-    self.body = Block(pratt_parse(body))
+    self.body = Block(pratt_parse(body)) # if body else Block() TODO: doesn't work with empty body
 
   def eval(self, frame):
     frame[self.name] = self
