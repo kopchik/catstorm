@@ -1,8 +1,7 @@
 ::class Class
-  new = ->
-    @attr = 1
-    #p @attr
+  new = value ->
+    @value = 1
 
  main = name, args ->
-  obj = Class
-  p obj%attr
+  obj = Class . 1
+  p obj%value
