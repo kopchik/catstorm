@@ -1,8 +1,6 @@
-# This is just a comment
-# :: MyType = Tag1 | Tag2 Int Double
-
-main =  progname, argv -> p "Hello, {argv}"
+main =  progname, argv ->
         # string interpolation
+        p "Hello, {argv}"
         p "You've just launched {progname}"
         p "I used it to show supported language features"
         p "and as integrated test."
