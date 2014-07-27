@@ -99,9 +99,9 @@ class Print(Unary):
   def eval(self, frame):
     value = self.arg.eval(frame)
     if hasattr(value, 'Print'):
-      print(value.Print(frame))
+      print(">", value.Print(frame))
     else:
-      print(value)
+      print(">", value)
     return value
 
 
