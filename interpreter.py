@@ -252,6 +252,9 @@ class Class(Node):
 
 class Obj(dict):
   """ Instance of the class. """
+  def Print(self, frame):
+    cls = self.__class__.__name__
+    return "(%s %s)" % (cls, self)
 
 
 @prefix('@', 1)
