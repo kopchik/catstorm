@@ -12,7 +12,6 @@ CPPCOMMENT   = RE(r'//.*', "COMMENT")
 CCOMMENT     = RE(r'/\*.*?\*/', "COMMENT")
 COMMENT = SHELLCOMMENT | CCOMMENT | CPPCOMMENT
 
-
 # DATA AND TYPES
 TYPE = RE(r'[A-Z][A-Za-z0-9_]*', 'TYPE')
 ID = RE(r'[a-z_][A-Za-z0-9_]*', 'ID')
@@ -23,8 +22,9 @@ SHELLCMD   = RE(r'`(.*?)`', 'SHELLCMD')
 REGEX      = RE(r'/(.*?)/', 'REGEX')
 CONST = FLOATCONST | INTCONST | STRCONST | SHELLCMD | REGEX
 
+# OPERATORS
 operators = []
-opmap = {}
+opmap = {}  # map symbols to ast nodes (or so)
 """ We sort elements because for PEG parsers first-match-wins.
     We must be sure that, e.g., '->' will be parsed as '->' and not
     as '-' and '>'. For this, we first try longer operators.        """
@@ -34,7 +34,6 @@ for sym in sorted(symap.keys(), key=len, reverse=True):
   opmap[sym] = op
 OPS = ANY(*operators)
 
-
 # SOME COMMONLY USED SYMBOLS
 ASSIGN = opmap['=']
 BITOR = opmap.get('|', SYM('|'))
@@ -42,18 +41,16 @@ COMMA = opmap.get(',', SYM(','))
 LAMBDA = opmap.get('->', SYM('->'))
 NEWTYPE = SYM('::')
 
-# ADT (TAGGED UNIONS)
-# TODO
-# TYPEDEF = TYPE%'tag' & MAYBE(CSV(TYPE, sep=COMMA))%'members'
-# TYPECONS = TYPE%'tag' & MAYBE(CSV(TYPE, sep=COMMA))%'values'
-# TYPEXPR = NEWTYPE%None + TYPE%'name' + ASSIGN%None + CSV(TYPEDEF, sep=BITOR)%'variants'
-# OOP
+# CLASS STUFF
 CLASS = NEWTYPE%None + SYM('class')%None + TYPE
+
 # EXPRESSIONS
 EXPR = SOMEOF(OPS, ID/Var, CONST, TYPE/New)
+
 # FUNCTIONS
 FUNC = ID%'name' + ASSIGN%None + MAYBE(CSV(ID, sep=COMMA))%'args' + LAMBDA%None + MAYBE(EXPR%'body')
-# THE PROGRAM IS ... A BUNCH OF FUNCTIONS AND TYPE EXPRESSIONS
+
+# A PROGRAM IS ... A BUNCH OF FUNCTIONS, CLASSES AND EXPRESSIONS
 PROG = COMMENT%None | FUNC/Func | EXPR/Expr | CLASS/Class
 
 
