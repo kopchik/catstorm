@@ -179,6 +179,7 @@ def expr(rbp=0):
 
 
 def pratt_parse(tokens):
+  assert tokens, "tokens cannot be empty"
   global cur, nxt, e
   assert symap, "No operators registered." \
     "Please define at least one operator decorated with infix()/prefix()/etc"
