@@ -221,7 +221,7 @@ class Func:
     self.name = name
     if not args: args = []
     self.args = args
-    self.body = Block(pratt_parse(body)) # if body else Block() TODO: doesn't work with empty body
+    self.body = Block(pratt_parse(body)) if body else Block()
 
   def eval(self, frame):
     frame[self.name] = self
