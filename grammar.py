@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from peg import RE, SYM, ANY, SOMEOF, MAYBE, CSV, test
-from interpreter import Int, Str, Func, Expr, Var, TypeExpr, DefClass, New
+from interpreter import Int, Str, Func, Expr, Var, TypeExpr, Class, New
 from pratt import symap, pratt_parse
 
 # BITS AND PIECES
@@ -48,13 +48,13 @@ NEWTYPE = SYM('::')
 # TYPECONS = TYPE%'tag' & MAYBE(CSV(TYPE, sep=COMMA))%'values'
 # TYPEXPR = NEWTYPE%None + TYPE%'name' + ASSIGN%None + CSV(TYPEDEF, sep=BITOR)%'variants'
 # OOP
-DEFCLASS = NEWTYPE%None + SYM('class')%None + TYPE
+CLASS = NEWTYPE%None + SYM('class')%None + TYPE
 # EXPRESSIONS
 EXPR = SOMEOF(OPS, ID/Var, CONST, TYPE/New)
 # FUNCTIONS
 FUNC = ID%'name' + ASSIGN%None + MAYBE(CSV(ID, sep=COMMA))%'args' + LAMBDA%None + MAYBE(EXPR%'body')
 # THE PROGRAM IS ... A BUNCH OF FUNCTIONS AND TYPE EXPRESSIONS
-PROG = COMMENT%None | FUNC/Func | EXPR/Expr | DEFCLASS/DefClass
+PROG = COMMENT%None | FUNC/Func | EXPR/Expr | CLASS/Class
 
 
 if __name__ == '__main__':

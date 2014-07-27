@@ -224,8 +224,11 @@ class Block(ListNode):
 classes = {}
 objstack = []
 
-class DefClass:
+
+class Class(Node):
   """ Define new class. """
+  fields = ['name', 'body']
+
   def __init__(self, name):
     self.name = name
     self.body = Block()
