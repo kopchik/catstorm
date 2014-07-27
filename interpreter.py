@@ -260,22 +260,26 @@ class Obj(dict):
 @prefix('@', 1)
 class Self(Unary):
   def eval(self, frame):
-    print("OPPAA", self.arg)
-    print(objstack)
+    obj = objstack[-1]
+    if isinstance(self.arg, Assign):
+      name = self.arg.left.value
+      value = self.arg.right.eval(frame)
+      print("setting %s=%s for %s" % (name, value, obj))
+      obj[name] = value
+    else:
+      return obj[self.arg.value]
+    #print(objstack)
 
 
 class New(Value):
-  def __init__(self, name):
-    self.name = name
   def eval(self, frame):
-    cls = classes[self.name]
+    cls = classes[self.value]
     return cls.New(frame)
 
 
 @infix_r('%', 5)
 class Attr(Binary):
   def eval(self, frame):
-    print("ACCESS ATTR", self.left, self.right, type(self.left), type(self.right))
     obj = self.left.eval(frame)
     attrname = self.right.value
     return obj[attrname]
