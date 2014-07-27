@@ -218,6 +218,62 @@ class Block(ListNode):
     return r
 
 
+#######################
+# CLASSED AND OBJECTS #
+#######################
+classes = {}
+objstack = []
+
+class DefClass:
+  """ Define new class. """
+  def __init__(self, name):
+    self.name = name
+    self.body = Block()
+    classes[name] = self
+  def eval(self, frame):
+    return self
+
+  def New(self, frame):
+    obj = Obj()
+    obj['Class'] = self
+    for b in self.body:
+      if isinstance(b, Func) and b.name == 'new':
+        objstack.append(obj)
+        b.Call([], frame)
+        break
+    else:
+      raise Exception("ZOPA: not new method")
+
+
+
+class Obj(dict):
+  """ Instance of the class. """
+
+
+@prefix('@', 1)
+class Self(Unary):
+  def eval(self, frame):
+    print("OPPAA", self.arg)
+    print(objstack)
+
+
+class New(Value):
+  def __init__(self, name):
+    self.name = name
+  def eval(self, frame):
+    cls = classes[self.name]
+    return cls.New(frame)
+
+
+@infix_r('%', 5)
+class Attr(Binary):
+  def eval(self, frame):
+    print("ACCESS ATTR", self.left, self.right, type(self.left), type(self.right))
+    obj = self.left.eval(frame)
+    attrname = self.right.value
+    return obj[attrname]
+
+
 class Func:
   def __init__(self, name, args, body=[]):
     self.name = name
@@ -242,7 +298,7 @@ class Func:
     return "<func %s>" % self.name
 
   def __repr__(self):
-    return "({} {})".format(self.name, self.args)
+    return "(Func {} {}-> {})".format(self.name, self.args, self.body)
 
 
 class Var(Leaf):
@@ -256,9 +312,6 @@ class Var(Leaf):
 
   def eval(self, frame):
     return frame[self.value]
-
-  # def nud(self):
-  #   return self
 
   def __str__(self):
     return str(self.value)

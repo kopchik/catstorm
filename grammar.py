@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from peg import RE, SYM, ANY, SOMEOF, MAYBE, CSV, test
-from interpreter import Int, Str, Func, Expr, Var, TypeExpr
+from interpreter import Int, Str, Func, Expr, Var, TypeExpr, DefClass, New
 from pratt import symap, pratt_parse
 
 # BITS AND PIECES
@@ -35,22 +35,26 @@ for sym in sorted(symap.keys(), key=len, reverse=True):
 OPS = ANY(*operators)
 
 
+# SOME COMMONLY USED SYMBOLS
 ASSIGN = opmap['=']
 BITOR = opmap.get('|', SYM('|'))
 COMMA = opmap.get(',', SYM(','))
 LAMBDA = opmap.get('->', SYM('->'))
-
-# TYPES
 NEWTYPE = SYM('::')
-TYPEDEF = TYPE%'tag' & MAYBE(CSV(TYPE, sep=COMMA))%'members'
-TYPECONS = TYPE%'tag' & MAYBE(CSV(TYPE, sep=COMMA))%'values'
-TYPEXPR = NEWTYPE%None + TYPE%'name' + ASSIGN%None + CSV(TYPEDEF, sep=BITOR)%'variants'
+
+# ADT (TAGGED UNIONS)
+# TODO
+# TYPEDEF = TYPE%'tag' & MAYBE(CSV(TYPE, sep=COMMA))%'members'
+# TYPECONS = TYPE%'tag' & MAYBE(CSV(TYPE, sep=COMMA))%'values'
+# TYPEXPR = NEWTYPE%None + TYPE%'name' + ASSIGN%None + CSV(TYPEDEF, sep=BITOR)%'variants'
+# OOP
+DEFCLASS = NEWTYPE%None + SYM('class')%None + TYPE
 # EXPRESSIONS
-EXPR = SOMEOF(OPS, ID/Var, CONST)
+EXPR = SOMEOF(OPS, ID/Var, CONST, TYPE/New)
 # FUNCTIONS
 FUNC = ID%'name' + ASSIGN%None + MAYBE(CSV(ID, sep=COMMA))%'args' + LAMBDA%None + MAYBE(EXPR%'body')
 # THE PROGRAM IS ... A BUNCH OF FUNCTIONS AND TYPE EXPRESSIONS
-PROG = COMMENT%None | FUNC/Func | TYPEXPR/TypeExpr | EXPR/Expr
+PROG = COMMENT%None | FUNC/Func | EXPR/Expr | DEFCLASS/DefClass
 
 
 if __name__ == '__main__':
