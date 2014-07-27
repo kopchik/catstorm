@@ -24,6 +24,7 @@ def process(it, cur, blk):
       cur -- current indent level
       blk -- block data append to
   """
+  pos = 666
   for line, pos in it:
     # print("got", line, pos, cur)
     if pos == cur:
