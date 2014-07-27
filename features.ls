@@ -4,6 +4,8 @@
 main =  progname, argv -> p "Hello, {argv}"
         # string interpolation
         p "You've just launched {progname}"
+        p "I used it to show supported language features"
+        p "and as integrated test."
         # basic arithmetic
         assert 1 + 1 == 2
         assert "a" + "b"  == "ab"
@@ -22,7 +24,7 @@ main =  progname, argv -> p "Hello, {argv}"
         apply = f, i -> f . i
         assert apply . inc,1 == 2
 
-        # recursion
+        # recursion and multi-line expressions
         add = val,i -> add . (val+1),(i-1) \
                        if i>0 else val
         assert add . 2,3 == 5
