@@ -246,6 +246,7 @@ class Class(Node):
         break
     else:
       raise Exception("ZOPA: not new method")
+    return obj
 
 
 
