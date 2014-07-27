@@ -48,6 +48,9 @@ class Node:
       raise AttributeError("Unknown attribute \"%s\" for %s (%s)" % (name, type(self), self.fields))
     super().__setattr__(name, value)
 
+  def __iter__(self):
+    return iter(getattr(self, name) for name in self.fields)
+
   def __dir__(self):
     return self.fields
 
@@ -60,6 +63,8 @@ class Node:
 class ListNode(list):
   """ Represents a node that is just a list of something. """
   fields = None
+  def __init__(self, *args):
+    super().__init__(args)
 
   def __repr__(self):
     cls = self.__class__.__name__
