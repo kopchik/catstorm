@@ -29,52 +29,35 @@ class Leaf:
     return left
 
 
-class Node(list):
+class Node:
   """
-  Base class for most syntax elements. It is a subclass of
-  list to support iteration over its elements. It also
-  supports access to the elements through attributes. Names
-  of attributes to be specified in class.fields.
+  Base class for most syntax elements.
+  Supports access to the elements through attributes or through iteration.
+  Names of attributes to be specified in class.fields.
   """
   fields = []
 
   def __init__(self, *args):
-    if self.fields and len(args) != len(self.fields):
+    if len(args) != len(self.fields):
       raise Exception("Number of arguments mismatch defined fields")
-    super().__init__(args)
-
-  def __getattr__(self, name):
-    if not self.fields or name not in self.fields:
-      raise AttributeError("Unknown attribute \"%s\" for %s (%s)" % (name, type(self), self.fields))
-    idx = self.fields.index(name)
-    return self[idx]
+    for name, value in zip(self.fields, args):
+      setattr(self, name, value)
 
   def __setattr__(self, name, value):
-    if name in dir(self.__class__):
-      super().__setattr__(name, value)
-    elif name in self.fields:
-      idx = self.fields.index(name)
-      self[idx] = value
-    else:
+    if name not in self.fields:
       raise AttributeError("Unknown attribute \"%s\" for %s (%s)" % (name, type(self), self.fields))
-
+    super().__setattr__(name, value)
 
   def __dir__(self):
-    if self.fields:
-      return self.fields
-    else:
-      return super().__dir__()
+    return self.fields
 
   def __repr__(self):
     cls = self.__class__.__name__
-    if self.fields:
-      args = ", ".join("%s=%s"%(name, getattr(self,name)) for name in self.fields)
-    else:
-      args = ", ".join(map(str, self))
+    args = ", ".join("%s=%s"%(name, getattr(self,name)) for name in self.fields)
     return "%s(%s)" % (cls, args)
 
 
-class ListNode(Node):
+class ListNode(list):
   """ Represents a node that is just a list of something. """
   fields = None
 
