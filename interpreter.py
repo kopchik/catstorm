@@ -87,10 +87,11 @@ class Str(Value):
 # OPERATORS #
 #############
 
-@nullary('ret')
-class Ret(Leaf):
+@prefix('ret', 0)
+class Ret(Unary):
   def eval(self, frame):
-    raise ReturnException
+    value = self.arg.eval(frame)
+    raise ReturnException(value)
 
 
 @prefix('p ', 0)
@@ -211,7 +212,8 @@ class Block(ListNode):
     for expr in self:
       try:
         r = expr.eval(frame)
-      except ReturnException:
+      except ReturnException as e:
+        r = e.args[0]
         break
     return r
 

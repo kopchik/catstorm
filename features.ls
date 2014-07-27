@@ -34,5 +34,5 @@ main =  progname, argv -> p "Hello, {argv}"
 
         # return statement and branching
         a = 1
-        ret if a else 0
+        ret 0 if a else 1
         p "You will never see this line!"
