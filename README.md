@@ -13,7 +13,7 @@ Design Goals
 
 1. Be safe, compact and friendly
 1. Static typing
-1. ML-like syntax (inspired by LiveScript)
+1. ML-like syntax (inspired by LiveScript (and LiveScript was inspired by Haskell))
 1. Expression-oriented
 1. Algebraic Data Types (ADT)
 1. Translates into C
