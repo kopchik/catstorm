@@ -30,7 +30,16 @@ main =  progname, argv ->
         # working with list
         assert [1,2,3] == [1,2,3]
 
+        # object-oriented stuff
+        ::class MyClass
+          New = value ->
+            @value = 1
+
+        object = MyClass . 1
+        assert object@value == 1
+
         # return statement and branching
         a = 1
         ret 0 if a else 1
-        p "You will never see this line!"
+        p "ACHTUNG, TEST FAILED!"
+        1
