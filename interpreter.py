@@ -125,8 +125,8 @@ def newinfix(sym, prio, methname, sametype=True, right=False):
       try:
         meth = getattr(left, methname)
       except AttributeError:
-        raise Exception("{} does not have {} method, \
-                         operation ({}) not supported".format(left, methname, sym))
+        raise Exception("{} does not have {} method, " \
+                        "operation ({}) not supported".format(left, methname, sym))
       return meth(right, frame)
   func = infix_r if right else infix
   Infix = func(sym, prio)(Infix)
