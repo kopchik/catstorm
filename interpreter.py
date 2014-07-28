@@ -62,6 +62,11 @@ class FALSE:
 FALSE = FALSE()
 
 
+@nullary('NONE')
+class NONE:
+ pass
+
+
 class Int(Value):
   def __init__(self, value):
     super().__init__(int(value))
