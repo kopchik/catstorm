@@ -229,7 +229,19 @@ class Block(ListNode):
 # CLASSED AND OBJECTS #
 #######################
 classes = {}
-objstack = []  # TODO: remove it and related code
+savedobj = None
+
+
+class Obj(dict):
+  """ Instance of the class (actually, it's dict). """
+  def __getitem__(self, name):
+    try:
+      return super().__getitem__(name)
+    except KeyError:
+      return self['Class'][name]
+  def Print(self, frame):
+    cls = self.__class__.__name__
+    return "(obj %s of %s)" % (cls, self)
 
 
 class Class(Node):
@@ -240,56 +252,46 @@ class Class(Node):
     self.name = name
     self.body = Block()
     classes[name] = self
+
   def eval(self, frame):
+    frame[self.name] = self
     return self
 
-  def New(self, frame):
+  def __getitem__(self, methname):
+    for member in self.body:
+      if isinstance(member, Func) and member.name == methname:
+        return member
+    raise Exception("No such method \"%s\" in class %s" % (methname, self.name))
+
+  def Call(self, args, frame):
+    global savedobj
     obj = Obj()
     obj['Class'] = self
-    for b in self.body:
-      if isinstance(b, Func) and b.name == 'new':
-        objstack.append(obj)
-        b.Call([], frame)
-        break
-    else:
-      raise Exception("ZOPA: not new method")
+    savedobj = obj
+    self['New'].Call(args, frame)
     return obj
-
-
-
-class Obj(dict):
-  """ Instance of the class. """
-  def Print(self, frame):
-    cls = self.__class__.__name__
-    return "(obj %s of %s)" % (cls, self)
 
 
 @prefix('@', 1)
 class Self(Unary):
   def eval(self, frame):
-    obj = objstack[-1]
+    obj = savedobj
     if isinstance(self.arg, Assign):
       name = self.arg.left.value
       value = self.arg.right.eval(frame)
       print("setting %s=%s for %s" % (name, value, obj))
       obj[name] = value
     else:
-      return obj[self.arg.value]
-    #print(objstack)
-
-
-class New(Value):
-  def eval(self, frame):
-    cls = classes[self.value]
-    return cls.New(frame)
+      value = obj[self.arg.value]
+    return value
 
 
 @infix_r('%', 5)
 class Attr(Binary):
   def eval(self, frame):
     obj = self.left.eval(frame)
-    attrname = self.right.value
-    return obj[attrname]
+    attr = self.right.value
+    return obj[attr]
 
 
 class Func:
@@ -350,11 +352,12 @@ class Expr:
 @postfix('!', 3)
 class Call0(Unary):
   def eval(self, frame):
-    func = self.arg.eval(frame)
-    assert isinstance(func, Func), \
-      "I can only call functions, got %s instead" % func
+    callee = self.arg.eval(frame)
+    assert isinstance(callee, (Func, Class)), \
+      "I can only call functions and classes, " \
+      "got %s instead" % callee
     with frame as newframe:
-      return func.Call([], newframe)
+      return callee.Call([], newframe)
 
 
 @infix('$', 5)  # TODO: does not work
@@ -365,15 +368,15 @@ def call_r(left, right):
 @infix_r(' . ', 5)
 class Call(Binary):
   def eval(self, frame):
-    func = self.left.eval(frame)
-    assert isinstance(func, Func), \
-      "I can only call functions, got %s instead" % func
+    callee = self.left.eval(frame)
+    assert isinstance(callee, (Func, Class)), \
+      "I can only call functions and classes, got %s instead" % func
     args = self.right.eval(frame)
     # TODO: this should be done in PEG and it should not be list but Comma!
     if not isinstance(args, list):
       args = [args]
     with frame as newframe:
-      return func.Call(args, newframe)
+      return callee.Call(args, newframe)
 
 
 @ifelse(lbp=2)
