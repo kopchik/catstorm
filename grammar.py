@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from peg import RE, SYM, ANY, SOMEOF, MAYBE, CSV, test
-from interpreter import Int, Str, Func, Expr, Var, TypeExpr, Class, New
+from interpreter import Int, Str, Func, Expr, Var, TypeExpr, Class
 from pratt import symap, pratt_parse
 
 # BITS AND PIECES
@@ -13,8 +13,7 @@ CCOMMENT     = RE(r'/\*.*?\*/', "COMMENT")
 COMMENT = SHELLCOMMENT | CCOMMENT | CPPCOMMENT
 
 # DATA AND TYPES
-TYPE = RE(r'[A-Z][A-Za-z0-9_]*', 'TYPE')
-ID = RE(r'[a-z_][A-Za-z0-9_]*', 'ID')
+ID = RE(r'[A-Za-z][A-Za-z0-9_]*', 'ID')
 FLOATCONST = RE(r'\d+\.\d*', 'FLOATCONST', conv=float)
 INTCONST = RE(r'\d+', 'INTCONST', conv=Int)
 STRCONST   = RE(r'"(.*?)"', 'STRCONST', conv=Str)
@@ -42,10 +41,10 @@ LAMBDA = opmap.get('->', SYM('->'))
 NEWTYPE = SYM('::')
 
 # CLASS STUFF
-CLASS = NEWTYPE%None + SYM('class')%None + TYPE
+CLASS = NEWTYPE%None + SYM('class')%None + ID
 
 # EXPRESSIONS
-EXPR = SOMEOF(OPS, ID/Var, CONST, TYPE/New)
+EXPR = SOMEOF(OPS, ID/Var, CONST)
 
 # FUNCTIONS
 FUNC = ID%'name' + ASSIGN%None + MAYBE(CSV(ID, sep=COMMA))%'args' + LAMBDA%None + MAYBE(EXPR%'body')
