@@ -261,7 +261,7 @@ class Class(Node):
     for member in self.body:
       if isinstance(member, Func) and member.name == methname:
         return member
-    raise Exception("No such method \"%s\" in class %s" % (methname, self.name))
+    raise Exception("No such member \"%s\" in class %s" % (methname, self.name))
 
   def Call(self, args, frame):
     global savedobj
@@ -279,14 +279,13 @@ class Self(Unary):
     if isinstance(self.arg, Assign):
       name = self.arg.left.value
       value = self.arg.right.eval(frame)
-      print("setting %s=%s for %s" % (name, value, obj))
       obj[name] = value
     else:
       value = obj[self.arg.value]
     return value
 
 
-@infix_r('%', 5)
+@infix_r('@', 5)
 class Attr(Binary):
   def eval(self, frame):
     obj = self.left.eval(frame)
