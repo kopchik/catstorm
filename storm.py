@@ -2,8 +2,8 @@
 
 from pratt import pratt_parse
 from indent import indent_parse
-from log import logfilter
-from grammar import PROG
+from log import Log, logfilter
+from grammar import PROG, operators
 from peg import tokenize
 from frame import Frame
 from interpreter import Block, Int, Str, Array
@@ -11,6 +11,7 @@ from interpreter import Block, Int, Str, Array
 from sys import exit
 import argparse
 
+log = Log("main")
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()
@@ -44,6 +45,8 @@ if __name__ == '__main__':
 
   if args.debug: logfilter.default = True
   else:          logfilter.default = False
+
+  log.debug("registered operators: %s", operators)
 
   # INPUT FROM COMMAND LINE
   if args.raw:
