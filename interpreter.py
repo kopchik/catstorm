@@ -1,8 +1,10 @@
 from pratt import pratt_parse, prefix, \
   infix, infix_r, postfix, nullary, ifelse, brackets
 from ast import Leaf, Unary, Binary, Node, ListNode
-
+from log import Log
 import re
+
+log = Log("interpreter")
 
 ##############
 # MISC STUFF #
@@ -222,7 +224,7 @@ class Block(ListNode):
 # CLASSED AND OBJECTS #
 #######################
 classes = {}
-objstack = []
+objstack = []  # TODO: remove it and related code
 
 
 class Class(Node):
@@ -254,7 +256,7 @@ class Obj(dict):
   """ Instance of the class. """
   def Print(self, frame):
     cls = self.__class__.__name__
-    return "(%s %s)" % (cls, self)
+    return "(obj %s of %s)" % (cls, self)
 
 
 @prefix('@', 1)
@@ -290,6 +292,7 @@ class Func:
     self.name = name
     if not args: args = []
     self.args = args
+    log.func.debug("pratt_parse on %s" % body)
     self.body = Block(pratt_parse(body)) if body else Block()
 
   def eval(self, frame):
@@ -309,7 +312,7 @@ class Func:
     return "<func %s>" % self.name
 
   def __repr__(self):
-    return "(Func {} {}-> {})".format(self.name, self.args, self.body)
+    return "(Func {} {} -> {})".format(self.name, self.args, self.body)
 
 
 class Var(Leaf):
@@ -325,7 +328,7 @@ class Var(Leaf):
     return frame[self.value]
 
   def __str__(self):
-    return str(self.value)
+    return str("<%s>" % self.value)
 
 
 class Expr:
