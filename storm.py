@@ -23,8 +23,8 @@ if __name__ == '__main__':
                       default=False, help="show abstract syntax tree")
   parser.add_argument('-d', '--debug', action='store_const', const=True,
                       default=False, help="show intermediate output")
-  # parser.add_argument('-n', '--dry-run', action='store_const', const=True,
-  #                     default=False, help="do not execute the program")
+  parser.add_argument('-n', '--dry-run', action='store_const', const=True,
+                      default=False, help="do not execute the program")
   # parser.add_argument('-c', '--check-types', action='store_const', const=True,
   #                     default=False, help="perform type inference and checking (disabled by default)")
   parser.add_argument('-r', '--raw', help="specify raw expression to execute",
@@ -64,8 +64,9 @@ if __name__ == '__main__':
         if args.ast:
           print(pprint(prog))
         # execute
-        result = prog.eval(frame)
-        print("result of expr %s:" % i, result)
+        if not args.dry_run:
+          result = prog.eval(frame)
+          print("result of expr %s:" % i, result)
     exit()
 
 
@@ -97,6 +98,8 @@ if __name__ == '__main__':
   if args.ast:
     print(pprint(mainblk))
 
+  if args.dry_run:
+    exit(0)
 
   # execute the code
   with Frame() as frame:
