@@ -178,7 +178,12 @@ def expr(rbp=0):
   return left
 
 
-def pratt_parse(tokens):
+def pratt_parse(*tokens):
+  "Like pratt_parse1, but takes many arguments instead of one"
+  return pratt_parse1(tokens)
+
+
+def pratt_parse1(tokens):
   assert tokens, "tokens cannot be empty"
   global cur, nxt, e
   assert symap, "No operators registered." \
@@ -195,3 +200,5 @@ def pratt_parse(tokens):
   except StopIteration:
     pass
   return result
+
+
