@@ -53,7 +53,7 @@ if __name__ == '__main__':
   # INPUT FROM COMMAND LINE
   if args.raw:
     with Frame() as frame:
-      for i, src in enumerate(args.raw,1):
+      for i, src in enumerate(args.raw, 1):
         # parse
         if args.debug:
           print("parsing:", src)
@@ -80,6 +80,8 @@ if __name__ == '__main__':
         else:
           try:
             tokens = tokenize(e)
+            if args.tokens:
+              print(tokens)
             prog, r = PROG.match(tokens)  # TODO: check r
             if not prog:  # skip comments # TODO: make it better
               continue
