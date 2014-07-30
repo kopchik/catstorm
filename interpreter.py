@@ -1,4 +1,4 @@
-from pratt import pratt_parse, prefix, \
+from pratt import pratt_parse1, prefix, \
   infix, infix_r, postfix, nullary, ifelse, brackets
 from ast import Leaf, Unary, Binary, Node, ListNode
 from log import Log
@@ -300,7 +300,7 @@ class Func(Node):
     if not args: args = []
     self.args = args
     log.func.debug("pratt_parse on %s" % body)
-    self.body = Block(pratt_parse(body)) if body else Block()
+    self.body = Block(pratt_parse1(body)) if body else Block()
 
   def eval(self, frame):
     frame[self.name] = self
@@ -336,18 +336,6 @@ class Var(Leaf):
 
   def __str__(self):
     return str("<%s>" % self.value)
-
-
-class Expr(Node):
-  fields = ['expr']
-  def __init__(self, *expr):
-    self.expr = pratt_parse(expr)
-
-  def eval(self, frame):
-    return self.expr.eval(frame)
-
-  def __repr__(self):
-    return "({} {})".format(self.__class__.__name__, self.expr)
 
 
 @postfix('!', 3)
