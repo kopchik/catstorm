@@ -6,6 +6,8 @@ from log import Log, logfilter
 from grammar import PROG, operators
 from peg import tokenize
 from frame import Frame
+from ast import pprint
+
 from interpreter import Block, Int, Str, Array
 
 from sys import exit
@@ -60,8 +62,7 @@ if __name__ == '__main__':
           print(tokens)
         prog, r = PROG.match(tokens)
         if args.ast:
-          #print(prog)
-          print(prog.pprint())
+          print(pprint(prog))
         # execute
         result = prog.eval(frame)
         print("result of expr %s:" % i, result)
@@ -92,7 +93,7 @@ if __name__ == '__main__':
   mainblk = Block()
   traverse(indented, mainblk)
   if args.ast:
-    print(mainblk)
+    print(pprint(mainblk))
 
 
   # execute the code
