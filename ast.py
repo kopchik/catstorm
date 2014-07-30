@@ -28,6 +28,9 @@ class Leaf:
     print("on the left", left)
     return left
 
+  def pprint(self, lvl=0):
+    return " "*lvl + "(%s %s)" % (self.__class__.__name__, self.value)
+
 
 class Node:
   """

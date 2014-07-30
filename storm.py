@@ -60,7 +60,8 @@ if __name__ == '__main__':
           print(tokens)
         prog, r = PROG.match(tokens)
         if args.ast:
-          print(prog)
+          #print(prog)
+          print(prog.pprint())
         # execute
         result = prog.eval(frame)
         print("result of expr %s:" % i, result)
