@@ -19,7 +19,7 @@ class Leaf:
 
   def __repr__(self):
     cls = self.__class__.__name__
-    return "%s(%s)" % (cls, self.value)
+    return "(%s %s)" % (cls, self.value)
 
   def nud(self):
     return self
@@ -57,7 +57,7 @@ class Node:
   def __repr__(self):
     cls = self.__class__.__name__
     args = ", ".join("%s=%s"%(name, getattr(self,name)) for name in self.fields)
-    return "%s(%s)" % (cls, args)
+    return "(%s %s)" % (cls, args)
 
 
 class ListNode(list):
