@@ -68,7 +68,7 @@ class ListNode(list):
 
   def __repr__(self):
     cls = self.__class__.__name__
-    return "%s(%s)" % (cls, ", ".join(map(str,self)))
+    return "(%s %s)" % (cls, ", ".join(map(str,self)))
 
 
 class Unary(Node):
