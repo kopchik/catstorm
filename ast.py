@@ -91,6 +91,6 @@ def pprint(node, lvl=0):
     return indent + "(%s %s)" % (clsname(node), repr(node.value))
   elif isinstance(node, (Node, list)):
     return indent + "(%s\n" % clsname(node) + \
-                      indent+ '\n'.join(pprint(e, lvl+1) for e in node) +  ")"
+                       '\n'.join(indent+pprint(e, lvl+1) for e in node) + ")"
   else:
     raise Exception("don't know how to show node: %s (%s)" % (node, type(node)))
