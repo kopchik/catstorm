@@ -293,7 +293,8 @@ class Attr(Binary):
     return obj[attr]
 
 
-class Func:
+class Func(Node):
+  fields = ['name', 'args', 'body']
   def __init__(self, name, args, body=[]):
     self.name = name
     if not args: args = []
@@ -337,7 +338,8 @@ class Var(Leaf):
     return str("<%s>" % self.value)
 
 
-class Expr:
+class Expr(Node):
+  fields = ['expr']
   def __init__(self, *expr):
     self.expr = pratt_parse(expr)
 
