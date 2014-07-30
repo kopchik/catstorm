@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from peg import RE, SYM, ANY, SOMEOF, MAYBE, CSV, test
-from interpreter import Int, Str, Func, Expr, Var, TypeExpr, Class
+from interpreter import Int, Str, Func, Var, TypeExpr, Class
 from pratt import symap, pratt_parse
 
 # BITS AND PIECES
@@ -50,7 +50,7 @@ EXPR = SOMEOF(OPS, ID/Var, CONST)
 FUNC = ID%'name' + ASSIGN%None + MAYBE(CSV(ID, sep=COMMA))%'args' + LAMBDA%None + MAYBE(EXPR%'body')
 
 # A PROGRAM IS ... A BUNCH OF FUNCTIONS, CLASSES AND EXPRESSIONS
-PROG = COMMENT%None | FUNC/Func | EXPR/Expr | CLASS/Class
+PROG = COMMENT%None | FUNC/Func | EXPR/pratt_parse | CLASS/Class
 
 
 if __name__ == '__main__':
