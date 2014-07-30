@@ -1,10 +1,8 @@
 """
-It was imported from DeadScript.
-It is a bit complicated to support iteration
-over AST elements.
-
-TODO: revise it, may be we do not need it anymore.
+The main purpose of this module is to provide a good iteration method
+over AST tree.
 """
+
 
 class Leaf:
   """ Base class for AST elements that do not support
@@ -27,9 +25,6 @@ class Leaf:
   def led(self, left):
     print("on the left", left)
     return left
-
-  def pprint(self, lvl=0):
-    return " "*lvl + "(%s %s)" % (self.__class__.__name__, self.value)
 
 
 class Node:
@@ -60,7 +55,7 @@ class Node:
   def __repr__(self):
     cls = self.__class__.__name__
     args = ", ".join("%s=%s"%(name, getattr(self,name)) for name in self.fields)
-    return "(%s %s)" % (cls, args)
+    return "(%s %s)" % (cls, repr(args))
 
 
 class ListNode(list):
@@ -82,3 +77,20 @@ class Unary(Node):
 class Binary(Node):
   """ Base class for binary operators. """
   fields = ['left', 'right']
+
+
+def clsname(node):
+  return node.__class__.__name__
+
+
+def pprint(node, lvl=0):
+  indent = " "*lvl
+  if isinstance (node, str):
+    return indent + repr(node)
+  if isinstance(node, Leaf):
+    return indent + "(%s %s)" % (clsname(node), repr(node.value))
+  elif isinstance(node, (Node, list)):
+    return indent + "(%s\n" % clsname(node) + \
+                      indent+ '\n'.join(pprint(e, lvl+1) for e in node) +  ")"
+  else:
+    raise Exception("don't know how to show node: %s (%s)" % (node, type(node)))
