@@ -297,7 +297,7 @@ class Self(Unary):
     return value
 
 
-@infix_r('@', 5)
+@infix('@', 5)
 class Attr(Binary):
   def eval(self, frame):
     obj = self.left.eval(frame)
