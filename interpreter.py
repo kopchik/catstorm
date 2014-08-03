@@ -50,6 +50,13 @@ class Value(Leaf):
 class TRUE:
   def Bool(self, frame):
     return self
+
+  def Print(self, frame):
+    return self.__class__.__name__
+
+  def eval(self, frame):
+    return self
+
   def __bool__(self):
     return True
 TRUE = TRUE()
