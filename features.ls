@@ -32,11 +32,11 @@ main =  progname, argv ->
 
         # object-oriented stuff
         ::class MyClass
-          New = value ->
-            @value = 1
+          New = v ->
+            @v = 1
 
         object = MyClass . 1
-        assert object@value == 1
+        assert object@v == 1
 
         # return statement and branching
         a = 1
