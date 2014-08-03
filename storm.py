@@ -84,11 +84,13 @@ if __name__ == '__main__':
             if args.tokens:
               print(tokens)
             prog, r = PROG.match(tokens)  # TODO: check r
+            if r != len(tokens):
+              raise Exception("Not all tokens were consumed. Trailing garbage?")
             if not prog:  # skip comments # TODO: make it better
               continue
             blk.append(prog)
           except Exception as err:
-            raise Exception("line %s: %s" %(e.lineno, err))
+            raise Exception("line %s: %s\n%s" %(e.lineno, e, err))
 
   with open(args.cmd[0]) as fd:
     src = fd.read()
