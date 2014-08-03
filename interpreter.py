@@ -336,8 +336,7 @@ class Var(Leaf):
 
   def Assign(self, value, frame):
     # self.value actually holds the name
-    print("!!! TODO: method is not called", self.value)
-    frame[self.value] = self
+    frame[self.value] = value
     return value
 
   def eval(self, frame):
