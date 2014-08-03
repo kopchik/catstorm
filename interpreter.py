@@ -206,10 +206,19 @@ class Comma(ListNode):
 @infix_r('=', 2)
 class Assign(Binary):
   def eval(self, frame):
-    key = self.left.value
+    # code below tries to distinct between
+    # assigning to variable and to class member
     value = self.right.eval(frame)
-    # key.Assign(value, frame)
-    frame[key] = value
+    if isinstance(self.left, Var):
+      key = self.left
+      key.Assign(value, frame)
+    elif isinstance(self.left, Attr):
+      owner = self.left.left.eval(frame)
+      key = self.left.right.value
+      owner.SetAttr(key, value, frame)
+    else:
+      # this is very unlikely and should be caused by syntax error
+      raise Exception("don't know what to do with expression %s = %s" % (self.left, self.right))
     return value
 
 
