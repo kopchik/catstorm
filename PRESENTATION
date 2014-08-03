@@ -1,0 +1,14 @@
+Why not python?
+Static typing
+Expression-oriented
+====
+Why not Go?
+type inference
+generics
+====
+Why not haskell?
+Too complicated
+pureness is not necessary good
+===
+Errors
+  Do we really want to handle errors "gracefully"?
