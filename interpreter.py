@@ -246,6 +246,11 @@ class Obj(dict):
       return super().__getitem__(name)
     except KeyError:
       return self['Class'][name]
+
+  def SetAttr(self, name, value, frame):
+    self[name] = value
+    return value
+
   def Print(self, frame):
     cls = self.__class__.__name__
     return "(obj %s of %s)" % (cls, self)
