@@ -107,8 +107,6 @@ class Composer(Grammar):
     return "%s(%s)" % (cls, self.things)
 
 
-
-
 class Attr(Composer):
   def __init__(self, thing, attr):
     super().__init__(thing)
@@ -210,6 +208,7 @@ class CSV(Composer):
           raise
         break
     return result, pos
+
 
 # THESE RETURN ONLY ONE ELEMENT AT MOST
 class MAYBE(Composer):
