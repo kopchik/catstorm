@@ -8,7 +8,7 @@ from peg import tokenize
 from frame import Frame
 from ast import pprint
 
-from interpreter import Block, Int, Str, Array
+from interpreter import Block, Int, Str, Array, Print
 
 from sys import exit
 import argparse
@@ -112,4 +112,4 @@ if __name__ == '__main__':
   if isinstance(ret, Int):
     exit(ret.value)
   else:
-    ret.Print({}) and exit(1)
+    Print(ret).eval({}) and exit(1)
