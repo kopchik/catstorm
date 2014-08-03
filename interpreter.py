@@ -330,9 +330,6 @@ class Func(Node):
   def Print(self, frame):
     return "<func %s>" % self.name
 
-  def __repr__(self):
-    return "(Func {} {} -> {})".format(self.name, self.args, self.body)
-
 
 class Var(Leaf):
   type = None
