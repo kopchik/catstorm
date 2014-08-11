@@ -200,6 +200,14 @@ class Array(ListNode):
     return FALSE
 
 
+@subscript('[',']', -1000)
+class Subscript(Binary):
+  def eval(self, frame):
+    left = self.left.eval(frame)
+    right = self.right.eval(frame)
+    return left.GetAttr(right, frame)
+
+
 @brackets('(',')')
 class Parens(Unary):
   def eval(self, frame):
