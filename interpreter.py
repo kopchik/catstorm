@@ -164,6 +164,9 @@ class Array(ListNode):
         self.append(e)
 
   def eval(self, frame):
+    for i, e in enumerate(self):
+      e = e.eval(frame)
+      self[i] = e
     return self
 
   def Print(self, frame):
