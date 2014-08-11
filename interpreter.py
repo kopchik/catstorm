@@ -256,6 +256,10 @@ class Assign(Binary):
       owner = self.left.left.eval(frame)
       key = self.left.right.value
       owner.SetAttr(key, value, frame)
+    elif isinstance(self.left, Subscript):
+      owner = self.left.left.eval(frame)
+      key = self.left.right.eval(frame)
+      owner.SetAttr(key, value, frame)
     else:
       # this is very unlikely and should be caused by syntax error
       raise Exception("don't know what to do with expression %s = %s" % (self.left, self.right))
