@@ -214,14 +214,13 @@ class Parens(Unary):
     return self.arg.eval(frame)
 
 
-@infix(',', 5)
-class Comma(ListNode):
-  """ Parses comma-separated values. It flattens the list,
+class CharSepVals(ListNode):
+  """ Parses <whatever>-separated values. It flattens the list,
       e.g., Comma(1, Comma(2, 3)) transformed into Comma(1, 2, 3).
   """
   def __init__(self, left, right):
     values = []
-    if isinstance(left, Comma):
+    if isinstance(left, self.__class__):
       values += left + [right]
     else:
       values = [left, right]
@@ -229,9 +228,19 @@ class Comma(ListNode):
 
   def eval(self, frame):
     result = []
-    for value in self:
-      result.append(value.eval(frame))
-    return result
+    for idx, value in enumerate(self):
+      self[idx] = value.eval(frame)
+    return self
+
+
+@infix(',', 5)
+class Comma(CharSepVals):
+  pass
+
+
+@infix(':', 5)
+class ColonSV(CharSepVals):
+  pass
 
 
 @infix_r('=', 2)
@@ -275,6 +284,7 @@ class Block(ListNode):
 #######################
 # CLASSED AND OBJECTS #
 #######################
+
 classes = {}
 savedobj = None
 
