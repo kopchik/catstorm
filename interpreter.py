@@ -1,5 +1,5 @@
 from pratt import pratt_parse1, prefix, \
-  infix, infix_r, postfix, nullary, ifelse, brackets
+  infix, infix_r, postfix, nullary, ifelse, brackets, subscript
 from ast import Leaf, Unary, Binary, Node, ListNode
 from log import Log
 import re
@@ -169,8 +169,28 @@ class Array(ListNode):
       self[i] = e
     return self
 
+  def GetAttr(self, value, frame):
+    print(value, len(value), type(value))
+    if isinstance(value, Int):
+      return self[value.value]
+    elif isinstance(value, ColonSV):
+      if len(value) == 2:
+        start, stop = value
+        print("x>>", self, start, stop)
+        ret = self[start.value:stop.value]
+        return Array(*ret)
+      elif len(ColonSV) == 3:
+        TODO
+    else:
+     raise Exception("do not know how to apply subscript %s to %s" % \
+                           (value, self))
+
   def Print(self, frame):
-    return ", ".join(e.Print(frame) for e in self)
+    return '[' + ", ".join(e.Print(frame) for e in self) + ']'
+
+  def SetAttr(self, key, value, frame):
+    assert isinstance(key, Int)
+    TODO
 
   def Eq(self, other, frame):
     if  isinstance(other, Array) \
