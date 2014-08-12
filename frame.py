@@ -16,11 +16,11 @@ class Frame:
       result.extend(list(self.parent.keys()))
     return result
 
-  def __setitem__(self, key, value):
-    self.dict[key] = value
-
   def __iter__(self):
     return iter(self.dict)
+
+  def __setitem__(self, key, value):
+    self.dict[key] = value
 
   def __getitem__(self, key):
     try:
