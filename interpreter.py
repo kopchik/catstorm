@@ -217,20 +217,27 @@ class Parens(Unary):
 class CharSepVals(ListNode):
   """ Parses <whatever>-separated values. It flattens the list,
       e.g., Comma(1, Comma(2, 3)) transformed into Comma(1, 2, 3).
+      eval() returns new instance.
   """
-  def __init__(self, left, right):
+  def __init__(self, *values, flatten=True):
+    if flatten:
+      assert len(values) == 2, "in flatten mode only two args accepted (left and right)"
+      values = self.flatten(*values)
+    super().__init__(*values)
+
+  def flatten(self, left, right):
     values = []
     if isinstance(left, self.__class__):
       values += left + [right]
     else:
       values = [left, right]
-    super().__init__(*values)
+    return values
 
   def eval(self, frame):
-    result = []
-    for idx, value in enumerate(self):
-      self[idx] = value.eval(frame)
-    return self
+    values = []
+    for e in self:
+      values.append(e.eval(frame))
+    return self.__class__(*values, flatten=False)
 
 
 @infix(',', 5)
@@ -419,8 +426,7 @@ class Call(Binary):
     assert isinstance(callee, (Func, Class)), \
       "I can only call functions and classes, got %s instead" % func
     args = self.right.eval(frame)
-    # TODO: this should be done in PEG and it should not be list but Comma!
-    if not isinstance(args, list):
+    if not isinstance(args, Comma):
       args = [args]
     with frame as newframe:
       return callee.Call(args, newframe)
