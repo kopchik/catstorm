@@ -77,7 +77,8 @@ class NONE:
 class Int(Value):
   def __init__(self, value):
     super().__init__(int(value))
-
+  def to_py_int(self):
+    return self.value
 
 class Str(Value):
   processed = False
@@ -170,14 +171,12 @@ class Array(ListNode):
     return self
 
   def GetAttr(self, value, frame):
-    print(value, len(value), type(value))
     if isinstance(value, Int):
-      return self[value.value]
+      return self[value.to_py_int()]
     elif isinstance(value, ColonSV):
       if len(value) == 2:
         start, stop = value
-        print("x>>", self, start, stop)
-        ret = self[start.value:stop.value]
+        ret = self[start.to_py_int():stop.to_py_int()]
         return Array(*ret)
       elif len(ColonSV) == 3:
         TODO
@@ -190,7 +189,8 @@ class Array(ListNode):
 
   def SetAttr(self, key, value, frame):
     assert isinstance(key, Int)
-    TODO
+    self[key.to_py_int()] = value
+    return self
 
   def Eq(self, other, frame):
     if  isinstance(other, Array) \
