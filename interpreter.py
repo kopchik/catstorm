@@ -76,8 +76,12 @@ class NONE:
 
 class Int(Value):
   def __init__(self, value):
+    if isinstance(value, Int):
+      value = value.value
     super().__init__(int(value))
 
+  def Minus(self, frame):
+    return Int(-self.value)
 
 class Str(Value):
   processed = False
@@ -148,6 +152,12 @@ newinfix('==', 4, 'Eq')
 newinfix('>', 3, 'Gt')
 
 
+@prefix('-', 100)
+class Minus(Unary):
+  def eval(self, frame):
+    arg = self.arg.eval(frame)
+    return arg.Minus(frame)
+
 @brackets('[',']')
 class Array(ListNode):
   def __init__(self, *args):
@@ -200,7 +210,7 @@ class Array(ListNode):
     return FALSE
 
 
-@subscript('[',']', -1000)
+@subscript('[',']', 1000)
 class Subscript(Binary):
   def eval(self, frame):
     left = self.left.eval(frame)

@@ -123,7 +123,7 @@ class subscript:
       if close:
         advance(close)
       return cls(left, right)
-    symbol(open, lbp=1000).led = led
+    symbol(open, lbp=lbp).led = led
     symbol(close)
     return cls
 

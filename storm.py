@@ -53,7 +53,19 @@ if __name__ == '__main__':
   if args.recursion_limit:
     setrecursionlimit(40)
 
-  log.debug("registered operators: %s", operators)
+  if args.debug:
+    prio = []
+    # import pdb; pdb.set_trace()
+    for op in operators:
+      op = op.conv
+      if hasattr(op, 'lbp'):
+        prio.append((op, op.lbp))
+      if hasattr(op, 'rbp'):
+        prio.append((op, op.rbp))
+    prio.sort(key=lambda x: x[1])
+    for sym, op in prio:
+      print("{:<10} {}".format(sym.sym, op))
+    # log.debug("registered operators: %s" % )
 
   # INPUT FROM COMMAND LINE
   if args.raw:
