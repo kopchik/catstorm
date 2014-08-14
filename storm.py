@@ -10,7 +10,7 @@ from ast import pprint
 
 from interpreter import Block, Int, Str, Array, Print
 
-from sys import exit
+from sys import exit, setrecursionlimit
 import argparse
 
 log = Log("main")
@@ -25,6 +25,8 @@ if __name__ == '__main__':
                       default=False, help="show intermediate output")
   parser.add_argument('-n', '--dry-run', action='store_const', const=True,
                       default=False, help="do not execute the program")
+  parser.add_argument('-l', '--recursion-limit', action='store_const', const=True,
+                      default=False, help="set strict recursion limit (for debugging)")
   # parser.add_argument('-c', '--check-types', action='store_const', const=True,
   #                     default=False, help="perform type inference and checking (disabled by default)")
   parser.add_argument('-r', '--raw', help="specify raw expression to execute",
@@ -48,7 +50,23 @@ if __name__ == '__main__':
   if args.debug: logfilter.default = True
   else:          logfilter.default = False
 
-  log.debug("registered operators: %s", operators)
+  if args.recursion_limit:
+    setrecursionlimit(40)
+
+  # TODO: stupid code
+  if args.debug:
+    prio = []
+    # import pdb; pdb.set_trace()
+    for op in operators:
+      op = op.conv
+      if hasattr(op, 'lbp'):
+        prio.append((op, op.lbp))
+      if hasattr(op, 'rbp'):
+        prio.append((op, op.rbp))
+    prio.sort(key=lambda x: x[1])
+    for sym, op in prio:
+      print("{:<10} {}".format(sym.sym, op))
+    # log.debug("registered operators: %s" % )
 
   # INPUT FROM COMMAND LINE
   if args.raw:

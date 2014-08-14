@@ -16,9 +16,6 @@ class Frame:
       result.extend(list(self.parent.keys()))
     return result
 
-  def __setitem__(self, key, value):
-    self.dict[key] = value
-
   def __iter__(self):
     return iter(self.dict)
 
@@ -29,6 +26,9 @@ class Frame:
       if not self.parent:
         raise
     return self.parent[key]
+
+  def __setitem__(self, key, value):
+    self.dict[key] = value
 
   def __repr__(self):
     cls = self.__class__.__name__

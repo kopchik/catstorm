@@ -76,9 +76,16 @@ class NONE:
 
 class Int(Value):
   def __init__(self, value):
+    if isinstance(value, Int):
+      value = value.value
     super().__init__(int(value))
+
   def to_py_int(self):
     return self.value
+
+  def Minus(self, frame):
+    return Int(-self.value)
+
 
 class Str(Value):
   processed = False
@@ -149,6 +156,12 @@ newinfix('==', 4, 'Eq')
 newinfix('>', 3, 'Gt')
 
 
+@prefix('-', 100)
+class Minus(Unary):
+  def eval(self, frame):
+    arg = self.arg.eval(frame)
+    return arg.Minus(frame)
+
 @brackets('[',']')
 class Array(ListNode):
   def __init__(self, *args):
@@ -174,23 +187,25 @@ class Array(ListNode):
     if isinstance(value, Int):
       return self[value.to_py_int()]
     elif isinstance(value, ColonSV):
+      # if it is in form var[start:stop]
       if len(value) == 2:
         start, stop = value
         ret = self[start.to_py_int():stop.to_py_int()]
         return Array(*ret)
+      # if it is in form var[start:stop:step]
       elif len(ColonSV) == 3:
         TODO
     else:
      raise Exception("do not know how to apply subscript %s to %s" % \
                            (value, self))
 
-  def Print(self, frame):
-    return '[' + ", ".join(e.Print(frame) for e in self) + ']'
-
   def SetAttr(self, key, value, frame):
     assert isinstance(key, Int)
     self[key.to_py_int()] = value
     return self
+
+  def Print(self, frame):
+    return '[' + ", ".join(e.Print(frame) for e in self) + ']'
 
   def Eq(self, other, frame):
     if  isinstance(other, Array) \
@@ -200,7 +215,7 @@ class Array(ListNode):
     return FALSE
 
 
-@subscript('[',']', -1000)
+@subscript('[',']', 1000)
 class Subscript(Binary):
   def eval(self, frame):
     left = self.left.eval(frame)
@@ -217,20 +232,27 @@ class Parens(Unary):
 class CharSepVals(ListNode):
   """ Parses <whatever>-separated values. It flattens the list,
       e.g., Comma(1, Comma(2, 3)) transformed into Comma(1, 2, 3).
+      eval() returns new instance.
   """
-  def __init__(self, left, right):
+  def __init__(self, *values, flatten=True):
+    if flatten:
+      assert len(values) == 2, "in flatten mode only two args accepted (left and right)"
+      values = self.flatten(*values)
+    super().__init__(*values)
+
+  def flatten(self, left, right):
     values = []
     if isinstance(left, self.__class__):
       values += left + [right]
     else:
       values = [left, right]
-    super().__init__(*values)
+    return values
 
   def eval(self, frame):
-    result = []
-    for idx, value in enumerate(self):
-      self[idx] = value.eval(frame)
-    return self
+    values = []
+    for e in self:
+      values.append(e.eval(frame))
+    return self.__class__(*values, flatten=False)
 
 
 @infix(',', 5)
@@ -423,9 +445,8 @@ class Call(Binary):
     assert isinstance(callee, (Func, Class)), \
       "I can only call functions and classes, got %s instead" % func
     args = self.right.eval(frame)
-    # TODO: this should be done in PEG and it should not be list but Comma!
-    if not isinstance(args, list):
-      args = [args]
+    if not isinstance(args, Comma):
+      args = [args]  # TODO: it's not a comma class
     with frame as newframe:
       return callee.Call(args, newframe)
 
