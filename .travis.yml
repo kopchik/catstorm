@@ -1,4 +1,4 @@
 language: python
 python:
   - "3.4"
-script: ./run-tests
+script: ./run-tests.sh
