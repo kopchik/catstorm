@@ -1,4 +1,4 @@
 language: python
 python:
   - "3.4"
-script: ./storm.py -at features.ls
+script: ./run-tests
