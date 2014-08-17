@@ -245,6 +245,9 @@ class Array(ListNode):
       return TRUE
     return FALSE
 
+  def Iter(self, frame):
+    return Iter(self)
+
 
 @subscript('[',']', 1000)
 class Subscript(Binary):
