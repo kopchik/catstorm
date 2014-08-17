@@ -97,9 +97,15 @@ class brackets:
     open = self.open
     close = self.close
     def nud(self):
-      e = expr()
-      advance(close)
-      return cls(e)
+      global cur, nxt
+      if isinstance(nxt, symbol(close)):
+        # no expression between open and close symbols
+        advance(close)
+        return cls()
+      else:
+        e = expr()
+        advance(close)
+        return cls(e)
     symbol(open).nud = nud
     symbol(close)
     return cls
@@ -162,6 +168,7 @@ def shift():
 
 
 def advance(sym=None):
+  """ Just skip next symbol. """
   global cur, nxt
   cur, nxt = shift()
   if sym and cur.sym != sym:
