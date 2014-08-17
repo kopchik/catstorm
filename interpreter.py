@@ -2,6 +2,8 @@ from pratt import pratt_parse1, prefix, \
   infix, infix_r, postfix, nullary, ifelse, brackets, subscript
 from ast import Leaf, Unary, Binary, Node, ListNode
 from log import Log
+
+from itertools import chain
 import re
 
 log = Log("interpreter")
@@ -175,6 +177,17 @@ class Minus(Unary):
   def eval(self, frame):
     arg = self.arg.eval(frame)
     return arg.Minus(frame)
+
+class Iter:
+  def __init__(self, arr):
+    self.iter = iter(chain(arr, [None]))
+
+  def eval(self, frame):
+    return self
+
+  def next(self, frame):
+    return next(self.iter)
+
 
 @brackets('[',']')
 class Array(ListNode):
