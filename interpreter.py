@@ -167,6 +167,7 @@ newinfix('-', 20, 'Sub')
 newinfix('*', 30, 'Mul')
 newinfix('==', 4, 'Eq')
 newinfix('>', 3, 'Gt')
+newinfix('<<<',3, 'Append', sametype=False)
 
 
 @prefix('-', 100)
@@ -216,6 +217,10 @@ class Array(ListNode):
     assert isinstance(key, Int)
     self[key.to_py_int()] = value
     return self
+
+  def Append(self, value, frame):
+    self.append(value)
+    return value
 
   def Print(self, frame):
     return '[' + ", ".join(e.Print(frame) for e in self) + ']'
