@@ -120,6 +120,10 @@ class Str(Value):
       raise Exception("don't know how to access item %s" % attr)
     return self.__class__(value)
 
+  def Iter(self, frame):
+    return Iter(self.value)
+
+
 #############
 # OPERATORS #
 #############
