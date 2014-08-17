@@ -3,3 +3,4 @@ main =  progname, argv ->
         otherlist = []
         for e in list
           otherlist <<< e
+        0
