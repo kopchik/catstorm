@@ -3,6 +3,7 @@
 """
 Pratt-like parser.
 Inspired by http://effbot.org/zone/simple-top-down-parsing.htm
+Read the article before touching this file.
 """
 
 from itertools import chain
@@ -98,8 +99,10 @@ class brackets:
     close = self.close
     def nud(self):
       global cur, nxt
+      # It might happen there is no expression
+      # between open and close symbols.
+      # We should check this.
       if isinstance(nxt, symbol(close)):
-        # no expression between open and close symbols
         advance(close)
         return cls()
       else:
