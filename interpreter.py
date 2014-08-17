@@ -210,7 +210,7 @@ class Array(ListNode):
       self[i] = e
     return self
 
-  def GetAttr(self, value, frame):
+  def GetItem(self, value, frame):
     if isinstance(value, Int):
       return self[value.to_py_int()]
     elif isinstance(value, ColonSV):
@@ -226,7 +226,7 @@ class Array(ListNode):
      raise Exception("do not know how to apply subscript %s to %s" % \
                            (value, self))
 
-  def SetAttr(self, key, value, frame):
+  def SetItem(self, key, value, frame):
     assert isinstance(key, Int)
     self[key.to_py_int()] = value
     return self
@@ -254,7 +254,7 @@ class Subscript(Binary):
   def eval(self, frame):
     left = self.left.eval(frame)
     right = self.right.eval(frame)
-    return left.GetAttr(right, frame)
+    return left.GetItem(right, frame)
 
 
 @brackets('(',')')
@@ -310,12 +310,12 @@ class Assign(Binary):
       key.Assign(value, frame)
     elif isinstance(self.left, Attr):
       owner = self.left.left.eval(frame)
-      key = self.left.right.value
+      key = self.left.right
       owner.SetAttr(key, value, frame)
     elif isinstance(self.left, Subscript):
       owner = self.left.left.eval(frame)
       key = self.left.right.eval(frame)
-      owner.SetAttr(key, value, frame)
+      owner.SetItem(key, value, frame)
     else:
       # this is very unlikely and should be caused by syntax error
       raise Exception("don't know what to do with expression %s = %s" % (self.left, self.right))
@@ -351,13 +351,15 @@ savedobj = None
 
 class Obj(dict):
   """ Instance of the class (actually, it's dict). """
-  def __getitem__(self, name):
+  def GetAttr(self, name, frame):
+    name = name.to_py_str()
     try:
-      return super().__getitem__(name)
+      return self[name]
     except KeyError:
       return self['Class'][name]
 
   def SetAttr(self, name, value, frame):
+    name = name.to_py_str()
     self[name] = value
     return value
 
@@ -411,8 +413,8 @@ class Self(Unary):
 class Attr(Binary):
   def eval(self, frame):
     obj = self.left.eval(frame)
-    attr = self.right.value
-    return obj[attr]
+    attr = self.right
+    return obj.GetAttr(attr, frame)
 
 
 class Func(Node):
@@ -452,8 +454,11 @@ class Var(Leaf):
   def eval(self, frame):
     return frame[self.value]
 
+  def to_py_str(self):
+    return self.value
+
   def __str__(self):
-    return str("<%s>" % self.value)
+    return str("<var %s>" % self.value)
 
 
 @postfix('!', 3)
