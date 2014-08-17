@@ -41,6 +41,9 @@ class Node:
     for name, value in zip(self.fields, args):
       setattr(self, name, value)
 
+  def nud(self):
+    return self
+
   def __setattr__(self, name, value):
     if name not in self.fields:
       raise AttributeError("Unknown attribute \"%s\" for %s (%s)" % (name, type(self), self.fields))
