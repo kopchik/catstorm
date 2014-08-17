@@ -111,6 +111,12 @@ class Str(Value):
       self.processed = True
     return self
 
+  def GetItem(self, attr, frame):
+    if isinstance(attr, Int):
+      value = self.value[attr.to_py_int()]
+    else:
+      raise Exception("don't know how to access item %s" % attr)
+    return self.__class__(value)
 
 #############
 # OPERATORS #
