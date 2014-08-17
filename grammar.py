@@ -1,10 +1,16 @@
 #!/usr/bin/env python3
 from peg import RE, SYM, ANY, SOMEOF, MAYBE, CSV, test
-from interpreter import Int, Str, Func, Var, TypeExpr, Class
+from interpreter import Int, Str, Func, Var, TypeExpr, Class, ForLoop
 from pratt import symap, pratt_parse
+
 
 # BITS AND PIECES
 EOL = RE(r'$')
+
+def KW(keyword):
+  """ Consumes keyword from input, but returns Nothing. """
+  return SYM(keyword)%None
+
 
 # COMMENTS
 SHELLCOMMENT = RE(r'\#.*', "COMMENT")
@@ -34,10 +40,11 @@ for sym in sorted(symap.keys(), key=len, reverse=True):
 OPS = ANY(*operators)
 
 # SOME COMMONLY USED SYMBOLS
-ASSIGN = opmap['=']
+ASSIGN = opmap.get('=', SYM('='))
 BITOR = opmap.get('|', SYM('|'))
 COMMA = opmap.get(',', SYM(','))
 LAMBDA = opmap.get('->', SYM('->'))
+COLON = opmap.get(':', SYM(':'))
 NEWTYPE = SYM('::')
 
 # CLASS STUFF
@@ -49,8 +56,11 @@ EXPR = SOMEOF(OPS, ID/Var, CONST)
 # FUNCTIONS
 FUNC = ID%'name' + ASSIGN%None + MAYBE(CSV(ID, sep=COMMA))%'args' + LAMBDA%None + MAYBE(EXPR%'body')
 
+# FOR LOOP
+FORLOOP = KW('for ') + ID/Var + KW('in ') + EXPR + MAYBE(COLON)
+
 # A PROGRAM IS ... A BUNCH OF FUNCTIONS, CLASSES AND EXPRESSIONS
-PROG = COMMENT%None | FUNC/Func | EXPR/pratt_parse | CLASS/Class
+PROG = COMMENT%None | FUNC/Func | EXPR/pratt_parse | FORLOOP/ForLoop | CLASS/Class
 
 
 if __name__ == '__main__':
