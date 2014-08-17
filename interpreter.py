@@ -477,7 +477,7 @@ class Call(Binary):
   def eval(self, frame):
     callee = self.left.eval(frame)
     assert isinstance(callee, (Func, Class)), \
-      "I can only call functions and classes, got %s instead" % func
+      "I can only call functions and classes, got %s (%s) instead" % (callee, type(callee))
     args = self.right.eval(frame)
     if not isinstance(args, Comma):
       args = [args]  # TODO: it's not a comma class
