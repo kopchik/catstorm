@@ -503,3 +503,25 @@ class Assert(Unary):
     if not r:
       raise Exception("Assertion failed on %s" % self.arg)
     return r
+
+
+class ForLoop(Node):
+  fields = ['var', 'expr', 'body']
+  def __init__(self, var, expr, body=[]):
+    self.var  = var
+    self.expr = pratt_parse1(expr)
+    self.body = Block(pratt_parse1(body)) if body else Block()
+    log.forloop.debug("got var=%s expr=%s body=%s" \
+                      % (self.var, self.expr, self.body))
+
+  def eval(self, frame):
+    expr = self.expr.eval(frame)
+    iterator = expr.Iter(frame)
+    with frame as newframe:
+      while True:
+        e = iterator.next(newframe)
+        if e is None:
+          break
+        self.var.Assign(e, newframe)
+        self.body.eval(newframe)
+    return NONE
