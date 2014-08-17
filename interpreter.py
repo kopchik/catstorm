@@ -61,6 +61,7 @@ class TRUE:
     return True
 TRUE = TRUE()
 
+
 class FALSE:
   def Bool(self, frame):
     return self
@@ -70,8 +71,14 @@ FALSE = FALSE()
 
 
 @nullary('NONE')
-class NONE:
- pass
+class NONECLS:
+ def eval(self, frame):
+  return NONE
+ def Bool(self,frame):
+  return FALSE
+ def __repr__(self):
+    return "NONE"
+NONE = NONECLS()
 
 
 class Int(Value):
