@@ -57,7 +57,7 @@ EXPR = SOMEOF(OPS, ID/Var, CONST)
 FUNC = ID%'name' + ASSIGN%None + MAYBE(CSV(ID, sep=COMMA))%'args' + LAMBDA%None + MAYBE(EXPR%'body')
 
 # FOR LOOP
-FORLOOP = KW('for ') + ID/Var + KW('in ') + EXPR + MAYBE(COLON)
+FORLOOP = KW('for ') + EXPR + KW('in ') + EXPR + MAYBE(COLON)
 
 # A PROGRAM IS ... A BUNCH OF FUNCTIONS, CLASSES AND EXPRESSIONS
 PROG = COMMENT%None | FUNC/Func | EXPR/pratt_parse | FORLOOP/ForLoop | CLASS/Class
