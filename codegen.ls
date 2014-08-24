@@ -3,6 +3,14 @@
 # This supposed to be a catstorm written ... in castorm.
 # But right now it's a testing area for the language.
 
+::class Print
+  New = arg ->
+    @arg = arg
+
+::class Str
+  New = value ->
+    @value = value
+
 nails = "(Print (Str \"test\"))"
 
 main = prog, args ->
