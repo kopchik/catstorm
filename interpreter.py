@@ -114,21 +114,23 @@ class Int(Value):
 
 
 class Str(Value):
-  processed = False
+  def __init__(self, *args, process=True, **kwargs):
+    self.process = process
+    super().__init__(*args, **kwargs)
 
   def eval(self, frame):
-    if not self.processed:
-      string = self.value
-      replace = {r'\n': '\n', r'\t': '\t'}
-      varnames = re.findall("\{([a-zA-Z\.]+)\}", string, re.M)
-      for name in varnames:
-          value = Var(name).eval(frame).Print(frame)
-          string = string.replace("{%s}" % name, value)
-      for k,v in replace.items():
-        string = string.replace(k, v)
-      self.value = string
-      self.processed = True
-    return self
+    if not self.process:
+      return self
+
+    string = self.value
+    replace = {r'\n': '\n', r'\t': '\t'}
+    varnames = re.findall("\{([a-zA-Z\.]+)\}", string, re.M)
+    for name in varnames:
+        value = Var(name).eval(frame).Print(frame)
+        string = string.replace("{%s}" % name, value)
+    for k,v in replace.items():
+      string = string.replace(k, v)
+    return Str(string, process=False)
 
   def GetItem(self, attr, frame):
     if isinstance(attr, Int):
