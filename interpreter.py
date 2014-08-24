@@ -574,16 +574,18 @@ class IfElse(Node):
     else:
       return self.otherwise.eval(frame)
 
+@prefix('if', 100)
 class If(Node):
   fields = ['clause', 'body']
   def __init__(self, clause, body=None):
     super().__init__(clause, body)
-    self.clause = pratt_parse1(clause)
+    self.clause = clause
     self.body = Block()
   def eval(self, frame):
     clause = self.clause.eval(frame).to_bool(frame)
     if clause:
       return self.body.eval(frame)
+
 
 @prefix('assert', 0)
 class Assert(Unary):

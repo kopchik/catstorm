@@ -59,11 +59,8 @@ FUNC = ID%'name' + ASSIGN%None + MAYBE(CSV(ID, sep=COMMA))%'args' + LAMBDA%None 
 # FOR LOOP
 FORLOOP = KW('for ') + EXPR + KW('in ') + EXPR + MAYBE(COLON)
 
-# IF CLAUSE
-IF = KW('if ') + EXPR
-
 # A PROGRAM IS ... A BUNCH OF FUNCTIONS, CLASSES AND EXPRESSIONS
-PROG = COMMENT%None | FUNC/Func | EXPR/pratt_parse | IF/If | FORLOOP/ForLoop | CLASS/Class
+PROG = COMMENT%None | FUNC/Func | EXPR/pratt_parse | FORLOOP/ForLoop | CLASS/Class
 
 
 if __name__ == '__main__':
