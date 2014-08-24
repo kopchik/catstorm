@@ -8,15 +8,13 @@ At least it includes class names.
 
 import traceback
 import inspect
-import sys
 
 from useful import __version__ as version
 assert version >= (1,11)
 from useful.mstring import s, prints
 
 
-def prettybt():
-  exctype, exc_val, tb = sys.exc_info()
+def prettybt(exctype, exc_val, tb):
   frames = inspect.getinnerframes(tb)
   for frame, file, line, funcname, *other in frames:
     args = frame.f_code.co_varnames
@@ -32,6 +30,9 @@ def prettybt():
 
 
 if __name__ == '__main__':
+  import sys
+  sys.excepthook = prettybt
+
   class X:
     def eval(self, arg=[1,2,3]):
       raise Exception("bada boom")
