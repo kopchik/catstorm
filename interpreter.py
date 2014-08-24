@@ -151,11 +151,11 @@ class Str(Value):
     pattern = r"""
        (?P<number>\d+)
       |(?P<id>\w+)
-      |(?P<string>\"\w\")
-      |(?P<op>\*\*|.)
+      |(?P<string>"(?:\\.|[^"\\])*")
+      |(?P<op>\*\*|.)\s*
       """
     result = Array()
-    for match in re.findall(pattern, self.value, re.VERBOSE):
+    for match in re.findall(pattern, self.value.strip(), re.VERBOSE):
       number, id, string, op = match
       if number:
         result.Append(Array(Str("number"), Int(number)))
