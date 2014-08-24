@@ -22,7 +22,7 @@ COMMENT = SHELLCOMMENT | CCOMMENT | CPPCOMMENT
 ID = RE(r'[A-Za-z][A-Za-z0-9_]*', 'ID')
 FLOATCONST = RE(r'\d+\.\d*', 'FLOATCONST', conv=float)
 INTCONST = RE(r'\d+', 'INTCONST', conv=Int)
-STRCONST   = RE(r'"(.*?)"', 'STRCONST', conv=Str)
+STRCONST   = RE(r'"((?:\\.|[^"\\])*)"', 'STRCONST', conv=Str)
 SHELLCMD   = RE(r'`(.*?)`', 'SHELLCMD')
 REGEX      = RE(r'/(.*?)/', 'REGEX')
 CONST = FLOATCONST | INTCONST | STRCONST | SHELLCMD | REGEX
