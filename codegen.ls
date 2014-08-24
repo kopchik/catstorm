@@ -3,8 +3,7 @@
 # This supposed to be a catstorm written ... in castorm.
 # But right now it's a testing area for the language.
 
-#nails = "(Print (Str 'test'))"
-nails = "1+1"
+nails = "(Print (Str \"test\"))"
 
 main = prog, args ->
   traverse = stream ->
