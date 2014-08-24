@@ -300,6 +300,14 @@ class Array(ListNode):
     return len(self)
 
 
+class Tuple(Array):
+  def forbidden_operation(self, *args, **kwargs):
+    raise Exception("Tuples are immutable, dude")
+  Append = SetItem = forbidden_operation
+
+  def Print(self, frame):
+    return '(' + ", ".join(e.Print(frame) for e in self) + ')'  # TODO: reuse code from Array
+
 
 @subscript('[',']', 1000)
 class Subscript(Binary):
