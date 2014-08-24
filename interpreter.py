@@ -182,10 +182,11 @@ class Ret(Unary):
 class Print(Unary):
   def eval(self, frame):
     value = self.arg.eval(frame)
+    assert not isinstance(value, str)
     if hasattr(value, 'Print'):
-      print(">", value.Print(frame))
+      print("P>", value.Print(frame))
     else:
-      print(">", value)
+      print(" >", value)
     return value
 
 
