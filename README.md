@@ -7,35 +7,15 @@ rich, expression-oriented and with hope to have a good FFI
 (foreign function interface).
 
 
+Why another language
+--------------------
 
-Design Goals
-------------
-
-1. Be safe, compact and friendly
-1. Static typing
-1. ML-like syntax (inspired by LiveScript (and LiveScript was inspired by Haskell))
-1. Expression-oriented
-1. Algebraic Data Types (ADT)
-1. Translates into C
-1. Public/Protected/Private attributes of the classes
-1. Custom operators
-1. Full threading support
-1. Garbage collection (Boehm GC)
-1. Built-in linter
-1. Built-in regexp support
-1. Built-in shell commands invocation
-1. Function overloading
-1. UTF8 strings
-1. Substitute vars in strings: "Hello, {username}!"
-1. All programs can be opened as libraries
-1. No header files needed, everything is in elf (possibly in compressed format).
-1. Keep it simple (to learn, to read, to extend)
-1. Error-resistant coding
-1. Minimize number of keywords and namespace pollution
+Ever wanted to "upgrade" python with some nice features from
+ruby or haskell? Me too :(. And here is my attempt.
 
 
-At the moment there is only interpreter.
-Here is the full set of features available:
+Some examples
+-------------
 
 ````LiveScript
 main =  progname, argv -> p "Hello, {argv}"
@@ -72,3 +52,60 @@ main =  progname, argv -> p "Hello, {argv}"
         ret if a else 0
         p "You will never see this line!"
 ````
+
+
+Design Highlights
+-----------------
+
+1. Be safe, compact and friendly
+1. Static typing
+1. ML-like syntax (inspired by LiveScript (and LiveScript was inspired by Haskell))
+1. Expression-oriented
+1. Algebraic Data Types (ADT)
+1. No type erasure for better introspection and debugging
+1. Public/Protected/Private attributes of the classes
+1. Custom operators
+1. Coroutines
+1. Garbage collection
+1. Built-in linter
+1. Built-in regexp support
+1. Built-in shell commands invocation
+1. Function overloading
+1. UTF8 strings
+1. Substitute vars in strings: "Hello, {username}!"
+1. All programs can be opened as libraries
+1. No header files needed, everything is in elf (possibly in compressed format).
+1. Keep it simple (to learn, to read, to extend)
+1. Error-resistant coding
+1. Minimize number of keywords and namespace pollution
+
+Implementation details
+----------------------
+
+1. Translates into C
+1. (Boehm GC used for garbage collection
+1. ~~Code is specification~~ :)
+
+
+### Data Types
+
+* Immutable
+    + Str
+    + Int
+    + Tuple
+* Mutable
+    + Array
+    + Obj / Class
+* Other
+    + Func
+
+
+TODO
+----
+
+### Expression parser
+
+Better operator precedence:
+````
+traverse . nails@tokenize! => traverse . (nails@tokenize!)
+```
