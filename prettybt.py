@@ -17,8 +17,8 @@ from useful.mstring import s, prints
 def prettybt(exctype, exc_val, tb):
   frames = inspect.getinnerframes(tb)
   for frame, file, line, funcname, *other in frames:
-    args = frame.f_code.co_varnames
-    prints("${file}:${line}: ${funcname}${args}")
+    arginfo = inspect.getargvalues(frame)
+    args = tuple(arginfo.args)
     f_locals = frame.f_locals
     if 'self' in f_locals:
       klass = f_locals['self'].__class__.__name__
@@ -37,8 +37,5 @@ if __name__ == '__main__':
     def eval(self, arg=[1,2,3]):
       raise Exception("bada boom")
 
-  try:
-    x = X()
-    x.eval()
-  except Exception as err:
-    prettybt()
+  x = X()
+  x.eval()
