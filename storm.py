@@ -27,7 +27,7 @@ if __name__ == '__main__':
   parser.add_argument('-n', '--dry-run', action='store_const', const=True,
                       default=False, help="do not execute the program")
   parser.add_argument('-b', '--pretty-bt', action='store_const', const=True,
-                      default=False, help="print python exceptions with custom backtrace formatter")
+                      default=True, help="print python exceptions with custom backtrace formatter")
   parser.add_argument('-l', '--recursion-limit', action='store_const', const=True,
                       default=False, help="set strict recursion limit (for debugging)")
   # parser.add_argument('-c', '--check-types', action='store_const', const=True,
