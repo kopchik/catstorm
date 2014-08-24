@@ -279,7 +279,7 @@ class Array(ListNode):
     self[key.to_py_int()] = value
     return self
 
-  def Append(self, value, frame):
+  def Append(self, value, frame=None):
     self.append(value)
     return value
 
