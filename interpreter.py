@@ -296,6 +296,10 @@ class Array(ListNode):
   def Iter(self, frame):
     return Iter(self)
 
+  def len(self):
+    return len(self)
+
+
 
 @subscript('[',']', 1000)
 class Subscript(Binary):
