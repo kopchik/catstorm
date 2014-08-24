@@ -140,7 +140,7 @@ class Str(Value):
     return self.__class__(value)
 
   def Iter(self, frame):
-    return Iter(self.value)
+    return Iter(Str(char) for char in self.value)
 
   def strip(self, frame):
     return Str(self.value.strip())
