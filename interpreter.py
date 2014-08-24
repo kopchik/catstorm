@@ -66,7 +66,7 @@ class Value(Leaf, DirectAccess):
     return str(self.value)
 
 
-class Bool:
+class Bool(Value):
   pass
 
 
@@ -113,6 +113,9 @@ class Int(Value):
     if isinstance(value, Int):
       value = value.value
     super().__init__(int(value))
+
+  def to_bool(self, frame=None):
+    return TRUE if self.value else FALSE
 
   def to_py_int(self):
     return self.value
@@ -174,6 +177,7 @@ class Str(Value):
       elif op:
         result.Append(Array(Str("op"), Str(op)))
     return result
+
 
 #############
 # OPERATORS #
