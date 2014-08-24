@@ -252,7 +252,7 @@ class Iter:
 
 
 @brackets('[',']')
-class Array(ListNode):
+class Array(ListNode, DirectAccess):
   def __init__(self, *args):
     # TODO: dirty code, separate it into "fabrics"
     if len(args) == 1:
@@ -310,7 +310,7 @@ class Array(ListNode):
   def Iter(self, frame):
     return Iter(self)
 
-  def len(self):
+  def len(self, frame=None):
     return len(self)
 
 
