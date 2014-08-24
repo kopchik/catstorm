@@ -142,6 +142,30 @@ class Str(Value):
   def Iter(self, frame):
     return Iter(self.value)
 
+  def strip(self, frame):
+    return Str(self.value.strip())
+
+  def tokenize(self, frame):
+    # pattern = r"\s*(?:(\d+)|(.))"
+    # pattern = r"\s*(?:(\d+)|(\*\*|.))"
+    pattern = r"""
+       (?P<number>\d+)
+      |(?P<id>\w+)
+      |(?P<string>\"\w\")
+      |(?P<op>\*\*|.)
+      """
+    result = Array()
+    for match in re.findall(pattern, self.value, re.VERBOSE):
+      number, id, string, op = match
+      if number:
+        result.Append(Array(Str("number"), Int(number)))
+      elif id:
+        result.Append(Array(Str("id"), Str(id)))
+      elif string:
+        result.Append(Array(Str("string"), Str(string)))
+      elif op:
+        result.Append(Array(Str("op"), Str(op)))
+    return result
 
 #############
 # OPERATORS #
