@@ -66,7 +66,12 @@ class Value(Leaf, DirectAccess):
     return str(self.value)
 
 
-class TRUE:
+class Bool:
+  pass
+
+
+@nullary('TRUE')
+class TRUE(Bool):
   def Bool(self, frame):
     return self
 
@@ -78,15 +83,19 @@ class TRUE:
 
   def __bool__(self):
     return True
-TRUE = TRUE()
 
 
-class FALSE:
+@nullary('FALSE')
+class FALSE(TRUE):
   def Bool(self, frame):
     return self
+
   def __bool__(self):
     return False
+
+
 FALSE = FALSE()
+TRUE = TRUE()
 
 
 @nullary('NONE')
@@ -567,6 +576,8 @@ class IfElse(Node):
 class Assert(Unary):
   def eval(self, frame):
     r = self.arg.eval(frame)
+    if not isinstance(r, Bool):
+      print("warning, asserting not bool")
     if not r:
       raise Exception("Assertion failed on %s" % self.arg)
     return r
