@@ -1,3 +1,4 @@
+#!/usr/bin/env storm.py
 main =  progname, argv ->
         # string interpolation
         p "Hello, {argv}"
