@@ -1,4 +1,8 @@
 language: python
 python:
   - "3.4"
+install:
+  - wget https://github.com/kopchik/useful/archive/master.zip
+  - unzip master.zip
+  - cd useful-master  && sudo python3 ./setup.py install
 script: ./run-tests.sh
