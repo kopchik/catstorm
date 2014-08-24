@@ -26,7 +26,7 @@ if __name__ == '__main__':
                       default=False, help="show intermediate output")
   parser.add_argument('-n', '--dry-run', action='store_const', const=True,
                       default=False, help="do not execute the program")
-  parser.add_argument('-b', '--pretty-bt', action='store_const', const=True,
+  parser.add_argument('-b', '--pretty-bt', action='store_const', const=False,
                       default=True, help="print python exceptions with custom backtrace formatter")
   parser.add_argument('-l', '--recursion-limit', action='store_const', const=True,
                       default=False, help="set strict recursion limit (for debugging)")
@@ -83,7 +83,7 @@ if __name__ == '__main__':
           print("parsing:", src)
         tokens = tokenize(src)
         if args.tokens:
-          print(tokens)
+          print("tokens:", tokens)
         prog, r = PROG.match(tokens)
         if args.ast:
           print(pprint(prog))
