@@ -7,7 +7,7 @@ main = progname, args ->
   b = 2
   s = " {a} {b} "@strip!
   assert s == "{a} {b}"
-  
+
   # iteration
   s = "123"
   a = []
