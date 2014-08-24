@@ -573,7 +573,7 @@ class Assert(Unary):
 class ForLoop(Node):
   fields = ['var', 'expr', 'body']
   def __init__(self, var, expr, body=[]):
-    self.var  = var
+    self.var  = pratt_parse1(var)
     self.expr = pratt_parse1(expr)
     self.body = Block(pratt_parse1(body)) if body else Block()
     log.forloop.debug("got var=%s expr=%s body=%s" \
@@ -582,11 +582,19 @@ class ForLoop(Node):
   def eval(self, frame):
     expr = self.expr.eval(frame)
     iterator = expr.Iter(frame)
+    result = NONE
     with frame as newframe:
       while True:
         e = iterator.next(newframe)
         if e is None:
           break
-        self.var.Assign(e, newframe)
-        self.body.eval(newframe)
-    return NONE
+        if isinstance(self.var, Var):
+          self.var.Assign(e, newframe)
+        elif isinstance(self.var, Comma):
+          assert e.len() == len(self.var)
+          for var, value in zip(self.var, e):
+            var.Assign(value, newframe)
+        else:
+          raise Exception("invalid expr:", self.var)
+        result = self.body.eval(newframe)
+    return result
