@@ -123,7 +123,7 @@ class Str(Value):
       return self
 
     string = self.value
-    replace = {r'\n': '\n', r'\t': '\t'}
+    replace = {r'\"':'"', r'\n': '\n', r'\t': '\t'}
     varnames = re.findall("\{([a-zA-Z\.]+)\}", string, re.M)
     for name in varnames:
         value = Var(name).eval(frame).Print(frame)
