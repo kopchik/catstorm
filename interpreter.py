@@ -94,10 +94,6 @@ class FALSE(TRUE):
     return False
 
 
-FALSE = FALSE()
-TRUE = TRUE()
-
-
 @nullary('NONE')
 class NONECLS:
  def eval(self, frame):
@@ -106,6 +102,9 @@ class NONECLS:
   return FALSE
  def __repr__(self):
     return "NONE"
+
+FALSE = FALSE()
+TRUE = TRUE()
 NONE = NONECLS()
 
 
