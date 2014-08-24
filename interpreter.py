@@ -20,7 +20,24 @@ class ReturnException(Exception):
 # DATA TYPES #
 ##############
 
-class Value(Leaf):
+class DirectAccess:
+  """ Mixin that adds GetAttr to a class. This allows to work
+      with objects that are not instances of Class/Obj.
+      E.g., str.tokenize! would not work without it because
+      Str is not an instance of Class/Obj.
+  """
+
+  def GetAttr(self, name, frame):
+    assert isinstance(name, Var)
+    name = name.to_py_str()
+    return getattr(self, name)
+    class Callable:
+      def Call(self, args, frame):
+        return meth(args, frame)
+    return Callable()
+
+
+class Value(Leaf, DirectAccess):
   type = None
   """ Base class for values. """
 
