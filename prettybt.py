@@ -1,4 +1,11 @@
 #!/usr/bin/env python
+
+"""
+A more informative backtrace printer.
+
+At least it includes class names.
+"""
+
 import traceback
 import inspect
 import sys
