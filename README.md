@@ -57,8 +57,9 @@ main =  progname, argv -> p "Hello, {argv}"
 Design Highlights
 -----------------
 
+1. Keep it simple (to learn, to read, to extend)
 1. Be safe, compact and friendly
-1. Static typing
+1. Strong static typing
 1. ML-like syntax (inspired by LiveScript (and LiveScript was inspired by Haskell))
 1. Expression-oriented
 1. Algebraic Data Types (ADT)
@@ -75,15 +76,13 @@ Design Highlights
 1. Substitute vars in strings: "Hello, {username}!"
 1. All programs can be opened as libraries
 1. No header files needed, everything is in elf (possibly in compressed format).
-1. Keep it simple (to learn, to read, to extend)
-1. Error-resistant coding
 1. Minimize number of keywords and namespace pollution
 
 Implementation details
 ----------------------
 
 1. Translates into C
-1. (Boehm GC used for garbage collection
+1. Boehm GC used for garbage collection
 1. ~~Code is specification~~ :)
 
 
