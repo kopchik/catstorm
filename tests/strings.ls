@@ -1,11 +1,18 @@
 main = progname, args ->
+  # check if quoted strings are correctly parsed
+  s = "\"!\""
+
+  # test interpolation and chaining
   a = 1
   b = 2
-  # test interpolation with chaining
   s = " {a} {b} "@strip!
   assert s == "{a} {b}"
+  
   # iteration
   s = "123"
+  a = []
   for char in s
-    p char
-  0
+    a <<< char
+  p a
+
+  ret 0
