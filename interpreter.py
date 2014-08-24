@@ -525,11 +525,11 @@ class Var(Leaf):
 class Call0(Unary):
   def eval(self, frame):
     callee = self.arg.eval(frame)
-    assert isinstance(callee, (Func, Class)), \
-      "I can only call functions and classes, " \
-      "got %s instead" % callee
     with frame as newframe:
-      return callee.Call([], newframe)
+      if hasattr(callee, "Call"):
+        return callee.Call([], newframe)
+      else:
+        return callee(newframe)
 
 
 @infix('$', 5)  # TODO: does not work
