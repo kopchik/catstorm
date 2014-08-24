@@ -182,7 +182,8 @@ class Ret(Unary):
 class Print(Unary):
   def eval(self, frame):
     value = self.arg.eval(frame)
-    assert not isinstance(value, str)
+    assert not isinstance(value, str), \
+        "got instance of str, but it should be interpreter.Str"
     if hasattr(value, 'Print'):
       print("P>", value.Print(frame))
     else:
@@ -225,6 +226,7 @@ class Minus(Unary):
   def eval(self, frame):
     arg = self.arg.eval(frame)
     return arg.Minus(frame)
+
 
 class Iter:
   def __init__(self, arr):
