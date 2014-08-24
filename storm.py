@@ -7,11 +7,12 @@ from grammar import PROG, operators
 from peg import tokenize
 from frame import Frame
 from ast import pprint
-
+from prettybt import prettybt
 from interpreter import Block, Int, Str, Array, Print
 
 from sys import exit, setrecursionlimit
 import argparse
+import sys
 
 log = Log("main")
 
@@ -25,6 +26,8 @@ if __name__ == '__main__':
                       default=False, help="show intermediate output")
   parser.add_argument('-n', '--dry-run', action='store_const', const=True,
                       default=False, help="do not execute the program")
+  parser.add_argument('-b', '--pretty-bt', action='store_const', const=True,
+                      default=False, help="print python exceptions with custom backtrace formatter")
   parser.add_argument('-l', '--recursion-limit', action='store_const', const=True,
                       default=False, help="set strict recursion limit (for debugging)")
   # parser.add_argument('-c', '--check-types', action='store_const', const=True,
@@ -52,6 +55,9 @@ if __name__ == '__main__':
 
   if args.recursion_limit:
     setrecursionlimit(40)
+
+  if args.pretty_bt:
+    sys.excepthook = prettybt
 
   # TODO: stupid code
   if args.debug:
