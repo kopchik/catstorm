@@ -7,4 +7,12 @@
   obj2 = Class!
   obj1@obj2 = obj2
   assert obj1@value == obj1@obj2@value
-  0
+
+
+  ::class Print
+    New = arg ->
+        @arg = arg
+  print = Print . 1
+  assert print@arg == 1
+
+  ret 0
