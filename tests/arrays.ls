@@ -1,6 +1,6 @@
 main = prog, args ->
   a = [1,2+1]
-  p a[0:1]
-  a[1] = 0
-  assert a = [0,3]
-  0
+  a[0] = 0
+  assert a == [0,3]
+
+  ret 0
