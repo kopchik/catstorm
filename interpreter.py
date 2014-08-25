@@ -71,7 +71,7 @@ class Bool(Value):
 
 
 @nullary('TRUE')
-class TRUE(Bool):
+class TRUECLS(Bool):
   def Bool(self, frame):
     return self
 
@@ -86,7 +86,7 @@ class TRUE(Bool):
 
 
 @nullary('FALSE')
-class FALSE(TRUE):
+class FALSECLS(TRUECLS):
   def Bool(self, frame):
     return self
 
@@ -95,16 +95,16 @@ class FALSE(TRUE):
 
 
 @nullary('NONE')
-class NONECLS(Value):
- def eval(self, frame):
-  return NONE
- def Bool(self,frame):
+class NONECLS(FALSECLS):
+ def Bool(self, frame):
   return FALSE
+
  def __repr__(self):
     return "NONE"
 
-FALSE = FALSE()
-TRUE = TRUE()
+
+TRUE = TRUECLS()
+FALSE = FALSECLS()
 NONE = NONECLS()
 
 
