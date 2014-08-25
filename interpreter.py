@@ -47,6 +47,9 @@ class Value(Leaf, DirectAccess):
   def Eq(self, other, frame):
     return TRUE if self.value == other.value else FALSE
 
+  def NotEq(self, other, frame):
+    return TRUE if self.value != other.value else FALSE
+
   def Gt(self, other, frame):
     return TRUE if self.value > other.value else FALSE
 
@@ -229,6 +232,7 @@ newinfix('+', 20, 'Add')
 newinfix('-', 20, 'Sub')
 newinfix('*', 30, 'Mul')
 newinfix('==', 4, 'Eq')
+newinfix('!=', 4, 'NotEq')
 newinfix('>', 3, 'Gt')
 newinfix('<<<',3, 'Append', sametype=False)
 
