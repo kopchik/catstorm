@@ -12,7 +12,7 @@ symbols = []
 def tokenize(text, pos=0):
   ''' Split input into a bunch of annotated tokens. '''
   result = []
-  mysymbols = sorted(symbols, key=lambda x: x.pattern.pattern, reverse=True)
+  mysymbols = sorted(symbols, key=lambda x: (x.prio, x.pattern.pattern), reverse=True)
   while pos < len(text):
     for p in mysymbols:
       try:
@@ -58,10 +58,14 @@ class Grammar:
 
 
 class RE(Grammar):
-  def __init__(self, pattern, name=None, conv=str):
+  """ prio -- priority when parsing text so "->"
+      will not be treated as "-" and ">".
+  """
+  def __init__(self, pattern, name=None, conv=str, prio=0):
     self.pattern = re.compile("\s*(%s)" % pattern)
     self.conv = conv
     self.name = name
+    self.prio = prio
     symbols.append(self)
 
   def tokenize(self, text, pos=0):

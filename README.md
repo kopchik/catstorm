@@ -99,6 +99,15 @@ Implementation details
     + Func
 
 
+Operator priority
+-----------------
+
+Operators are essential for this language. They must be
+parsed in a proper way, e.g., "->" is not "-" and ">". To
+deal with this, each operator given priority. "->" has
+higher priority over "-" and ">".
+
+
 TODO
 ----
 

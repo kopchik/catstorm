@@ -574,6 +574,7 @@ class IfElse(Node):
     else:
       return self.otherwise.eval(frame)
 
+
 @prefix('if', 100)
 class If(Node):
   fields = ['clause', 'body']

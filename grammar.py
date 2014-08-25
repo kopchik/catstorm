@@ -34,7 +34,7 @@ opmap = {}  # map symbols to ast nodes (or so)
     We must be sure that, e.g., '->' will be parsed as '->' and not
     as '-' and '>'. For this, we first try longer operators.        """
 for sym in sorted(symap.keys(), key=len, reverse=True):
-  op = SYM(sym, conv=symap[sym])
+  op = SYM(sym, conv=symap[sym], prio=1)
   operators.append(op)
   opmap[sym] = op
 OPS = ANY(*operators)
@@ -43,9 +43,9 @@ OPS = ANY(*operators)
 ASSIGN = opmap.get('=', SYM('='))
 BITOR = opmap.get('|', SYM('|'))
 COMMA = opmap.get(',', SYM(','))
-LAMBDA = opmap.get('->', SYM('->'))
+LAMBDA = opmap.get('->', SYM('->', prio=2))
 COLON = opmap.get(':', SYM(':'))
-NEWTYPE = SYM('::')
+NEWTYPE = SYM('::', prio=2)
 
 # CLASS STUFF
 CLASS = NEWTYPE%None + SYM('class')%None + ID
