@@ -571,10 +571,10 @@ class Call(Binary):
 
 @ifelse(lbp=2)
 class IfElse(Node):
-  fields = ['iff', 'then', 'otherwise']
+  fields = ['cond', 'then', 'otherwise']
   def eval(self, frame):
-    iff = self.iff.eval(frame)
-    if iff.Bool(frame):
+    cond = self.cond.eval(frame)
+    if cond.Bool(frame):
       return self.then.eval(frame)
     else:
       return self.otherwise.eval(frame)
