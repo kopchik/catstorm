@@ -212,9 +212,10 @@ def newinfix(sym, prio, methname, sametype=True, right=False):
       left = self.left.eval(frame)
       right = self.right.eval(frame)
       if sametype:
-        assert type(left) == type(right), \
+        # assert type(left) == type(right), \
+        assert issubclass(type(left), type(right)), \
           "Left and right operands of ({} {} {}) must have same type.\n" \
-          "Got {} and {}." \
+          "(Or latter is subclass of former). Got {} and {}." \
           .format(left, sym, right, type(left), type(right))
       try:
         meth = getattr(left, methname)
