@@ -70,44 +70,44 @@ class Value(Leaf, DirectAccess):
 
 
 class Bool(Value):
-  pass
+  def __init__(self, value, name):
+    super().__init__(value)
+    self.name = name
 
-
-@nullary('TRUE')
-class TRUECLS(Bool):
   def Bool(self, frame):
     return self
 
   def Print(self, frame):
-    return self.__class__.__name__
+    return self.name
 
   def eval(self, frame):
     return self
 
-  def __bool__(self):
-    return True
-
-
-@nullary('FALSE')
-class FALSECLS(TRUECLS):
-  def Bool(self, frame):
+  def to_bool(self, frame):
     return self
 
   def __bool__(self):
-    return False
+    return self.value
+
+TRUE  = Bool(True, 'TRUE')
+FALSE = Bool(False, 'FALSE')
+
+@nullary('TRUE')
+def return_true(whatever):
+  return TRUE
+
+@nullary('FALSE')
+def return_false(whatever):
+  return FALSE
 
 
 @nullary('NONE')
-class NONECLS(FALSECLS):
+class NONECLS(Value):
  def Bool(self, frame):
   return FALSE
 
  def __repr__(self):
     return "NONE"
-
-
-TRUE = TRUECLS()
-FALSE = FALSECLS()
 NONE = NONECLS()
 
 
