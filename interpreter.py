@@ -95,7 +95,7 @@ class FALSE(TRUE):
 
 
 @nullary('NONE')
-class NONECLS:
+class NONECLS(Value):
  def eval(self, frame):
   return NONE
  def Bool(self,frame):
@@ -159,7 +159,7 @@ class Str(Value):
   def tokenize(self, frame):
     # pattern = r"\s*(?:(\d+)|(.))"
     # pattern = r"\s*(?:(\d+)|(\*\*|.))"
-    pattern = r"""
+    pattern = r"""\s*
        (?P<number>\d+)
       |(?P<id>\w+)
       |(?P<string>"(?:\\.|[^"\\])*")
