@@ -599,7 +599,7 @@ class Assert(Unary):
     r = self.arg.eval(frame)
     if not isinstance(r, Bool):
       print("warning, asserting not bool")
-    if not r:
+    if not r.Bool(frame):
       raise Exception("Assertion failed on %s" % self.arg)
     return r
 
