@@ -214,6 +214,7 @@ def newinfix(sym, prio, methname, sametype=True, right=False):
     def eval(self, frame):
       left = self.left.eval(frame)
       right = self.right.eval(frame)
+      # TODO
       # if sametype:
       #   assert issubclass(type(left), type(right)), \
       #     "Left and right operands of ({} {} {}) must have same type.\n" \
