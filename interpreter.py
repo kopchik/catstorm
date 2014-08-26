@@ -3,7 +3,7 @@ from pratt import pratt_parse1, prefix, \
 from ast import Leaf, Unary, Binary, Node, ListNode
 from log import Log
 
-from itertools import chain
+from itertools import chain, repeat
 import re
 
 log = Log("interpreter")
@@ -245,9 +245,12 @@ class Minus(Unary):
     return arg.Minus(frame)
 
 
-class Iter:
+class Iter(DirectAccess):
   def __init__(self, arr):
-    self.iter = iter(chain(arr, [None]))
+    self.iter = iter(chain(arr, repeat(None)))
+
+  def Iter(self, frame=None):
+    return self
 
   def eval(self, frame):
     return self
@@ -312,7 +315,7 @@ class Array(ListNode, DirectAccess):
       return TRUE
     return FALSE
 
-  def Iter(self, frame):
+  def Iter(self, frame=None):
     return Iter(self)
 
   def len(self, frame=None):
