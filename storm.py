@@ -54,7 +54,7 @@ if __name__ == '__main__':
   else:          logfilter.default = False
 
   if args.recursion_limit:
-    setrecursionlimit(40)
+    setrecursionlimit(55)
 
   if args.pretty_bt:
     sys.excepthook = prettybt
