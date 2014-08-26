@@ -435,12 +435,18 @@ class TypeExpr(ListNode):
 
 
 class Block(ListNode):
+  def __init__(self, *args, catch_ret=True, **kwargs):
+    self.catch_ret = catch_ret
+    super().__init__(*args, **kwargs)
+
   def eval(self, frame):
     r = Int(0)  # TODO: return NONE
     for expr in self:
       try:
         r = expr.eval(frame)
       except ReturnException as e:
+        if not self.catch_ret:
+          raise
         r = e.args[0]
         break
     return r
@@ -612,7 +618,7 @@ class If(Node):
   def __init__(self, clause, body=None):
     super().__init__(clause, body)
     self.clause = clause
-    self.body = Block()
+    self.body = Block(catch_ret=False)
   def eval(self, frame):
     clause = self.clause.eval(frame).to_bool(frame)
     if clause:
