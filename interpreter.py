@@ -53,7 +53,7 @@ class Value(Leaf, DirectAccess):
   def Gt(self, other, frame):
     return TRUE if self.value > other.value else FALSE
 
-  def Bool(self, frame):
+  def to_bool(self, frame):
     return TRUE if self.value else FALSE
 
   def Add(self, other, frame):
@@ -74,7 +74,7 @@ class Bool(Value):
     super().__init__(value)
     self.name = name
 
-  def Bool(self, frame):
+  def to_bool(self, frame):
     return self
 
   def Print(self, frame):
@@ -103,7 +103,7 @@ def return_false(whatever):
 
 @nullary('NONE')
 class NONECLS(Value):
- def Bool(self, frame):
+ def to_bool(self, frame):
   return FALSE
 
  def __repr__(self):
@@ -577,7 +577,7 @@ class IfElse(Node):
   fields = ['cond', 'then', 'otherwise']
   def eval(self, frame):
     cond = self.cond.eval(frame)
-    if cond.Bool(frame):
+    if cond.to_bool(frame):
       return self.then.eval(frame)
     else:
       return self.otherwise.eval(frame)
@@ -602,7 +602,7 @@ class Assert(Unary):
     r = self.arg.eval(frame)
     if not isinstance(r, Bool):
       print("warning, asserting not bool")
-    if not r.Bool(frame):
+    if not r.to_bool(frame):
       raise Exception("Assertion failed on %s" % self.arg)
     return r
 
