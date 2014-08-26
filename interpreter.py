@@ -612,7 +612,7 @@ class IfElse(Node):
       return self.otherwise.eval(frame)
 
 
-@prefix('if', 100)
+@prefix('if ', 1)
 class If(Node):
   fields = ['clause', 'body']
   def __init__(self, clause, body=None):
