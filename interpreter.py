@@ -53,6 +53,9 @@ class Value(Leaf, DirectAccess):
   def Gt(self, other, frame):
     return TRUE if self.value > other.value else FALSE
 
+  def Lt(self, other, frame):
+    return TRUE if self.value < other.value else FALSE
+
   def to_bool(self, frame):
     return TRUE if self.value else FALSE
 
@@ -235,7 +238,27 @@ newinfix('*', 30, 'Mul')
 newinfix('==', 4, 'Eq')
 newinfix('!=', 4, 'NotEq')
 newinfix('>', 3, 'Gt')
+newinfix('<', 3, 'Lt')
 newinfix('<<<',3, 'Append', sametype=False)
+
+# LOGIC
+@infix(' and ', 2)
+class And(Binary):
+  def eval(self, frame):
+    left = self.left.eval(frame)
+    if not left.to_bool(frame):
+      return FALSE
+    right = self.right.eval(frame)
+    return right
+
+
+@prefix('not', 3)
+class Not(Unary):
+  def eval(self, frame):
+    value = self.arg.eval(frame)
+    if value.to_bool(frame):
+      return FALSE
+    return TRUE
 
 
 @prefix('-', 100)
