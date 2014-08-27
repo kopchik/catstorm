@@ -281,27 +281,25 @@ class Iter(DirectAccess):
   def next(self, frame):
     return next(self.iter)
 
+def flatten(args):
+  # TODO: can it be improved?
+  if len(args) == 1:
+    arg = args[0]
+    if isinstance(arg, (Comma,list)):
+      arg
+    return[arg]
+  else:
+    return [e for e in args]
+
 
 @brackets('[',']')
 class Array(ListNode, DirectAccess):
   def __init__(self, *args):
-    # TODO: dirty code, separate it into "fabrics"
-    if len(args) == 1:
-      arg = args[0]
-      if isinstance(arg, Comma):
-        for e in arg:
-          self.append(e)
-      else:
-        self.append(arg)
-    else:
-      for e in args:
-        self.append(e)
+    arr = flatten(args)
+    self.extend(arr)
 
   def eval(self, frame):
-    r = Array()
-    for i, e in enumerate(self):
-      r.append(e.eval(frame))
-    return r
+    return Array(*[e.eval(frame) for e in self])
 
   def GetItem(self, value, frame):
     if isinstance(value, Int):
