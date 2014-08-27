@@ -26,6 +26,8 @@ if __name__ == '__main__':
                       default=False, help="show intermediate output")
   parser.add_argument('-n', '--dry-run', action='store_const', const=True,
                       default=False, help="do not execute the program")
+  parser.add_argument('-p', '--op-prio', action='store_const', const=True,
+                      default=False, help="print operator precedence")
   parser.add_argument('-b', '--pretty-bt', action='store_const', const=False,
                       default=True, help="print python exceptions with custom backtrace formatter")
   parser.add_argument('-l', '--recursion-limit', action='store_const', const=True,
@@ -38,6 +40,21 @@ if __name__ == '__main__':
   args = parser.parse_args()
   if args.debug:
     print("arguments:", args)
+
+  # TODO: stupid code
+  if args.debug or args.op_prio:
+    prio = []
+    # import pdb; pdb.set_trace()
+    for op in operators:
+      op = op.conv
+      if hasattr(op, 'lbp'):
+        prio.append((op, op.lbp))
+      if hasattr(op, 'rbp'):
+        prio.append((op, op.rbp))
+    prio.sort(key=lambda x: x[1])
+    for sym, op in prio:
+      print("{:<10} {}".format(sym.sym, op))
+    # log.debug("registered operators: %s" % )
 
   if not (args.cmd or args.raw):
     exit("please specify [input] or --raw ..")
@@ -58,21 +75,6 @@ if __name__ == '__main__':
 
   if args.pretty_bt:
     sys.excepthook = prettybt
-
-  # TODO: stupid code
-  if args.debug:
-    prio = []
-    # import pdb; pdb.set_trace()
-    for op in operators:
-      op = op.conv
-      if hasattr(op, 'lbp'):
-        prio.append((op, op.lbp))
-      if hasattr(op, 'rbp'):
-        prio.append((op, op.rbp))
-    prio.sort(key=lambda x: x[1])
-    for sym, op in prio:
-      print("{:<10} {}".format(sym.sym, op))
-    # log.debug("registered operators: %s" % )
 
   # INPUT FROM COMMAND LINE
   if args.raw:
