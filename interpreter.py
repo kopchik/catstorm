@@ -298,10 +298,10 @@ class Array(ListNode, DirectAccess):
         self.append(e)
 
   def eval(self, frame):
+    r = Array()
     for i, e in enumerate(self):
-      e = e.eval(frame)
-      self[i] = e
-    return self
+      r.append(e.eval(frame))
+    return r
 
   def GetItem(self, value, frame):
     if isinstance(value, Int):
