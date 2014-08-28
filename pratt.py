@@ -28,8 +28,16 @@ def symbol(sym, lbp=0):
   return Sym
 
 
+precedence = []
+def register(inst, op, prio):
+  global precedence
+  typ = inst.__class__.__name__
+  precedence += [(typ, op, prio)]
+
+
 class prefix:
   def __init__(self, sym, rbp):
+    register(self, sym, rbp)
     self.sym = sym
     self.rbp = rbp
 
@@ -43,6 +51,7 @@ class prefix:
 
 class infix:
   def __init__(self, sym, lbp):
+    register(self, sym, lbp)
     self.sym = sym
     self.lbp = lbp
 
@@ -55,6 +64,7 @@ class infix:
 
 class infix_r:
   def __init__(self, sym, lbp):
+    register(self, sym, lbp)
     self.sym = sym
     self.lbp = lbp
 
@@ -67,6 +77,7 @@ class infix_r:
 
 class postfix:
   def __init__(self, sym, lbp):
+    register(self, sym, lbp)
     self.sym = sym
     self.lbp = lbp
 
@@ -80,6 +91,7 @@ class postfix:
 class nullary:
   """a zero-arg operator (== keyword)"""
   def __init__(self, sym):
+    register(self, sym, 0)
     self.sym = sym
 
   def __call__(self, cls):
@@ -140,6 +152,7 @@ class subscript:
 class ifelse:
   """ Ternary operator with a slightly strange syntax VALUE if COND else VALUE"""
   def __init__(self, lbp):
+    register(self, 'if...else', lbp)
     self.lbp = lbp
 
   def __call__(self, cls):

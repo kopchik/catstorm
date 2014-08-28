@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from pratt import pratt_parse
+from pratt import pratt_parse, precedence
 from indent import indent_parse
 from log import Log, logfilter
 from grammar import PROG, operators
@@ -42,21 +42,15 @@ if __name__ == '__main__':
     print("arguments:", args)
 
   # TODO: stupid code
-  if args.debug or args.op_prio:
-    prio = []
-    # import pdb; pdb.set_trace()
-    for op in operators:
-      op = op.conv
-      if hasattr(op, 'lbp'):
-        prio.append((op, op.lbp))
-      if hasattr(op, 'rbp'):
-        prio.append((op, op.rbp))
-    prio.sort(key=lambda x: x[1])
-    for sym, op in prio:
-      print("{:<10} {}".format(sym.sym, op))
+  if  args.op_prio:
+    prec = sorted(precedence, key=lambda x: x[2])
+    for typ, op, prio in prec:
+      print("{:<10} {:4}   {}".format(op, prio, typ))
     # log.debug("registered operators: %s" % )
 
   if not (args.cmd or args.raw):
+    if args.dry_run:
+      exit("Nothing to do, bye! :-*")
     exit("please specify [input] or --raw ..")
   if args.cmd and args.raw:
     exit("[input] and --raw are mutually exclusive")
