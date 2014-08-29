@@ -108,6 +108,24 @@ deal with this, each operator given priority. "->" has
 higher priority over "-" and ">".
 
 
+Data Model
+----------
+
+* Public methods:
+    + OOP
+        + GetAttr/SetAttr -- access object attributes
+    + Array-like indexing and slicing
+        + GetItem/SetItem
+    + Type conversion
+        + to_bool
+        + to_str
+        + to_int
+* Internal (to be called only from interpreter.py):
+    + to_by_bool
+    + to_py_str
+
+
+
 TODO
 ----
 
@@ -117,3 +135,4 @@ Better operator precedence:
 ````
 traverse . nails@tokenize! => traverse . (nails@tokenize!)
 ```
+
