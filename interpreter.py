@@ -242,7 +242,7 @@ newinfix('<', 3, 'Lt')
 newinfix('<<<',3, 'Append', sametype=False)
 
 # LOGIC
-@infix(' and ', 2)
+@infix('and', 2)
 class And(Binary):
   def eval(self, frame):
     left = self.left.eval(frame)
