@@ -251,6 +251,16 @@ class And(Binary):
     right = self.right.eval(frame)
     return right
 
+# LOGIC
+@infix('or', 2)
+class Or(Binary):
+  def eval(self, frame):
+    left = self.left.eval(frame)
+    if left.to_bool(frame):
+      return left
+    right = self.right.eval(frame)
+    return right
+
 
 @prefix('not', 3)
 class Not(Unary):
