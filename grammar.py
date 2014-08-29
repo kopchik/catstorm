@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from peg import RE, SYM, ANY, SOMEOF, MAYBE, CSV, test
-from interpreter import Int, Str, Func, Var, TypeExpr, Class, If, ForLoop
+from interpreter import Int, StrTPL, Func, Var, TypeExpr, Class, If, ForLoop
 from pratt import symap, pratt_parse
 
 
@@ -22,7 +22,7 @@ COMMENT = SHELLCOMMENT | CCOMMENT | CPPCOMMENT
 ID = RE(r'[A-Za-z][A-Za-z0-9_]*', 'ID')
 FLOATCONST = RE(r'\d+\.\d*', 'FLOATCONST', conv=float)
 INTCONST = RE(r'\d+', 'INTCONST', conv=Int)
-STRCONST   = RE(r'"((?:\\.|[^"\\])*)"', 'STRCONST', conv=Str)
+STRCONST   = RE(r'"((?:\\.|[^"\\])*)"', 'STRCONST', conv=StrTPL)
 SHELLCMD   = RE(r'`(.*?)`', 'SHELLCMD')
 REGEX      = RE(r'/(.*?)/', 'REGEX')
 CONST = FLOATCONST | INTCONST | STRCONST | SHELLCMD | REGEX

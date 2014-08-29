@@ -6,7 +6,7 @@ from log import Log, logfilter
 from grammar import PROG, operators
 from peg import tokenize
 from frame import Frame
-from ast import pprint
+from ast import Node, pprint
 from prettybt import prettybt
 from interpreter import Block, Int, Str, Array, Print
 
@@ -28,8 +28,8 @@ if __name__ == '__main__':
                       default=False, help="do not execute the program")
   parser.add_argument('-p', '--op-prio', action='store_const', const=True,
                       default=False, help="print operator precedence")
-  parser.add_argument('-b', '--pretty-bt', action='store_const', const=False,
-                      default=True, help="print python exceptions with custom backtrace formatter")
+  parser.add_argument('-b', '--pretty-bt', action='store_const', const=True,
+                      default=False, help="print python exceptions with custom backtrace formatter")
   parser.add_argument('-l', '--recursion-limit', action='store_const', const=True,
                       default=False, help="set strict recursion limit (for debugging)")
   # parser.add_argument('-c', '--check-types', action='store_const', const=True,
@@ -37,16 +37,15 @@ if __name__ == '__main__':
   parser.add_argument('-r', '--raw', help="specify raw expression to execute",
                       nargs="*")
   parser.add_argument('cmd', nargs="*")
+
   args = parser.parse_args()
   if args.debug:
     print("arguments:", args)
 
-  # TODO: stupid code
   if  args.op_prio:
     prec = sorted(precedence, key=lambda x: x[2])
     for typ, op, prio in prec:
       print("{:<10} {:4}   {}".format(op, prio, typ))
-    # log.debug("registered operators: %s" % )
 
   if not (args.cmd or args.raw):
     if args.dry_run:
