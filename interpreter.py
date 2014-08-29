@@ -169,7 +169,7 @@ class Str(Value):
        (?P<number>\d+)
       |(?P<id>\w+)
       |(?P<string>"(?:\\.|[^"\\])*")
-      |(?P<op>\*\*|.)\s*
+      |(?P<op>\S)
       """
     result = Array()
     for match in re.findall(pattern, self.value.strip(), re.VERBOSE):
