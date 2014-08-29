@@ -299,7 +299,7 @@ class Array(ListNode, DirectAccess):
     self.extend(arr)
 
   def eval(self, frame):
-    return Array(*[e.eval(frame) for e in self])
+    return Array([e.eval(frame) for e in self])
 
   def GetItem(self, value, frame):
     if isinstance(value, Int):
