@@ -286,7 +286,7 @@ def flatten(args):
   if len(args) == 1:
     arg = args[0]
     if isinstance(arg, (Comma,list)):
-      arg
+      return arg
     return[arg]
   else:
     return [e for e in args]
