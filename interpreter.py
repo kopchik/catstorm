@@ -191,7 +191,7 @@ class StrTPL(Value):
         tokens = tokenize(rawexpr)
         expr, r = PROG.match(tokens)
         result = expr.eval(frame)
-        string = string.replace("{%s}" % expr, result.to_py_str())
+        string = string.replace("{%s}" % rawexpr, result.to_py_str())
     # replace special symbols
     for k,v in self.replace.items():
       string = string.replace(k, v)
