@@ -314,7 +314,6 @@ class Ret(Unary):
 class Print(Unary):
   def eval(self, frame):
     value = self.arg.eval(frame)
-    print(">>>", value)
     assert not isinstance(value, str), \
         "got instance of str, but it should be interpreter.Str"
     print("P>", value.to_str().to_py_str())
