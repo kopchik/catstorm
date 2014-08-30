@@ -13,6 +13,5 @@ main = progname, args ->
   a = []
   for char in s
     a <<< char
-  p a
-
+  assert a == ["1", "2", "3"]
   ret 0
