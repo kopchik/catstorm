@@ -250,11 +250,14 @@ class Array(ListNode, CallPython):
   def Iter(self, frame=None):
     return Iter(self)
 
-  def len(self):
-    return len(self)
+  def len(self, frame=None):
+    return Int(len(self))
 
   def to_str(self):
     return Str('[' + ", ".join(e.to_str().to_py_str() for e in self) + ']')
+
+  def to_bool(self):
+    return TRUE if self.value else FALSE
 
   def to_py_str(self):
     return self.to_str().to_py_str()
