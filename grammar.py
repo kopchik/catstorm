@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from peg import RE, SYM, ANY, SOMEOF, MAYBE, CSV, test
-from interpreter import Int, StrTPL, Func, Var, TypeExpr, Class, If, ForLoop
+from interpreter import Int, StrTPL, Func, Var, TypeExpr, Class, If, ForLoop, Case
 from pratt import symap, pratt_parse
 
 

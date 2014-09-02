@@ -1,4 +1,4 @@
-from pratt import pratt_parse1, prefix, \
+from pratt import pratt_parse, pratt_parse1, prefix, \
   infix, infix_r, postfix, nullary, ifelse, brackets, subscript
 from ast import Leaf, Unary, Binary, Node, ListNode
 from log import Log
@@ -686,10 +686,43 @@ class ForLoop(Node):
         if isinstance(self.var, Var):
           self.var.Assign(e, newframe)
         elif isinstance(self.var, Comma):
-          assert e.len() == len(self.var)
+          assert e.len().to_py_int() == len(self.var)
           for var, value in zip(self.var, e):
             var.Assign(value, newframe)
         else:
           raise Exception("invalid expr:", self.var)
         result = self.body.eval(newframe)
     return result
+
+
+@nullary('switch')
+class Switch(Node):
+  fields = ['body']
+
+  def __init__(self, unused):
+    self.body = Block(catch_ret=False)
+
+  def eval(self, frame):
+    return self.body.eval(frame)
+
+
+@infix('=>', 4)
+class Case(Binary):
+  fields = ['cond', 'body']
+  # TODO: why uncommenting makes it stop wotking?
+  def __init__(self, cond, body):
+    self.cond = pratt_parse(cond)
+    self.body = Block(pratt_parse(body), catch_ret=False)
+
+  def eval(self, frame):
+    print(self.body)
+    if self.cond.eval(frame).to_bool():
+      return self.body.eval(frame)
+
+
+@prefix('| ',0)
+class Guard(Unary):
+  """ It does nothing but provides a nice syntax element.
+  """
+  def eval(self, frame):
+    return self.arg.eval(frame)
