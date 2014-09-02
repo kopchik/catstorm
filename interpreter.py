@@ -712,13 +712,12 @@ class Switch(Node):
 @infix('=>', 4)
 class Case(Binary):
   fields = ['cond', 'body']
-  # TODO: why uncommenting makes it stop wotking?
+
   def __init__(self, cond, body):
     self.cond = pratt_parse(cond)
     self.body = Block(pratt_parse(body), catch_ret=False)
 
   def eval(self, frame):
-    print(self.body)
     if self.cond.eval(frame).to_bool():
       return self.body.eval(frame)
 
