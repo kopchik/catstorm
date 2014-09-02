@@ -90,7 +90,7 @@ def pprint(node, lvl=0):
   indent = " "*lvl
   if isinstance (node, str):
     return indent + repr(node)
-  if isinstance(node, Leaf):
+  elif isinstance(node, Leaf):
     return indent + "(%s %s)" % (clsname(node), repr(node.value))
   elif isinstance(node, (Node, list)):
     return indent + "(%s\n" % clsname(node) + \

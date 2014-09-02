@@ -20,8 +20,8 @@ COMMENT = SHELLCOMMENT | CCOMMENT | CPPCOMMENT
 
 # DATA AND TYPES
 ID = RE(r'[A-Za-z][A-Za-z0-9_]*', 'ID')
-FLOATCONST = RE(r'\d+\.\d*', 'FLOATCONST', conv=float)
-INTCONST = RE(r'\d+', 'INTCONST', conv=Int)
+FLOATCONST = RE(r'\d+\.\d*', 'FLOAT', conv=float)
+INTCONST = RE(r'\d+', 'INT', conv=Int)
 STRCONST   = RE(r'"((?:\\.|[^"\\])*)"', 'STRCONST', conv=StrTPL)
 SHELLCMD   = RE(r'`(.*?)`', 'SHELLCMD')
 REGEX      = RE(r'/(.*?)/', 'REGEX')
@@ -40,11 +40,12 @@ for sym in sorted(symap.keys(), key=len, reverse=True):
 OPS = ANY(*operators)
 
 # SOME COMMONLY USED SYMBOLS
-ASSIGN = opmap.get('=', SYM('='))
-BITOR = opmap.get('|', SYM('|'))
-COMMA = opmap.get(',', SYM(','))
-LAMBDA = opmap.get('->', SYM('->', prio=2))
-COLON = opmap.get(':', SYM(':'))
+ASSIGN  = opmap.get('=', SYM('='))
+BITOR   = opmap.get('|', SYM('|'))
+COMMA   = opmap.get(',', SYM(','))
+LAMBDA  = opmap.get('->', SYM('->', prio=2))
+COLON   = opmap.get(':', SYM(':'))
+# THEN    = opmap.get('=>', SYM('=>'))
 NEWTYPE = SYM('::', prio=2)
 
 # CLASS STUFF

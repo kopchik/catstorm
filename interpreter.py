@@ -38,7 +38,6 @@ class CallPython:
 
 
 class Value(Leaf, CallPython):
-  type = None
   """ Base class for values. """
 
   def eval(self, frame):

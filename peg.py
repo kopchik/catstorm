@@ -88,8 +88,8 @@ class RE(Grammar):
     if self.name:
       return self.name
     cls = self.__class__.__name__
-    return "%s(\"%s\", %s)" % \
-      (cls, self.pattern.pattern, self.conv)
+    return "%s(/%s/)" % \
+      (cls, self.pattern.pattern)
 
 
 class SYM(RE):
