@@ -13,8 +13,10 @@ log = Log("interpreter")
 ##############
 
 class ReturnException(Exception):
-  """ To be raised by ret operator """
+  """ To be raised by ret operator. """
 
+class NoMatch(Exception):
+  """ To be raised by Switch/Case expressions. """
 
 ##############
 # DATA TYPES #
@@ -706,7 +708,12 @@ class Switch(Node):
     self.body = Block(catch_ret=False)
 
   def eval(self, frame):
-    return self.body.eval(frame)
+    for expr in self.body:
+      try:
+        return expr.eval(frame)
+      except NoMatch:
+        continue
+    raise NoMatch("switch statement: no match")
 
 
 @infix('=>', 4)
@@ -718,8 +725,9 @@ class Case(Binary):
     self.body = Block(pratt_parse(body), catch_ret=False)
 
   def eval(self, frame):
-    if self.cond.eval(frame).to_bool():
-      return self.body.eval(frame)
+    if not self.cond.eval(frame).to_bool():
+      raise NoMatch
+    return self.body.eval(frame)
 
 
 @prefix('| ',0)
