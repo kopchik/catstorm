@@ -167,9 +167,6 @@ class Str(Value):
         result.Append(Array(Str("op"), Str(op)))
     return result
 
-  def to_py_str(self):
-    return str(self.value)
-
 
 class StrTPL(Value):
   """ Performs string expansion on eval() and returns Str obj.
@@ -640,6 +637,9 @@ class Class(Node):
     self['New'].Call(args, frame)
     return obj
 
+  def to_str(self):
+    return Str(self.name)
+
 
 class Obj(dict):
   """ Instance of the class (actually, it's dict). """
@@ -656,9 +656,8 @@ class Obj(dict):
     self[name] = value
     return value
 
-  def to_str(self, frame):
-    cls = self.__class__.__name__
-    return Str("(obj %s of %s)" % (cls, self))
+  def to_str(self):
+    return Str("(obj of %s)" % (self['Class'].to_str()))
 
 
 @prefix('@', 1)
