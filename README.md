@@ -136,3 +136,13 @@ Better operator precedence:
 traverse . nails@tokenize! => traverse . (nails@tokenize!)
 ```
 
+====
+http://clojure.org/data_structures#Data%20Structures-Collections
+http://en.wikipedia.org/wiki/Persistent_data_structure
+http://synrc.com/publications/cat/
+c2.com/cgi/wiki?SeparationOfConcerns
+okmij.org/ftp/Computation/Subtyping/Preventing-Trouble.html
+c2.com/cgi/wiki?ExpressionProblem
+c2.com/cgi/wiki?SeparationOfConcerns
+http://www.soi.city.ac.uk/~ross/Hope/
+
