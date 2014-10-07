@@ -538,6 +538,10 @@ class Union(Node, CallPython):
 
   @classmethod
   def Call(cls, values, frame):
+    l1, l2 = len(cls.members), len(values)
+    assert l1 == l2, \
+        "\"{tag}\" accepts {l1} arguments, but given {l2}" \
+        .format(tag=cls.tag, l1=l1, l2=l2)
     self = cls(values)
     return self
 
