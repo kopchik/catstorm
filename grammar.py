@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from peg import RE, SYM, ANY, SOMEOF, MAYBE, CSV, test
-from interpreter import Int, StrTPL, Func, Var, TypeExpr, Class, If, ForLoop, Case
+from interpreter import Int, StrTPL, Func, Var, NewADT, \
+  Class, If, ForLoop, Case
 from pratt import symap, pratt_parse
 
 
@@ -39,9 +40,12 @@ for sym in sorted(symap.keys(), key=len, reverse=True):
   opmap[sym] = op
 OPS = ANY(*operators)
 
+def MAKEKW(sym, **kwargs):
+  return opmap.get(sym, SYM(sym, **kwargs))%None
+
 # SOME COMMONLY USED SYMBOLS
-ASSIGN  = opmap.get('=', SYM('='))
-BITOR   = opmap.get('|', SYM('|'))
+ASSIGN  = MAKEKW('=')
+PIPE    = MAKEKW('|', prio=0)
 COMMA   = opmap.get(',', SYM(','))
 LAMBDA  = opmap.get('->', SYM('->', prio=2))
 COLON   = opmap.get(':', SYM(':'))
@@ -50,6 +54,10 @@ NEWTYPE = SYM('::', prio=2)
 
 # CLASS STUFF
 CLASS = NEWTYPE%None + SYM('class')%None + ID
+
+# ADT
+UNION = ID%'name' & MAYBE(CSV(ID, sep=COMMA))%'members'
+ADT = NEWTYPE%None + SYM('adt')%None + ID%'name' + ASSIGN%None + CSV(UNION,sep=PIPE)%'variants'
 
 # EXPRESSIONS
 EXPR = SOMEOF(OPS, ID/Var, CONST)
@@ -61,7 +69,7 @@ FUNC = ID%'name' + ASSIGN%None + MAYBE(CSV(ID, sep=COMMA))%'args' + LAMBDA%None 
 FORLOOP = KW('for ') + EXPR + KW('in ') + EXPR + MAYBE(COLON)
 
 # A PROGRAM IS ... A BUNCH OF FUNCTIONS, CLASSES AND EXPRESSIONS
-PROG = COMMENT%None | FUNC/Func | EXPR/pratt_parse | FORLOOP/ForLoop | CLASS/Class
+PROG = COMMENT%None | FUNC/Func | EXPR/pratt_parse | FORLOOP/ForLoop | CLASS/Class | ADT/NewADT
 
 
 if __name__ == '__main__':

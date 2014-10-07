@@ -8,6 +8,7 @@ import re
 
 log = Log("interpreter")
 
+
 ##############
 # MISC STUFF #
 ##############
@@ -17,6 +18,7 @@ class ReturnException(Exception):
 
 class NoMatch(Exception):
   """ To be raised by Switch/Case expressions. """
+
 
 ##############
 # DATA TYPES #
@@ -33,10 +35,6 @@ class CallPython:
     assert isinstance(name, Var)
     name = name.to_py_str()
     return getattr(self, name)
-    # class Callable:
-    #   def Call(self_, args, frame):
-    #     return getattr(self, name)()
-    # return Callable()
 
 
 class Value(Leaf, CallPython):
@@ -356,8 +354,33 @@ newinfix('>', 3, 'Gt')
 newinfix('<', 3, 'Lt')
 newinfix('<<<',3, 'Append', sametype=False)
 
+@infix_r('=', 2)
+class Assign(Binary):
+  def eval(self, frame):
+    # code below tries to distinct between
+    # assigning to variable and to class member
+    value = self.right.eval(frame)
+    if isinstance(self.left, Var):
+      key = self.left
+      key.Assign(value, frame)
+    elif isinstance(self.left, Attr):
+      owner = self.left.left.eval(frame)
+      key = self.left.right
+      owner.SetAttr(key, value)
+    elif isinstance(self.left, Subscript):
+      owner = self.left.left.eval(frame)
+      key = self.left.right.eval(frame)
+      owner.SetItem(key, value)
+    else:
+      # this is very unlikely and should be caused by syntax error
+      raise Exception("don't know what to do with expression %s = %s" % (self.left, self.right))
+    return value
 
-# LOGIC
+
+#########
+# LOGIC #
+#########
+
 @infix('and', 2)
 class And(Binary):
   def eval(self, frame):
@@ -368,7 +391,6 @@ class And(Binary):
     return right
 
 
-# LOGIC
 @infix('or', 2)
 class Or(Binary):
   def eval(self, frame):
@@ -395,6 +417,10 @@ class Minus(Unary):
     return arg.Minus()
 
 
+########################
+# PARENS AND SUBSCRIPT #
+########################
+
 @subscript('[',']', 1000)
 class Subscript(Binary):
   def eval(self, frame):
@@ -408,6 +434,10 @@ class Parens(Unary):
   def eval(self, frame):
     return self.arg.eval(frame)
 
+
+#########
+# LISTS #
+#########
 
 class CharSepVals(ListNode):
   """ Parses <whatever>-separated values. It flattens the list,
@@ -445,28 +475,9 @@ class ColonSV(CharSepVals):
   pass
 
 
-@infix_r('=', 2)
-class Assign(Binary):
-  def eval(self, frame):
-    # code below tries to distinct between
-    # assigning to variable and to class member
-    value = self.right.eval(frame)
-    if isinstance(self.left, Var):
-      key = self.left
-      key.Assign(value, frame)
-    elif isinstance(self.left, Attr):
-      owner = self.left.left.eval(frame)
-      key = self.left.right
-      owner.SetAttr(key, value)
-    elif isinstance(self.left, Subscript):
-      owner = self.left.left.eval(frame)
-      key = self.left.right.eval(frame)
-      owner.SetItem(key, value)
-    else:
-      # this is very unlikely and should be caused by syntax error
-      raise Exception("don't know what to do with expression %s = %s" % (self.left, self.right))
-    return value
-
+#############
+# CALL SMTH #
+#############
 
 @postfix('!', 3)
 class Call0(Unary):
@@ -488,7 +499,8 @@ def call_r(left, right):
 class Call(Binary):
   def eval(self, frame):
     callee = self.left.eval(frame)
-    assert isinstance(callee, (Func, Class)), \
+    accepted = (Func, Class, NewADT, Union)
+    assert isinstance(callee, accepted) or issubclass(callee, accepted), \
       "I can only call functions and classes, got %s (%s) instead" % (callee, type(callee))
     args = self.right.eval(frame)
     if not isinstance(args, Comma):
@@ -497,16 +509,79 @@ class Call(Binary):
       return callee.Call(args, newframe)
 
 
-#########
-# OTHER #
-#########
+#######
+# ADT #
+#######
 
-class TypeExpr(ListNode):
-  def __init__(self, name=None, variants=None):
-    print("new ADT %s with the following variants:" % name)
+class NewADT(Node):
+  fields = ['name', 'variants']
+
+  def __init__(self, name=None, variants=[]):
+    self.name = name
+    self.variants = []
     for variant in variants:
-      print("VARIANT:", variant)
+      class NewUnion(Union):
+        tag = variant['name']
+        members = variant['members'] or []  # TODO: hack
+      self.variants.append(NewUnion)
 
+  def eval(self, frame):
+    for Union in self.variants:
+      frame[Union.tag] = Union
+    return NONE
+
+
+class Union(Node, CallPython):
+  fields = ['tag', 'members', 'values']
+  def __init__(self, values):
+    self.values = values
+
+  @classmethod
+  def Call(cls, values, frame):
+    self = cls(values)
+    return self
+
+  def to_py_str(self):
+    values = ",".join(map(str,self.values))
+    return "{} {}".format(self.tag, values)
+
+
+#############
+# FUNCTIONS #
+#############
+
+class Func(Node):
+  fields = ['name', 'args', 'body']
+  def __init__(self, name, args, body=[]):
+    self.name = name
+    if not args: args = []
+    self.args = args
+    log.func.debug("pratt_parse on %s" % body)
+    if body:
+      self.body = Block(pratt_parse1(body))
+    else:
+      self.body = Block()
+
+  def eval(self, frame):
+    frame[self.name] = self
+    return self
+
+  def Call(self, args, frame):
+    assert len(args) == len(self.args), \
+      "The number of arguments must match the function signature.\n" \
+      "Got {} ({}) instead of {} ({})." \
+      .format(len(args), args, len(self.args), self.args)
+    for k, v in zip (self.args, args):
+      frame[k] = v
+    return self.body.eval(frame)
+
+  def to_str(self):
+    return Str("<func %s>" % self.name)
+
+
+#########
+# BLOCK #
+#########
 
 class Block(ListNode):
   def __init__(self, *args, catch_ret=True, **kwargs):
@@ -603,34 +678,9 @@ class Attr(Binary):
     return obj.GetAttr(attr)
 
 
-class Func(Node):
-  fields = ['name', 'args', 'body']
-  def __init__(self, name, args, body=[]):
-    self.name = name
-    if not args: args = []
-    self.args = args
-    log.func.debug("pratt_parse on %s" % body)
-    if body:
-      self.body = Block(pratt_parse1(body))
-    else:
-      self.body = Block()
-
-  def eval(self, frame):
-    frame[self.name] = self
-    return self
-
-  def Call(self, args, frame):
-    assert len(args) == len(self.args), \
-      "The number of arguments must match the function signature.\n" \
-      "Got {} ({}) instead of {} ({})." \
-      .format(len(args), args, len(self.args), self.args)
-    for k, v in zip (self.args, args):
-      frame[k] = v
-    return self.body.eval(frame)
-
-  def to_str(self):
-    return Str("<func %s>" % self.name)
-
+################
+# CONTROL FLOW #
+################
 
 @ifelse(lbp=2)
 class IfElse(Node):
@@ -656,16 +706,39 @@ class If(Node):
       return self.body.eval(frame)
 
 
-@prefix('assert', 0)
-class Assert(Unary):
-  def eval(self, frame):
-    r = self.arg.eval(frame)
-    if not isinstance(r, Bool):
-      print("warning, asserting on not bool")
-    if not r.to_bool():
-      raise Exception("Assertion failed on %s" % self.arg)
-    return r
+@nullary('switch')
+class Switch(Node):
+  fields = ['body']
 
+  def __init__(self, unused):
+    self.body = Block(catch_ret=False)
+
+  def eval(self, frame):
+    for expr in self.body:
+      try:
+        return expr.eval(frame)
+      except NoMatch:
+        continue
+    raise NoMatch("switch statement: no match")
+
+
+@infix('=>', 4)
+class Case(Binary):
+  fields = ['cond', 'body']
+
+  def __init__(self, cond, body):
+    self.cond = pratt_parse(cond)
+    self.body = Block(pratt_parse(body), catch_ret=False)
+
+  def eval(self, frame):
+    if not self.cond.eval(frame).to_bool():
+      raise NoMatch
+    return self.body.eval(frame)
+
+
+#########
+# LOOPS #
+#########
 
 class ForLoop(Node):
   fields = ['var', 'expr', 'body']
@@ -700,35 +773,9 @@ class ForLoop(Node):
     return result
 
 
-@nullary('switch')
-class Switch(Node):
-  fields = ['body']
-
-  def __init__(self, unused):
-    self.body = Block(catch_ret=False)
-
-  def eval(self, frame):
-    for expr in self.body:
-      try:
-        return expr.eval(frame)
-      except NoMatch:
-        continue
-    raise NoMatch("switch statement: no match")
-
-
-@infix('=>', 4)
-class Case(Binary):
-  fields = ['cond', 'body']
-
-  def __init__(self, cond, body):
-    self.cond = pratt_parse(cond)
-    self.body = Block(pratt_parse(body), catch_ret=False)
-
-  def eval(self, frame):
-    if not self.cond.eval(frame).to_bool():
-      raise NoMatch
-    return self.body.eval(frame)
-
+########
+# MISC #
+########
 
 @prefix('| ',0)
 class Guard(Unary):
@@ -736,3 +783,14 @@ class Guard(Unary):
   """
   def eval(self, frame):
     return self.arg.eval(frame)
+
+
+@prefix('assert', 0)
+class Assert(Unary):
+  def eval(self, frame):
+    r = self.arg.eval(frame)
+    if not isinstance(r, Bool):
+      print("warning, asserting on not bool")
+    if not r.to_bool():
+      raise Exception("Assertion failed on %s" % self.arg)
+    return r
