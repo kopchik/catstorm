@@ -95,6 +95,12 @@ class RE(Grammar):
 class SYM(RE):
   def __init__(self, symbol, *args, **kwargs):
     super().__init__(re.escape(symbol), *args, **kwargs)
+    self.symbol = symbol
+
+  def __repr__(self):
+    cls = self.__class__.__name__
+    return "%s('%s')" % \
+      (cls, self.symbol)
 
 
 

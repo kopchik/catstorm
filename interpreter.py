@@ -780,7 +780,7 @@ class ForLoop(Node):
 # MISC #
 ########
 
-@prefix('| ',0)
+@prefix('|',0)
 class Guard(Unary):
   """ It does nothing but provides a nice syntax element.
   """
