@@ -57,13 +57,13 @@ CLASS = NEWTYPE + KW('class') + ID
 
 # ADT
 UNION = ID%'name' & MAYBE(CSV(ID, sep=COMMA))%'members'
-ADT = NEWTYPE + SYM('adt')%None + ID%'name' + ASSIGN%None + CSV(UNION,sep=PIPE)%'variants'
+ADT = NEWTYPE + SYM('adt')%None + ID%'name' + ASSIGN + CSV(UNION,sep=PIPE)%'variants'
 
 # EXPRESSIONS
 EXPR = SOMEOF(OPS, ID/Var, CONST)
 
 # FUNCTIONS
-FUNC = ID%'name' + ASSIGN%None + MAYBE(CSV(ID, sep=COMMA))%'args' + LAMBDA%None + MAYBE(EXPR%'body')
+FUNC = ID%'name' + ASSIGN + MAYBE(CSV(ID, sep=COMMA))%'args' + LAMBDA + MAYBE(EXPR%'body')
 
 # FOR LOOP
 FORLOOP = KW('for ') + EXPR + KW('in ') + EXPR + MAYBE(COLON)
