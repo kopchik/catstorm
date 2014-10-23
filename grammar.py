@@ -50,14 +50,15 @@ COMMA   = opmap.get(',', SYM(','))
 LAMBDA  = MAKEKW('->', prio=2)
 COLON   = opmap.get(':', SYM(':'))
 # THEN    = opmap.get('=>', SYM('=>'))
-NEWTYPE = MAKEKW('::', prio=2)
+NEWCLASS = MAKEKW('::class', prio=2)
+NEWADT = MAKEKW('::adt', prio=2)
 
 # CLASS STUFF
-CLASS = NEWTYPE + KW('class') + ID
+CLASS = NEWCLASS + ID
 
 # ADT
 UNION = ID%'name' & MAYBE(CSV(ID, sep=COMMA))%'members'
-ADT = NEWTYPE + SYM('adt')%None + ID%'name' + ASSIGN + CSV(UNION,sep=PIPE)%'variants'
+ADT = NEWADT + ID%'name' + ASSIGN + CSV(UNION,sep=PIPE)%'variants'
 
 # EXPRESSIONS
 EXPR = SOMEOF(OPS, ID/Var, CONST)
