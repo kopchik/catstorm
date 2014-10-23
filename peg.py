@@ -246,7 +246,7 @@ class ANY(Composer):
 def test(expr, text, verbose=True):
   tokens = tokenize(text)
   if verbose: print("tokens:", tokens)
-  r, pos = (expr).match(tokens)
+  r, pos = expr.match(tokens)
   if pos != len(tokens):
     print("not all chars were consumed. Pattern:\n",
           expr, "\ntext:\n", text)
