@@ -47,7 +47,7 @@ def MAKEKW(sym, **kwargs):
 ASSIGN  = MAKEKW('=')
 PIPE    = MAKEKW('|', prio=0)
 COMMA   = opmap.get(',', SYM(','))
-LAMBDA  = opmap.get('->', SYM('->', prio=2))
+LAMBDA  = MAKEKW('->', prio=2)
 COLON   = opmap.get(':', SYM(':'))
 # THEN    = opmap.get('=>', SYM('=>'))
 NEWTYPE = MAKEKW('::', prio=2)
