@@ -53,7 +53,7 @@ COLON   = opmap.get(':', SYM(':'))
 NEWTYPE = MAKEKW('::', prio=2)
 
 # CLASS STUFF
-CLASS = NEWTYPE + SYM('class')%None + ID
+CLASS = NEWTYPE + KW('class') + ID
 
 # ADT
 UNION = ID%'name' & MAYBE(CSV(ID, sep=COMMA))%'members'
