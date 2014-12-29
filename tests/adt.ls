@@ -5,4 +5,8 @@ main = name, args ->
   z = Binary . 3,4
 
   p "{x} {y} {z}"
+
+  match x
+    | Unary . x => p "The Unary {x}"
+    | Binary . a,b => p "HEY {a} {b}"
   0

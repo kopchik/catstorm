@@ -49,7 +49,6 @@ PIPE    = MAKEKW('|', prio=0)
 COMMA   = opmap.get(',', SYM(','))
 LAMBDA  = MAKEKW('->', prio=2)
 COLON   = opmap.get(':', SYM(':'))
-# THEN    = opmap.get('=>', SYM('=>'))
 NEWCLASS = MAKEKW('::class', prio=2)
 NEWADT = MAKEKW('::adt', prio=2)
 

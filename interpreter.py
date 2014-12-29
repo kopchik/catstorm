@@ -724,6 +724,31 @@ class Switch(Node):
         continue
     raise NoMatch("switch statement: no match")
 
+@prefix('match', 0)
+class Match(Node):
+  fields = ['var', 'body']
+
+  def __init__(self, var):
+    self.var = var
+    self.body = Block(catch_ret=False)
+
+  def eval(self, frame):
+    tag = self.var.eval(frame)
+    for guard in self.body:
+      assert isinstance(guard, Guard), \
+          "body of match statement should be full of Guards"
+      case = guard.arg
+      cond = case.cond
+      pattern_name = cond.left.value
+      pattern_args = cond.right
+      if pattern_name == tag.tag:
+        if not isinstance(pattern_args, Comma):
+          pattern_args = [pattern_args]
+        for name, value in zip(pattern_args, tag.values):
+          frame[name.value] = value
+        return case.body.eval(frame)
+    return NONE
+
 
 @infix('=>', 4)
 class Case(Binary):
