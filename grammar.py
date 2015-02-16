@@ -47,23 +47,23 @@ def MAKEKW(sym, **kwargs):
 ASSIGN  = MAKEKW('=')
 PIPE    = MAKEKW('|', prio=0)
 COMMA   = opmap.get(',', SYM(','))
-LAMBDA  = opmap.get('->', SYM('->', prio=2))
+LAMBDA  = MAKEKW('->', prio=2)
 COLON   = opmap.get(':', SYM(':'))
-# THEN    = opmap.get('=>', SYM('=>'))
-NEWTYPE = SYM('::', prio=2)
+NEWCLASS = MAKEKW('::class', prio=2)
+NEWADT = MAKEKW('::adt', prio=2)
 
 # CLASS STUFF
-CLASS = NEWTYPE%None + SYM('class')%None + ID
+CLASS = NEWCLASS + ID
 
 # ADT
 UNION = ID%'name' & MAYBE(CSV(ID, sep=COMMA))%'members'
-ADT = NEWTYPE%None + SYM('adt')%None + ID%'name' + ASSIGN%None + CSV(UNION,sep=PIPE)%'variants'
+ADT = NEWADT + ID%'name' + ASSIGN + CSV(UNION,sep=PIPE)%'variants'
 
 # EXPRESSIONS
 EXPR = SOMEOF(OPS, ID/Var, CONST)
 
 # FUNCTIONS
-FUNC = ID%'name' + ASSIGN%None + MAYBE(CSV(ID, sep=COMMA))%'args' + LAMBDA%None + MAYBE(EXPR%'body')
+FUNC = ID%'name' + ASSIGN + MAYBE(CSV(ID, sep=COMMA))%'args' + LAMBDA + MAYBE(EXPR%'body')
 
 # FOR LOOP
 FORLOOP = KW('for ') + EXPR + KW('in ') + EXPR + MAYBE(COLON)

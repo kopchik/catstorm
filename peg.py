@@ -95,6 +95,12 @@ class RE(Grammar):
 class SYM(RE):
   def __init__(self, symbol, *args, **kwargs):
     super().__init__(re.escape(symbol), *args, **kwargs)
+    self.symbol = symbol
+
+  def __repr__(self):
+    cls = self.__class__.__name__
+    return "%s('%s')" % \
+      (cls, self.symbol)
 
 
 
@@ -240,7 +246,7 @@ class ANY(Composer):
 def test(expr, text, verbose=True):
   tokens = tokenize(text)
   if verbose: print("tokens:", tokens)
-  r, pos = (expr).match(tokens)
+  r, pos = expr.match(tokens)
   if pos != len(tokens):
     print("not all chars were consumed. Pattern:\n",
           expr, "\ntext:\n", text)
