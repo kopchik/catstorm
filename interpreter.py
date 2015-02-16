@@ -19,6 +19,9 @@ class ReturnException(Exception):
 class NoMatch(Exception):
   """ To be raised by Switch/Case expressions. """
 
+class NoAttr(Exception):
+  """ When class or object doesn't have the attr. """
+
 
 ##############
 # DATA TYPES #
@@ -56,6 +59,8 @@ class Value(Leaf, CallPython):
     return TRUE if self.value < other.value else FALSE
 
   def Add(self, other):
+    # print("!!!", self, other)
+    # import pdb; pdb.set_trace()
     return self.__class__(self.value + other.value)
 
   def Sub(self, right):
@@ -68,7 +73,7 @@ class Value(Leaf, CallPython):
     return TRUE if self.value else FALSE
 
   def to_str(self):
-    return Str(str(self.value))
+    return Str(repr(self.value))
 
   def to_py_str(self):
     return str(self.value)
@@ -225,7 +230,6 @@ class Array(ListNode, CallPython):
      raise Exception("do not know how to apply subscript %s to %s" % \
                     (value, self))
 
-
   def SetItem(self, key, value):
     assert isinstance(key, Int)
     self[key.to_py_int()] = value
@@ -315,7 +319,12 @@ class Print(Unary):
     value = self.arg.eval(frame)
     assert not isinstance(value, str), \
         "got instance of str, but it should be interpreter.Str"
-    print("P>", value.to_str().to_py_str())
+    if isinstance(value, Obj):
+      value = value.GetAttr(Str('to_str')).Call([], frame)
+      s = value.to_py_str()
+    else:
+      s = value.to_str().to_py_str()
+    print("P>", s)
     return value
 
 
@@ -367,6 +376,7 @@ class Assign(Binary):
     elif isinstance(self.left, Subscript):
       owner = self.left.left.eval(frame)
       key = self.left.right.eval(frame)
+      print("OPA", value)
       owner.SetItem(key, value)
     else:
       # this is very unlikely and should be caused by syntax error
@@ -500,6 +510,8 @@ class Call(Binary):
     assert isinstance(callee, accepted) or issubclass(callee, accepted), \
       "I can only call functions and classes, got %s (%s) instead" % (callee, type(callee))
     args = self.right.eval(frame)
+    if isinstance(args, dict):
+      import pdb; pdb.set_trace()
     if not isinstance(args, Comma):
       args = [args]  # TODO: it's not a comma class
     with frame as newframe:
@@ -590,7 +602,7 @@ class Block(ListNode):
     super().__init__(*args, **kwargs)
 
   def eval(self, frame):
-    r = Int(0)  # TODO: return NONE
+    r = NONE
     for expr in self:
       try:
         r = expr.eval(frame)
@@ -640,16 +652,18 @@ class Class(Node):
   def to_str(self):
     return Str(self.name)
 
+  def __repr__(self):
+    return "(class %s)" % self.name
+
 
 class Obj(dict):
-  """ Instance of the class (actually, it's dict). """
+  """ Instance of the class (actually, it's a dict). """
 
   def GetAttr(self, name):
     name = name.to_py_str()
-    try:
+    if name in self:
       return self[name]
-    except KeyError:
-      return self['Class'][name]
+    return self['Class'][name]
 
   def SetAttr(self, name, value):
     name = name.to_py_str()
@@ -657,15 +671,17 @@ class Obj(dict):
     return value
 
   def to_str(self):
-    return Str("(obj of %s)" % (self['Class'].to_str()))
+    return Str(repr(self))
 
+  def __repr__(self):
+    return "(obj of %s)" % (self['Class'].to_str())
 
 @prefix('@', 1)
 class Self(Unary):
   def eval(self, frame):
     obj = savedobj
     if isinstance(self.arg, Assign):
-      name = self.arg.left.value
+      name  = self.arg.left.value
       value = self.arg.right.eval(frame)
       obj[name] = value
     else:
