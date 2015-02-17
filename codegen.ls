@@ -7,7 +7,7 @@
   New = arg ->
     @arg = arg
   to_str = ->
-    "OMG PRINT " + @arg
+    @arg
 
 ::class Str
   New = value ->
@@ -15,8 +15,9 @@
   to_str = ->
     ret "STRRRRR"
 
-nails = "(Print (Str2 \"test test test\"))"
+nails = "(Print (Str \"test test test\"))"
 # nails = "(Str \"test\")"
+
 
 main = prog, args ->
   traverse = stream ->
@@ -32,10 +33,7 @@ main = prog, args ->
           p tokens
           ret Str . tokens[1]
         if tokens[0] == "Print"
-          p ">>>>>>"
-          p tokens[1:1000][0]
-          p "<<<<<<<"
-          ret Print . (traverse . tokens[1:1000][0])
+          ret Print . tokens[1]
         ret tokens
     ret tokens
 

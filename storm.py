@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 
-from pratt import pratt_parse, precedence
+from pratt import precedence
 from indent import indent_parse
 from log import Log, logfilter
-from grammar import PROG, operators
+from grammar import PROG
 from peg import tokenize
 from frame import Frame
-from ast import Node, pprint
+from ast import pprint
 from prettybt import prettybt
 from interpreter import Block, Int, Str, Array, Print
 

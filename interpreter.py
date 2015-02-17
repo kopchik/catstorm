@@ -152,6 +152,9 @@ class Str(Value):
   def strip(self, frame=None):
     return Str(self.value.strip())
 
+  def len(sesynclf):
+    return Int(len(self.value))
+
   def tokenize(self, frame=None):
     result = Array()
     pattern = r"""\s*
@@ -163,13 +166,14 @@ class Str(Value):
     for match in re.findall(pattern, self.value.strip(), re.VERBOSE):
       number, id, string, op = match
       if number:
-        result.Append(Array(Str("number"), Int(number)))
+        e = Array(Str("number"), Int(number))
       elif id:
-        result.Append(Array(Str("id"), Str(id)))
+        e = Array(Str("id"), Str(id))
       elif string:
-        result.Append(Array(Str("string"), Str(string)))
+        e = Array(Str("string"), Str(string))
       elif op:
-        result.Append(Array(Str("op"), Str(op)))
+        e = Array(Str("op"), Str(op))
+      result.Append(e)
     return result
 
 
@@ -201,7 +205,7 @@ class StrTPL(Value):
 
 class Iter(CallPython):
   def __init__(self, arr):
-    self.iter = iter(chain(arr, repeat(None)))
+    self.iter = chain(arr, repeat(None))
 
   def eval(self, frame):
     return self
@@ -218,14 +222,14 @@ class Array(ListNode, CallPython):
     if isinstance(value, Int):
       return self[value.to_py_int()]
     elif isinstance(value, ColonSV):
-      # if it is in form var[start:stop]
+      # slice in form somevar[start:stop]
       if len(value) == 2:
         start, stop = value
         ret = self[start.to_py_int():stop.to_py_int()]
         return Array(*ret)
-      # if it is in form var[start:stop:step]
+      # slice in form somevar[start:stop:step]
       elif len(ColonSV) == 3:
-        TODO
+        raise NotImplemented("TODO: implement step")
     else:
      raise Exception("do not know how to apply subscript %s to %s" % \
                     (value, self))
@@ -510,8 +514,6 @@ class Call(Binary):
     assert isinstance(callee, accepted) or issubclass(callee, accepted), \
       "I can only call functions and classes, got %s (%s) instead" % (callee, type(callee))
     args = self.right.eval(frame)
-    if isinstance(args, dict):
-      import pdb; pdb.set_trace()
     if not isinstance(args, Comma):
       args = [args]  # TODO: it's not a comma class
     with frame as newframe:
@@ -673,6 +675,9 @@ class Obj(dict):
   def to_str(self):
     return Str(repr(self))
 
+  def to_py_str(self):
+    return repr(self)
+
   def __repr__(self):
     return "(obj of %s)" % (self['Class'].to_str())
 
@@ -805,6 +810,7 @@ class ForLoop(Node):
         e = iterator.next()
         if e is None:
           break
+
         if isinstance(self.var, Var):
           self.var.Assign(e, newframe)
         elif isinstance(self.var, Comma):
