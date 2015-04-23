@@ -7,7 +7,7 @@
   New = arg ->
     @arg = arg
   to_str = ->
-    @arg
+    "print {@arg}"
 
 ::class Str
   New = value ->
@@ -23,14 +23,14 @@ main = prog, args ->
   traverse = stream ->
     tokens = []
     for type, value in stream
-      p "{type} {value}"
+      # p "{type} {value}"
       if (type == "id") or (type == "string")
         tokens <<< value
       if (type == "op" and value == "(")
         tokens <<< (traverse . stream)
       if (type == "op" and value == ")")
         if tokens[0] == "Str"
-          p tokens
+          # p tokens
           ret Str . tokens[1]
         if tokens[0] == "Print"
           ret Print . tokens[1]
@@ -38,9 +38,9 @@ main = prog, args ->
     ret tokens
 
   tokens = nails@tokenize!
-  p tokens
   it = tokens@Iter!
   r = traverse . it
   x = r[0]
-  p x
+  p x@to_str!
+  #p x@arg
   ret 0

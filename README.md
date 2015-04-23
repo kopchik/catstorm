@@ -145,4 +145,6 @@ okmij.org/ftp/Computation/Subtyping/Preventing-Trouble.html
 c2.com/cgi/wiki?ExpressionProblem
 c2.com/cgi/wiki?SeparationOfConcerns
 http://www.soi.city.ac.uk/~ross/Hope/
-
+http://www.purescript.org/
+http://elm-lang.org/
+golang.org/doc/faq

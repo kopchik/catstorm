@@ -2,11 +2,14 @@ main = progname, args ->
   # check if quoted strings are correctly parsed
   s = "\"!\""
 
-  # test interpolation and chaining
+  # test of interpolation and chaining
   a = 1
   b = 2
   s = " {a} {b} "@strip!
   assert s == "{a} {b}"
+
+  # expressions
+  assert "{1+2}" == "3"
 
   # iteration
   s = "123"

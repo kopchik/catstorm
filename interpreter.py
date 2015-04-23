@@ -16,8 +16,10 @@ log = Log("interpreter")
 class ReturnException(Exception):
   """ To be raised by ret operator. """
 
+
 class NoMatch(Exception):
   """ To be raised by Switch/Case expressions. """
+
 
 class NoAttr(Exception):
   """ When class or object doesn't have the attr. """
@@ -30,7 +32,7 @@ class NoAttr(Exception):
 class CallPython:
   """ Mixin that adds GetAttr to a class. This allows to work
       with objects that are not instances of Class/Obj.
-      E.g., str.tokenize! would not work without it because
+      E.g., str.tokenize! would not work without this because
       Str is not an instance of Class/Obj.
   """
 
@@ -76,6 +78,25 @@ class Value(Leaf, CallPython):
     return Str(repr(self.value))
 
   def to_py_str(self):
+    return str(self.value)
+
+  def __repr__(self):
+    return self.to_py_str()
+
+
+class Var(Leaf):
+  def Assign(self, value, frame):
+    # self.value actually holds the name
+    frame[self.value] = value
+    return value
+
+  def eval(self, frame):
+    return frame[self.value]
+
+  def to_py_str(self):
+    return self.value
+
+  def __str__(self):
     return str(self.value)
 
 
@@ -152,7 +173,7 @@ class Str(Value):
   def strip(self, frame=None):
     return Str(self.value.strip())
 
-  def len(sesynclf):
+  def len(self):
     return Int(len(self.value))
 
   def tokenize(self, frame=None):
@@ -248,7 +269,7 @@ class Array(ListNode, CallPython):
   def Eq(self, other):
     if  isinstance(other, Array) \
     and len(self) == len(other) \
-    and all(a.Eq(b) for a,b in zip(self,other)):
+    and all(a.Eq(b) for a, b in zip(self, other)):
       return TRUE
     return FALSE
 
@@ -288,22 +309,6 @@ class Tuple(Array):
 
   def Print(self, frame):
     return '(' + ", ".join(e.to_str() for e in self) + ')'  # TODO: reuse code from Array
-
-
-class Var(Leaf):
-  def Assign(self, value, frame):
-    # self.value actually holds the name
-    frame[self.value] = value
-    return value
-
-  def eval(self, frame):
-    return frame[self.value]
-
-  def to_py_str(self):
-    return self.value
-
-  def __str__(self):
-    return str("<var %s>" % self.value)
 
 
 #############
@@ -519,6 +524,11 @@ class Call(Binary):
     with frame as newframe:
       return callee.Call(args, newframe)
 
+  def match(self, pattern, frame):
+    union = self.left.eval(frame)
+    print(union, "PATTERN", pattern)
+    raise NoMatch
+
 
 #######
 # ADT #
@@ -560,6 +570,7 @@ class Union(Node, CallPython):
     values = ",".join(map(str,self.values))
     return "{} {}".format(self.tag, values)
 
+  # def match(self, pattern, frame):
 
 #############
 # FUNCTIONS #
@@ -569,8 +580,7 @@ class Func(Node):
   fields = ['name', 'args', 'body']
   def __init__(self, name, args, body=[]):
     self.name = name
-    if not args: args = []
-    self.args = args
+    self.args = args if args else []
     log.func.debug("pratt_parse on %s" % body)
     if body:
       self.body = Block(pratt_parse1(body))
@@ -586,7 +596,7 @@ class Func(Node):
       "The number of arguments must match the function signature.\n" \
       "Got {} ({}) instead of {} ({})." \
       .format(len(args), args, len(self.args), self.args)
-    for k, v in zip (self.args, args):
+    for k, v in zip(self.args, args):
       frame[k] = v
     return self.body.eval(frame)
 
@@ -652,10 +662,10 @@ class Class(Node):
     return obj
 
   def to_str(self):
-    return Str(self.name)
+    return Str(repr(self))
 
   def __repr__(self):
-    return "(class %s)" % self.name
+    return "<%s>" % self.name
 
 
 class Obj(dict):
@@ -679,7 +689,8 @@ class Obj(dict):
     return repr(self)
 
   def __repr__(self):
-    return "(obj of %s)" % (self['Class'].to_str())
+    return "(%s)" % (self['Class'].name)
+
 
 @prefix('@', 1)
 class Self(Unary):
@@ -745,6 +756,16 @@ class Switch(Node):
         continue
     raise NoMatch("switch statement: no match")
 
+
+@prefix('|',0)
+class Guard(Unary):
+  def eval(self, frame):
+    return self.arg.eval(frame)
+
+  def match(self, data, frame):
+    return self.arg.match(data, frame)
+
+
 @prefix('match', 0)
 class Match(Node):
   fields = ['var', 'body']
@@ -756,8 +777,16 @@ class Match(Node):
   def eval(self, frame):
     tag = self.var.eval(frame)
     for guard in self.body:
-      assert isinstance(guard, Guard), \
-          "body of match statement should be full of Guards"
+    #   assert isinstance(guard, Guard), \
+    #       "body of match statement should have only Guards"
+    #   try:
+    #     return guard.match(data, frame)
+    #   except NoMatch:
+    #     pass
+    # else:
+    #   # raise NoMatch("cannot match %s" % data)
+    #   return NONE
+
       case = guard.arg
       cond = case.cond
       pattern_name = cond.left.value
@@ -784,6 +813,10 @@ class Case(Binary):
       raise NoMatch
     return self.body.eval(frame)
 
+  def match(self, data, frame):
+    with frame as newframe:
+      self.cond.match(data, newframe)
+      return self.body.eval(newframe)
 
 #########
 # LOOPS #
@@ -826,14 +859,6 @@ class ForLoop(Node):
 ########
 # MISC #
 ########
-
-@prefix('|',0)
-class Guard(Unary):
-  """ It does nothing but provides a nice syntax element.
-  """
-  def eval(self, frame):
-    return self.arg.eval(frame)
-
 
 @prefix('assert', 0)
 class Assert(Unary):
