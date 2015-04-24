@@ -74,7 +74,7 @@ class Value(Leaf, CallPython):
   def to_bool(self):
     return TRUE if self.value else FALSE
 
-  def to_str(self):
+  def to_str(self, frame=None):
     return Str(repr(self.value))
 
   def to_py_str(self):
@@ -217,7 +217,8 @@ class StrTPL(Value):
         tokens = tokenize(rawexpr)
         expr, r = PROG.match(tokens)
         result = expr.eval(frame)
-        string = string.replace("{%s}" % rawexpr, result.to_py_str())
+        as_str = result.to_str(frame=frame).to_py_str()
+        string = string.replace("{%s}" % rawexpr, as_str)
     # replace special symbols
     for k,v in self.replace.items():
       string = string.replace(k, v)
@@ -279,8 +280,8 @@ class Array(ListNode, CallPython):
   def len(self, frame=None):
     return Int(len(self))
 
-  def to_str(self):
-    return Str('[' + ", ".join(e.to_str().to_py_str() for e in self) + ']')
+  def to_str(self, frame={}):
+    return Str('[' + ", ".join(e.to_str(frame=frame).to_py_str() for e in self) + ']')
 
   def to_bool(self):
     return TRUE if self.value else FALSE
@@ -566,6 +567,9 @@ class Union(Node, CallPython):
     self = cls(values)
     return self
 
+  def to_str(self, frame=None):
+    return Str(self.to_py_str())
+
   def to_py_str(self):
     values = ",".join(map(str,self.values))
     return "{} {}".format(self.tag, values)
@@ -682,8 +686,10 @@ class Obj(dict):
     self[name] = value
     return value
 
-  def to_str(self):
-    return Str(repr(self))
+  def to_str(self, frame):
+    func = self.GetAttr(Str('to_str'))
+    return func.Call([], frame)
+    # return Str(repr(self))
 
   def to_py_str(self):
     return repr(self)
