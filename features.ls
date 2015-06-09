@@ -3,8 +3,8 @@ main =  progname, argv ->
         # string interpolation
         p "Hello, {argv}"
         p "You've just launched {progname}"
-        p "I used it to show supported language features"
-        p "and as integrated test."
+        p "I use it to show supported language features"
+        p "and as a test."
         # basic arithmetic
         assert 1 + 1 == 2
         assert "a" + "b"  == "ab"
