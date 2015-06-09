@@ -125,6 +125,15 @@ Data Model
     + to_py_str
 
 
+Milestone 1
+-----------
+
+1. Basic types: Int64, Float, Str
+1. Containers: Tuple, List, Dict
+1. Functions
+1. Basic string iterpolation
+1. Basic pattern matching
+
 
 TODO
 ----
@@ -148,3 +157,6 @@ http://www.soi.city.ac.uk/~ross/Hope/
 http://www.purescript.org/
 http://elm-lang.org/
 golang.org/doc/faq
+http://tutorial.ponylang.org/types/actors/
+"TSX anti-patterns in lock elision code" https://software.intel.com/en-us/articles/tsx-anti-patterns-in-lock-elision-code
+"Modern Locking, Apr 2013, at Linux FS/MM/Storage summit. How to get good locking performance. This is an extract from a recent Intel lock performance paper I contributed to." 
