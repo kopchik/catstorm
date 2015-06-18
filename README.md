@@ -160,3 +160,4 @@ golang.org/doc/faq
 http://tutorial.ponylang.org/types/actors/
 "TSX anti-patterns in lock elision code" https://software.intel.com/en-us/articles/tsx-anti-patterns-in-lock-elision-code
 "Modern Locking, Apr 2013, at Linux FS/MM/Storage summit. How to get good locking performance. This is an extract from a recent Intel lock performance paper I contributed to." 
+http://en.wikipedia.org/wiki/Uniform_Function_Call_Syntax
