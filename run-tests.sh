@@ -8,5 +8,5 @@ die() {
 for file in features.ls tests/*.ls tests/bugz/*.ls
 do
    echo "running $file"
-   ./storm.py $file || die "failed on $file"
+   ./storm.py -b $file || die "failed on $file"
 done
