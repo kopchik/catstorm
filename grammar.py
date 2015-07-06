@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from peg import RE, SYM, ANY, SOMEOF, MAYBE, CSV, test
 from interpreter import Int, StrTPL, Func, Var, NewADT, \
-  Class, If, ForLoop, Case
+  Class, If, ForLoop, WhileLoop, Case
 from pratt import symap, pratt_parse
 
 
@@ -68,8 +68,10 @@ FUNC = ID%'name' + ASSIGN + MAYBE(CSV(ID, sep=COMMA))%'args' + LAMBDA + MAYBE(EX
 # FOR LOOP
 FORLOOP = KW('for ') + EXPR + KW('in ') + EXPR + MAYBE(COLON)
 
+WHILELOOP = KW('while') + EXPR
+
 # A PROGRAM IS ... A BUNCH OF FUNCTIONS, CLASSES AND EXPRESSIONS
-PROG = COMMENT%None | FUNC/Func | EXPR/pratt_parse | FORLOOP/ForLoop | CLASS/Class | ADT/NewADT
+PROG = COMMENT%None | FUNC/Func | EXPR/pratt_parse | FORLOOP/ForLoop | WHILELOOP/WhileLoop | CLASS/Class | ADT/NewADT
 
 
 if __name__ == '__main__':

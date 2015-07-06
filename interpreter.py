@@ -120,7 +120,7 @@ class Bool(Value):
   def to_bool(self):
     return self
 
-  def to_str(self):
+  def to_str(self, frame=None):
     return Str(self.name)
 
   def __repr__(self):
@@ -147,7 +147,7 @@ class TheNone(Value):
   def to_bool(self):
     return FALSE
 
-  def to_str(self):
+  def to_str(self, frame=None):
     return Str("NONE")
 
   def __repr__(self):
@@ -224,7 +224,7 @@ class StrTPL(Value):
     expressions = re.findall("\{(.+?)\}", string, re.M)
     for rawexpr in expressions:
         tokens = tokenize(rawexpr)
-        expr, r = PROG.match(tokens)
+        expr, r = PROG.match(tokens)   # TODO: perform rewrite
         result = expr.eval(frame)
         as_str = result.to_str(frame=frame).to_py_str()
         string = string.replace("{%s}" % rawexpr, as_str)
@@ -245,6 +245,7 @@ class Iter(CallPython):
     return self
 
   def next(self, frame=None):
+    # TODO: stop iteration?
     return next(self.iter)
 
   def to_str(self, frame):
@@ -620,7 +621,7 @@ class Func(Node):
       frame[k] = v
     return self.body.eval(frame)
 
-  def to_str(self):
+  def to_str(self, frame=None):
     return Str("<func %s>" % self.name)
 
 
@@ -680,7 +681,7 @@ class Class(Node):
       self['New'].Call(args, newframe)
     return obj
 
-  def to_str(self):
+  def to_str(self, frame=None):
     return Str(repr(self))
 
   def __repr__(self):
@@ -770,7 +771,7 @@ class CallObj(Node):
 
 @prefix('@', 6)
 class This(Unary):
-  #TODO: absolete method after tree rewrite
+  #TODO: absolete method after tree rewrite.
   def eval(self, frame):
     # import pdb; pdb.set_trace()
     this = frame['this']
@@ -935,6 +936,16 @@ class ForLoop(Node):
         result = self.body.eval(newframe)
     return result
 
+
+class WhileLoop(Node):
+  fields = ['expr', 'body']
+  def __init__(self, expr):
+    self.expr = pratt_parse1(expr)
+    self.body = Block(catch_ret=False)
+
+  def eval(self, frame):
+    while self.expr.eval(frame):
+      self.body.eval(frame)
 
 ########
 # MISC #
