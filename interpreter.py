@@ -29,6 +29,15 @@ class NoAttr(Exception):
 # DATA TYPES #
 ##############
 
+class CallWrap:
+  def __init__(self, meth):
+    self.meth = meth
+
+  def Call(self, *args):
+    r = self.meth()
+    return r
+
+
 class CallPython:
   """ Mixin that adds GetAttr to a class. This allows to work
       with objects that are not instances of Class/Obj.
@@ -37,9 +46,11 @@ class CallPython:
   """
 
   def GetAttr(self, name):
-    assert isinstance(name, Var)
-    name = name.to_py_str()
-    return getattr(self, name)
+    if isinstance(name, Var):
+      name = name.to_py_str()
+    assert isinstance(name, str)
+    pymeth = getattr(self, name)
+    return CallWrap(pymeth)
 
 
 class Value(Leaf, CallPython):
@@ -61,8 +72,6 @@ class Value(Leaf, CallPython):
     return TRUE if self.value < other.value else FALSE
 
   def Add(self, other):
-    # print("!!!", self, other)
-    # import pdb; pdb.set_trace()
     return self.__class__(self.value + other.value)
 
   def Sub(self, right):
@@ -235,8 +244,11 @@ class Iter(CallPython):
   def Iter(self):
     return self
 
-  def next(self):
+  def next(self, frame=None):
     return next(self.iter)
+
+  def to_str(self, frame):
+    return Str("<iter %s>" % id(self))
 
 
 class Array(ListNode, CallPython):
@@ -330,10 +342,12 @@ class Print(Unary):
     assert not isinstance(value, str), \
         "got instance of str, but it should be interpreter.Str"
     if isinstance(value, Obj):
-      value = value.GetAttr(Str('to_str')).Call([], frame)
-      s = value.to_py_str()
+      with frame as newframe:
+        newframe['this'] = value
+        to_str = value.GetAttr('to_str')
+        s = to_str.Call([], newframe).to_py_str()
     else:
-      s = value.to_str().to_py_str()
+      s = value.to_str(frame=frame).to_py_str()
     print("P>", s)
     return value
 
@@ -366,13 +380,15 @@ newinfix('-', 20, 'Sub')
 newinfix('*', 30, 'Mul')
 newinfix('==', 4, 'Eq')
 newinfix('!=', 4, 'NotEq')
-newinfix('>', 3, 'Gt')
-newinfix('<', 3, 'Lt')
+newinfix('>', 3,  'Gt')
+newinfix('<', 3,  'Lt')
 newinfix('<<<',3, 'Append', sametype=False)
+
 
 @infix_r('=', 2)
 class Assign(Binary):
   def eval(self, frame):
+    # TODO: many cases are absolete with tree rewrite
     # code below tries to distinct between
     # assigning to variable and to class member
     value = self.right.eval(frame)
@@ -380,13 +396,13 @@ class Assign(Binary):
       key = self.left
       key.Assign(value, frame)
     elif isinstance(self.left, Attr):
+      raise Exception("This should be handled by SetAttr")
       owner = self.left.left.eval(frame)
       key = self.left.right
       owner.SetAttr(key, value)
     elif isinstance(self.left, Subscript):
       owner = self.left.left.eval(frame)
       key = self.left.right.eval(frame)
-      print("OPA", value)
       owner.SetItem(key, value)
     else:
       # this is very unlikely and should be caused by syntax error
@@ -499,8 +515,8 @@ class ColonSV(CharSepVals):
 @postfix('!', 3)
 class Call0(Unary):
   def eval(self, frame):
-    callee = self.arg.eval(frame)
     with frame as newframe:
+      callee = self.arg.eval(newframe)
       if hasattr(callee, "Call"):
         return callee.Call([], newframe)
       else:
@@ -635,7 +651,6 @@ class Block(ListNode):
 #######################
 
 classes = {}
-savedobj = None
 
 
 class Class(Node):
@@ -658,11 +673,11 @@ class Class(Node):
     raise Exception("No such member \"%s\" in class %s" % (methname, self.name))
 
   def Call(self, args, frame):
-    global savedobj
     obj = Obj()
     obj['Class'] = self
-    savedobj = obj
-    self['New'].Call(args, frame)
+    with frame as newframe:
+      newframe['this'] = obj
+      self['New'].Call(args, newframe)
     return obj
 
   def to_str(self):
@@ -676,20 +691,25 @@ class Obj(dict):
   """ Instance of the class (actually, it's a dict). """
 
   def GetAttr(self, name):
-    name = name.to_py_str()
+    if isinstance(name, Str):
+      name = name.to_py_str()
     if name in self:
       return self[name]
     return self['Class'][name]
 
   def SetAttr(self, name, value):
-    name = name.to_py_str()
+    if isinstance(name, Str):
+      name = name.to_py_str()
+    elif isinstance(name, Var):
+      name = name.value
     self[name] = value
     return value
 
   def to_str(self, frame):
     func = self.GetAttr(Str('to_str'))
-    return func.Call([], frame)
-    # return Str(repr(self))
+    with frame as newframe:
+      newframe['this'] = self
+      return func.Call([], newframe)
 
   def to_py_str(self):
     return repr(self)
@@ -698,25 +718,79 @@ class Obj(dict):
     return "(%s)" % (self['Class'].name)
 
 
-@prefix('@', 1)
-class Self(Unary):
+## This code is not needed atm.
+# class Bound:
+#   """ Store methods bound to the specific object. """
+#   def __init__(self, obj, attr):
+#     self.obj = obj
+#     self.attr = attr
+
+#   def __getattr__(self, name):
+#     return getattr(self.attr, name)
+
+#   def Call(self, args, frame):
+#     callee  = self.attr
+#     with frame as newframe:
+#       newframe['this'] = self.obj
+#       if hasattr(callee, "Call"):
+#         return callee.Call(args, newframe)
+#       else:
+#         return callee(newframe)
+
+
+class GetAttr(Node):
+  fields = ["obj", "attr_name"]
   def eval(self, frame):
-    obj = savedobj
+    obj = self.obj.eval(frame)
+    attr_name = self.attr_name
+    assert isinstance(attr_name, str)
+    return obj.GetAttr(attr_name)
+
+
+class SetAttr(Node):
+  fields = ["obj", "attr_name", "value"]
+  def eval(self, frame):
+    obj = self.obj.eval(frame)
+    value = self.value.eval(frame)
+    attr_name = self.attr_name
+    assert isinstance(attr_name, str)
+    obj.SetAttr(attr_name, value)
+
+
+class CallObj(Node):
+  fields = ["obj", "meth_name", "args"]
+  def eval(self, frame):
+    this = self.obj.eval(frame)
+    args = self.args.eval(frame)
+    with frame as newframe:
+      newframe['this'] = this
+      callee = this.GetAttr(self.meth_name)
+      return callee.Call(args, newframe)
+
+
+@prefix('@', 6)
+class This(Unary):
+  #TODO: absolete method after tree rewrite
+  def eval(self, frame):
+    # import pdb; pdb.set_trace()
+    this = frame['this']
     if isinstance(self.arg, Assign):
       name  = self.arg.left.value
       value = self.arg.right.eval(frame)
-      obj[name] = value
+      return this.SetAttr(name, value)
     else:
-      value = obj[self.arg.value]
-    return value
+      name = self.arg.value
+      return this.GetAttr(name)
 
 
 @infix('@', 5)
 class Attr(Binary):
+  #TODO: absolete method after tree rewrite
   def eval(self, frame):
-    obj = self.left.eval(frame)
-    attr = self.right
-    return obj.GetAttr(attr)
+    this = self.left.eval(frame)
+    attr_name = self.right.value
+    attr = this.GetAttr(attr_name)
+    return attr
 
 
 ################

@@ -1,6 +1,6 @@
 """
 The main purpose of this module is to provide a good iteration method
-over AST tree.
+over an AST tree.
 """
 
 
@@ -27,7 +27,11 @@ class Leaf:
     return left
 
 
-class Node:
+class BaseNode:
+  """ Base class for nodes that support iteration over their fields. """
+
+
+class Node(BaseNode):
   """
   Base class for most syntax elements.
   Supports access to the elements through attributes or through iteration.
@@ -43,6 +47,10 @@ class Node:
 
   def nud(self):
     return self
+
+  def __setitem__(self, idx, value):
+    attr = self.fields[idx]
+    setattr(self, attr, value)
 
   def __setattr__(self, name, value):
     if name not in self.fields:
@@ -61,7 +69,7 @@ class Node:
     return "(%s %s)" % (cls, repr(args))
 
 
-class ListNode(list):
+class ListNode(BaseNode, list):
   """ Represents a node that is just a list of something. """
   fields = None
   def __init__(self, *args):
