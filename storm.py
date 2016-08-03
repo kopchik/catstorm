@@ -48,7 +48,7 @@ def traverse(tree, f):
 
 
 def rewrite(tree):
-  from interpreter import This, Assign, Attr, Call0, Call, CallObj, Comma
+  from interpreter import This, Assign, Attr, Call0, Call, CallObj, Comma, DictTPL
   def set_attr(elem):
     if not isinstance(elem, Assign)  \
     or not isinstance(elem.left, Attr):
@@ -114,6 +114,14 @@ def rewrite(tree):
     else:
       return e
   traverse(tree, call_obj)
+
+  def dict_rewrite(e):
+    if isinstance(e, DictTPL) and isinstance(e[0], Comma):
+      items = e[0]
+      del e[0]
+      e.extend(items)
+    return e
+  traverse(tree, dict_rewrite)
 
 
 if __name__ == '__main__':
@@ -216,6 +224,7 @@ if __name__ == '__main__':
     print("AFTER TREE REWRITE")
     print(pprint(mainblk))
 
+  # exit if code execution not required
   if args.dry_run:
     exit(0)
 

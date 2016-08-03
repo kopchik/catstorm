@@ -4,10 +4,6 @@
 # But right now it's a testing area for the language.
 
 
-# example how to traverse expressons
-nails = "(Print (Str \"test test test\"))"
-# nails = "(Str \"test\")"
-
 traverse = stream ->
   tokens = []
   for type, value in stream
@@ -30,40 +26,81 @@ traverse = stream ->
   New = arg ->
     @arg = arg
   to_str = ->
-    "Print({@arg})"
+    "(Print {@arg})"
 
 
 ::class Str
   New = value ->
-    @lbp = 0
+    @lbp = 1
     @value = value
+  nud = ->
+    ret this
   to_str = ->
-    ret "Str({@value})"
+    ret "(Str {@value})"
 
 
 ::class Op
   New = value ->
-    @lbp = 1
+    @lbp = 20
     @value = value
+    @left = NONE
+    @right = NONE
+
+  # nud = ->
+  #   ret this
+  #   nudval = @parser@expr . @lbp
+  #   p "NUDVAL: {nudval}"
+  #   ret nudval
+
+  led = left->
+    @left = left
+    @right = @parser@expr . @lbp
+    this
   to_str = ->
-    ret "Op({@value})"
+    "({@value} {@left} {@right})"
+
+
+::class END
+  New = ->
+    @lbp = 0
+  to_str = ->
+    "END"
+
+
+# register('+', infix_r, 10, Class)
 
 
 ::class Parser
   New = tokens ->
-    tokens = tokens@Iter!
-    @tokens = tokens
-    @nxt = tokens@next!
-    @cur = tokens@next!
+    end = END!
+    tokens <<< end
+    p "tokens: {tokens}"
+    for tok in tokens
+      p "!{tok}"
+      tok@parser = this
+    @tokens = tokens@Iter!
+    @cur = @nxt = NONE
+    @shift!
 
-  advance = ->
-  expr = ->
+  shift = ->
+    @cur = @nxt
+    @nxt = @tokens@next!
+
+  expr = rbp ->
+    @shift!
+    left = @cur@nud!
+    p "expr rbp={rbp} left:{left}"
+    while rbp < @nxt@lbp
+      @shift!
+      left = @cur@led . left
+    left
+
   to_str = ->
     "Parser({@tokens} {@cur} {@nxt})"
 
 
 # convert string into a list of tokens
-pass1 = str ->
+tokenize = str ->
   tokens = str@tokenize!
   result = []
   for type, value in tokens
@@ -75,21 +112,10 @@ pass1 = str ->
   ret result
 
 
-# perform operator priority parsing
-pass2 = tokens ->
-  TODO
-
 main = prog, args ->
-  src = "a + b"
-  p tokens = pass1 . src
+  src = "a + b + c"
+  p tokens = tokenize . src
 
-  p parser = Parser . tokens
+  parser = Parser . tokens
+  p parser@expr . 0
   ret 0
-
-
-
-  # it = tokens@Iter!
-  # r = traverse . it
-  # p r@to_str!
-  # #p x@arg
-  # ret 0

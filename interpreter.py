@@ -256,14 +256,14 @@ class Array(ListNode, CallPython):
   def GetItem(self, value, frame=None):
     if isinstance(value, Int):
       return self[value.to_py_int()]
-    elif isinstance(value, ColonSV):
+    elif isinstance(value, Colon):
       # slice in form somevar[start:stop]
       if len(value) == 2:
         start, stop = value
         ret = self[start.to_py_int():stop.to_py_int()]
         return Array(*ret)
       # slice in form somevar[start:stop:step]
-      elif len(ColonSV) == 3:
+      elif len(Colon) == 3:
         raise NotImplemented("TODO: implement step")
     else:
      raise Exception("do not know how to apply subscript %s to %s" % \
@@ -469,9 +469,9 @@ class Parens(Unary):
     return self.arg.eval(frame)
 
 
-#########
-# LISTS #
-#########
+##############
+# CONTAINERS #
+##############
 
 class CharSepVals(ListNode):
   """ Parses <whatever>-separated values. It flattens the list,
@@ -504,9 +504,31 @@ class Comma(CharSepVals):
   pass
 
 
-@infix(':', 5)
-class ColonSV(CharSepVals):
+@infix(':', 6)
+class Colon(CharSepVals):
   pass
+
+
+class Dict(ListNode):
+  def __init__(self, d):
+    self.values = d
+  def eval(self, frame):
+    return self
+  def to_str(self, frame=None):
+    return ",".join("%s:%s"%(k,v) for k,v in self.result.items())
+
+@brackets('{','}')
+class DictTPL(ListNode):
+  def eval(self, frame):
+    result = {}
+    for key,value in self:
+      key = key.eval(frame)
+      value = value.eval(frame)
+      result[key] = value
+    return Dict(result)
+
+  def to_str(self, frame=None):
+    ",".join("%s:%s"%(k,v) for k,v in self.result.items())
 
 
 #############

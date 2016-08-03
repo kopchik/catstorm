@@ -146,18 +146,21 @@ traverse . nails@tokenize! => traverse . (nails@tokenize!)
 ```
 
 ====
-http://clojure.org/data_structures#Data%20Structures-Collections
-http://en.wikipedia.org/wiki/Persistent_data_structure
-http://synrc.com/publications/cat/
-c2.com/cgi/wiki?SeparationOfConcerns
-okmij.org/ftp/Computation/Subtyping/Preventing-Trouble.html
-c2.com/cgi/wiki?ExpressionProblem
-c2.com/cgi/wiki?SeparationOfConcerns
-http://www.soi.city.ac.uk/~ross/Hope/
-http://www.purescript.org/
-http://elm-lang.org/
-golang.org/doc/faq
-http://tutorial.ponylang.org/types/actors/
-"TSX anti-patterns in lock elision code" https://software.intel.com/en-us/articles/tsx-anti-patterns-in-lock-elision-code
-"Modern Locking, Apr 2013, at Linux FS/MM/Storage summit. How to get good locking performance. This is an extract from a recent Intel lock performance paper I contributed to." 
-http://en.wikipedia.org/wiki/Uniform_Function_Call_Syntax
+http://clojure.org/data_structures#Data%20Structures-Collections  
+http://en.wikipedia.org/wiki/Persistent_data_structure  
+http://synrc.com/publications/cat/  
+c2.com/cgi/wiki?SeparationOfConcerns  
+okmij.org/ftp/Computation/Subtyping/Preventing-Trouble.html  
+c2.com/cgi/wiki?ExpressionProblem  
+c2.com/cgi/wiki?SeparationOfConcerns  
+http://www.soi.city.ac.uk/~ross/Hope/  
+http://www.purescript.org/  
+http://elm-lang.org/  
+golang.org/doc/faq  
+http://tutorial.ponylang.org/types/actors/  
+"TSX anti-patterns in lock elision code" https://software.intel.com/en-us/articles/tsx-anti-patterns-in-lock-elision-code  
+"Modern Locking, Apr 2013, at Linux FS/MM/Storage summit. How to get good locking performance. This is an extract from a recent Intel lock performance paper I contributed to."  
+http://en.wikipedia.org/wiki/Uniform_Function_Call_Syntax  
+http://blog.ezyang.com/2010/05/design-patterns-in-haskel/  
+http://habrahabr.ru/post/263575/  
+
