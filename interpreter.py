@@ -431,9 +431,9 @@ class Assign(Binary):
         return value
 
 
-#########
-# LOGIC #
-#########
+###########################
+# LOGIC (BOOLEAN ALGEBRA) #
+###########################
 
 @infix('and', 2)
 class And(Binary):
@@ -495,9 +495,9 @@ class Parens(Unary):
         return self.arg.eval(frame)
 
 
-##############
-# CONTAINERS #
-##############
+############################
+# CONTAINERS / COLLECTIONS #
+############################
 
 class CharSepVals(ListNode):
     """ Parses <whatever>-separated values. It flattens the list,
@@ -564,9 +564,9 @@ class DictTPL(ListNode):
         ",".join("%s:%s" % (k, v) for k, v in self.result.items())
 
 
-#############
-# CALL SMTH #
-#############
+##################
+# FUNCTION CALLS #
+##################
 
 @postfix('!', 3)
 class Call0(Unary):
@@ -650,12 +650,10 @@ class Union(Node, CallPython):
         values = ",".join(map(str, self.values))
         return "{} {}".format(self.tag, values)
 
-    # def match(self, pattern, frame):
 
 #############
 # FUNCTIONS #
 #############
-
 
 class Func(Node):
     fields = ['name', 'args', 'body']
@@ -686,9 +684,9 @@ class Func(Node):
         return Str("<func %s>" % self.name)
 
 
-#########
-# BLOCK #
-#########
+##############
+# CODE BLOCK #
+##############
 
 class Block(ListNode):
 
@@ -710,7 +708,7 @@ class Block(ListNode):
 
 
 #######################
-# CLASSED AND OBJECTS #
+# CLASSES AND OBJECTS #
 #######################
 
 classes = {}
@@ -971,10 +969,10 @@ class Case(Binary):
             self.cond.match(data, newframe)
             return self.body.eval(newframe)
 
+
 #########
 # LOOPS #
 #########
-
 
 class ForLoop(Node):
     fields = ['var', 'expr', 'body']
@@ -1022,10 +1020,10 @@ class WhileLoop(Node):
         while self.expr.eval(frame):
             self.body.eval(frame)
 
+
 ########
 # MISC #
 ########
-
 
 @prefix('assert', 0)
 class Assert(Unary):
