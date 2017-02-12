@@ -348,7 +348,9 @@ class Print(Unary):
         to_str = value.GetAttr('to_str')
         s = to_str.Call([], newframe).to_py_str()
     else:
-      s = value.to_str(frame=frame).to_py_str()
+      s = value.to_str(frame=frame)
+      if not isinstance(s, str):
+        s = s.to_py_str()
     print("P>", s)
     return value
 
@@ -515,7 +517,7 @@ class Dict(ListNode):
   def eval(self, frame):
     return self
   def to_str(self, frame=None):
-    return ",".join("%s:%s"%(k,v) for k,v in self.result.items())
+    return ",".join("%s:%s"%(k,v) for k,v in self)
 
 @brackets('{','}')
 class DictTPL(ListNode):
