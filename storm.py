@@ -6,7 +6,7 @@ from log import Log, logfilter
 from grammar import PROG
 from peg import tokenize
 from frame import Frame
-from ast import pprint, BaseNode
+from syntax_tree import pprint, BaseNode
 
 from prettybt import prettybt
 from interpreter import Block, Int, Str, Array, Var, Print, SetAttr, GetAttr
@@ -19,11 +19,10 @@ log = Log("main")
 
 
 def parse(tree, blk):
-    """ Traverse raw AST tree and parse it. """
+    """Traverse raw AST tree and parse it."""
     for e in tree:
         if isinstance(e, list):
-            assert hasattr(
-                prog, 'body'), "cannot add statement %s to %s" % (e, prog)
+            assert hasattr(prog, "body"), "cannot add statement %s to %s" % (e, prog)
             parse(e, prog.body)
         else:
             try:
@@ -32,8 +31,7 @@ def parse(tree, blk):
                     print(tokens)
                 prog, r = PROG.match(tokens)  # TODO: check r
                 if r != len(tokens):
-                    raise Exception(
-                        "Not all tokens were consumed. Trailing garbage?")
+                    raise Exception("Not all tokens were consumed. Trailing garbage?")
                 if not prog:  # skip comments # TODO: make it better
                     continue
                 blk.append(prog)
@@ -51,14 +49,15 @@ def traverse(tree, f):
 
 def rewrite(tree):
     from interpreter import This, Assign, Attr, Call0, Call, CallObj, Comma, DictTPL
+
     def set_attr(elem):
-        if not isinstance(elem, Assign)  \
-                or not isinstance(elem.left, Attr):
+        if not isinstance(elem, Assign) or not isinstance(elem.left, Attr):
             return elem
         obj = elem.left.left
         attr_name = elem.left.right.value
         value = elem.right
         return SetAttr(obj, attr_name, value)
+
     traverse(tree, set_attr)
 
     def get_attr(elem):
@@ -69,21 +68,23 @@ def rewrite(tree):
         obj = Var("this")
         attr_name = elem.arg.value
         return GetAttr(obj, attr_name)
+
     traverse(tree, get_attr)
 
     def set_attr(elem):
-        if not isinstance(elem, Assign)   \
-                or not isinstance(elem.left, GetAttr):
+        if not isinstance(elem, Assign) or not isinstance(elem.left, GetAttr):
             return elem
         obj = elem.left.obj
         attr_name = elem.left.attr_name
         value = elem.right
         return SetAttr(obj, attr_name, value)
+
     traverse(tree, set_attr)
 
     empty_args = Comma(flatten=False)
+
     def call_obj0(e):
-        """ Call object method without args. """
+        """Call object method without args."""
         if isinstance(e, Call0) and isinstance(e.arg, Attr):
             arg = e.arg
             obj = arg.left
@@ -91,6 +92,7 @@ def rewrite(tree):
             return CallObj(obj, meth_name, empty_args)
         else:
             return e
+
     traverse(tree, call_obj0)
 
     def comma_args(e):
@@ -101,10 +103,11 @@ def rewrite(tree):
             return Call(callee, args)
         else:
             return e
+
     traverse(tree, comma_args)
 
     def call_obj(e):
-        """ Methods are called with CallObj, not Call. """
+        """Methods are called with CallObj, not Call."""
         if isinstance(e, Call) and isinstance(e.left, Attr):
             arg = e.left
             obj = arg.left
@@ -115,6 +118,7 @@ def rewrite(tree):
             return CallObj(obj, meth_name, args)
         else:
             return e
+
     traverse(tree, call_obj)
 
     def dict_rewrite(e):
@@ -123,31 +127,75 @@ def rewrite(tree):
             del e[0]
             e.extend(items)
         return e
+
     traverse(tree, dict_rewrite)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('-t', '--tokens', action='store_const', const=True,
-                        default=False, help="show tokens")
-    parser.add_argument('-a', '--ast', action='store_const', const=True,
-                        default=False, help="show abstract syntax tree")
-    parser.add_argument('-d', '--debug', action='store_const', const=True,
-                        default=False, help="show intermediate output")
-    parser.add_argument('-n', '--dry-run', action='store_const', const=True,
-                        default=False, help="do not execute the program")
-    parser.add_argument('-p', '--op-prio', action='store_const', const=True,
-                        default=False, help="print operator precedence")
-    parser.add_argument('-b', '--pretty-bt', action='store_const', const=True,
-                        default=True, help="print python exceptions with custom backtrace formatter")
-    parser.add_argument('-l', '--recursion-limit', action='store_const', const=True,
-                        default=False, help="set strict recursion limit (for debugging)")
+    parser.add_argument(
+        "-t",
+        "--tokens",
+        action="store_const",
+        const=True,
+        default=False,
+        help="show tokens",
+    )
+    parser.add_argument(
+        "-a",
+        "--ast",
+        action="store_const",
+        const=True,
+        default=False,
+        help="show abstract syntax tree",
+    )
+    parser.add_argument(
+        "-d",
+        "--debug",
+        action="store_const",
+        const=True,
+        default=False,
+        help="show intermediate output",
+    )
+    parser.add_argument(
+        "-n",
+        "--dry-run",
+        action="store_const",
+        const=True,
+        default=False,
+        help="do not execute the program",
+    )
+    parser.add_argument(
+        "-p",
+        "--op-prio",
+        action="store_const",
+        const=True,
+        default=False,
+        help="print operator precedence",
+    )
+    parser.add_argument(
+        "-b",
+        "--pretty-bt",
+        action="store_const",
+        const=True,
+        default=True,
+        help="print python exceptions with custom backtrace formatter",
+    )
+    parser.add_argument(
+        "-l",
+        "--recursion-limit",
+        action="store_const",
+        const=True,
+        default=False,
+        help="set strict recursion limit (for debugging)",
+    )
     # parser.add_argument('-c', '--check-types', action='store_const', const=True,
     # default=False, help="perform type inference and checking (disabled by
     # default)")
-    parser.add_argument('-r', '--raw', help="specify raw expression to execute",
-                        nargs="*")
-    parser.add_argument('cmd', nargs="*")
+    parser.add_argument(
+        "-r", "--raw", help="specify raw expression to execute", nargs="*"
+    )
+    parser.add_argument("cmd", nargs="*")
 
     args = parser.parse_args()
     if args.debug:
@@ -195,13 +243,13 @@ if __name__ == '__main__':
                 prog = Block(prog)
 
                 if args.ast:
-                    print('BEFORE TREE REWRITE')
+                    print("BEFORE TREE REWRITE")
                     print(pprint(prog))
 
                 rewrite(prog)
 
                 if args.ast:
-                    print('AFTER TREE REWRITE')
+                    print("AFTER TREE REWRITE")
                     print(pprint(prog))
 
                 # execute
@@ -218,7 +266,7 @@ if __name__ == '__main__':
     mainblk = Block()
     parse(indented, mainblk)
     if args.ast:
-        print('BEFORE TREE REWRITE')
+        print("BEFORE TREE REWRITE")
         print(pprint(mainblk))
 
     rewrite(mainblk)
@@ -236,7 +284,7 @@ if __name__ == '__main__':
         mainblk.eval(frame)
         progname = Str(args.cmd[0])
         cmd = [Str(s) for s in args.cmd[1:]]
-        ret = frame['main'].Call((progname, Array(*cmd)), frame)
+        ret = frame["main"].Call((progname, Array(*cmd)), frame)
 
     # make proper exit status
     if isinstance(ret, Int):

@@ -1,6 +1,16 @@
-from pratt import pratt_parse, pratt_parse1, prefix, \
-    infix, infix_r, postfix, nullary, ifelse, brackets, subscript
-from ast import Leaf, Unary, Binary, Node, ListNode
+from pratt import (
+    pratt_parse,
+    pratt_parse1,
+    prefix,
+    infix,
+    infix_r,
+    postfix,
+    nullary,
+    ifelse,
+    brackets,
+    subscript,
+)
+from syntax_tree import Leaf, Unary, Binary, Node, ListNode
 from log import Log
 
 from itertools import chain, repeat
@@ -13,24 +23,25 @@ log = Log("interpreter")
 # MISC STUFF #
 ##############
 
+
 class ReturnException(Exception):
-    """ To be raised by ret operator. """
+    """To be raised by ret operator."""
 
 
 class NoMatch(Exception):
-    """ To be raised by Switch/Case expressions. """
+    """To be raised by Switch/Case expressions."""
 
 
 class NoAttr(Exception):
-    """ When class or object doesn't have the attr. """
+    """When class or object doesn't have the attr."""
 
 
 ##############
 # DATA TYPES #
 ##############
 
-class CallWrap:
 
+class CallWrap:
     def __init__(self, meth):
         self.meth = meth
 
@@ -40,10 +51,10 @@ class CallWrap:
 
 
 class CallPython:
-    """ Mixin that adds GetAttr to a class. This allows to work
-        with objects that are not instances of Class/Obj.
-        E.g., str.tokenize! would not work without this because
-        Str is not an instance of Class/Obj.
+    """Mixin that adds GetAttr to a class. This allows to work
+    with objects that are not instances of Class/Obj.
+    E.g., str.tokenize! would not work without this because
+    Str is not an instance of Class/Obj.
     """
 
     def GetAttr(self, name):
@@ -55,7 +66,7 @@ class CallPython:
 
 
 class Value(Leaf, CallPython):
-    """ Base class for values. """
+    """Base class for values."""
 
     def eval(self, frame):
         return self
@@ -95,7 +106,6 @@ class Value(Leaf, CallPython):
 
 
 class Var(Leaf):
-
     def Assign(self, value, frame):
         # self.value actually holds the name
         frame[self.value] = value
@@ -112,7 +122,6 @@ class Var(Leaf):
 
 
 class Bool(Value):
-
     def __init__(self, value, name):
         super().__init__(value)
         self.name = name
@@ -132,23 +141,23 @@ class Bool(Value):
     def __bool__(self):
         return self.value
 
-TRUE = Bool(True, 'TRUE')
-FALSE = Bool(False, 'FALSE')
+
+TRUE = Bool(True, "TRUE")
+FALSE = Bool(False, "FALSE")
 
 
-@nullary('TRUE')
+@nullary("TRUE")
 def return_true(whatever):
     return TRUE
 
 
-@nullary('FALSE')
+@nullary("FALSE")
 def return_false(whatever):
     return FALSE
 
 
-@nullary('NONE')
+@nullary("NONE")
 class TheNone(Value):
-
     def to_bool(self):
         return FALSE
 
@@ -157,11 +166,12 @@ class TheNone(Value):
 
     def __repr__(self):
         return "NONE"
+
+
 NONE = TheNone()
 
 
 class Int(Value):
-
     def __init__(self, value):
         if isinstance(value, Int):
             value = value.value
@@ -175,7 +185,6 @@ class Int(Value):
 
 
 class Str(Value):
-
     def GetItem(self, attr):
         if isinstance(attr, Int):
             value = self.value[attr.to_py_int()]
@@ -215,9 +224,9 @@ class Str(Value):
 
 
 class StrTPL(Value):
-    """ Performs string expansion on eval() and returns Str obj.
-    """
-    replace = {r'\"': '"', r'\n': '\n', r'\t': '\t'}
+    """Performs string expansion on eval() and returns Str obj."""
+
+    replace = {r"\"": '"', r"\n": "\n", r"\t": "\t"}
 
     def __init__(self, value):
         self.value = str(value)  # TODO: do we need this?
@@ -226,12 +235,13 @@ class StrTPL(Value):
         # TODO: cannot import from top level due to circual dependences
         from peg import tokenize
         from grammar import PROG
+
         # perform string expansion
         string = self.value
         expressions = re.findall("\{(.+?)\}", string, re.M)
         for rawexpr in expressions:
             tokens = tokenize(rawexpr)
-            expr, r = PROG.match(tokens)   # TODO: perform rewrite
+            expr, r = PROG.match(tokens)  # TODO: perform rewrite
             result = expr.eval(frame)
             as_str = result.to_str(frame=frame).to_py_str()
             string = string.replace("{%s}" % rawexpr, as_str)
@@ -242,7 +252,6 @@ class StrTPL(Value):
 
 
 class Iter(CallPython):
-
     def __init__(self, arr):
         self.iter = chain(arr, repeat(None))
 
@@ -261,7 +270,6 @@ class Iter(CallPython):
 
 
 class Array(ListNode, CallPython):
-
     def GetItem(self, value, frame=None):
         if isinstance(value, Int):
             return self[value.to_py_int()]
@@ -269,14 +277,15 @@ class Array(ListNode, CallPython):
             # slice in form somevar[start:stop]
             if len(value) == 2:
                 start, stop = value
-                ret = self[start.to_py_int():stop.to_py_int()]
+                ret = self[start.to_py_int() : stop.to_py_int()]
                 return Array(*ret)
             # slice in form somevar[start:stop:step]
             elif len(Colon) == 3:
                 raise NotImplemented("TODO: implement step")
         else:
-            raise Exception("do not know how to apply subscript %s to %s" %
-                            (value, self))
+            raise Exception(
+                "do not know how to apply subscript %s to %s" % (value, self)
+            )
 
     def SetItem(self, key, value):
         assert isinstance(key, Int)
@@ -290,9 +299,11 @@ class Array(ListNode, CallPython):
         return value
 
     def Eq(self, other):
-        if  isinstance(other, Array) \
-                and len(self) == len(other) \
-                and all(a.Eq(b) for a, b in zip(self, other)):
+        if (
+            isinstance(other, Array)
+            and len(self) == len(other)
+            and all(a.Eq(b) for a, b in zip(self, other))
+        ):
             return TRUE
         return FALSE
 
@@ -303,7 +314,9 @@ class Array(ListNode, CallPython):
         return Int(len(self))
 
     def to_str(self, frame={}):
-        return Str('[' + ", ".join(e.to_str(frame=frame).to_py_str() for e in self) + ']')
+        return Str(
+            "[" + ", ".join(e.to_str(frame=frame).to_py_str() for e in self) + "]"
+        )
 
     def to_bool(self):
         return TRUE if self.value else FALSE
@@ -312,9 +325,8 @@ class Array(ListNode, CallPython):
         return self.to_str().to_py_str()
 
 
-@brackets('[', ']')
+@brackets("[", "]")
 class ArrayNode(ListNode, CallPython):
-
     def __init__(self, arg=None):
         if arg is None:
             return
@@ -328,39 +340,39 @@ class ArrayNode(ListNode, CallPython):
 
 
 class Tuple(Array):
-
     def forbidden_operation(self, *args, **kwargs):
         raise Exception("Tuples are immutable, dude")
+
     Append = SetItem = forbidden_operation
 
     def Print(self, frame):
         # TODO: reuse code from Array
-        return '(' + ", ".join(e.to_str() for e in self) + ')'
+        return "(" + ", ".join(e.to_str() for e in self) + ")"
 
 
 #############
 # OPERATORS #
 #############
 
-@prefix('ret ', 0)
-class Ret(Unary):
 
+@prefix("ret ", 0)
+class Ret(Unary):
     def eval(self, frame):
         value = self.arg.eval(frame)
         raise ReturnException(value)
 
 
-@prefix('p ', 0)
+@prefix("p ", 0)
 class Print(Unary):
-
     def eval(self, frame):
         value = self.arg.eval(frame)
-        assert not isinstance(value, str), \
-            "got instance of str, but it should be interpreter.Str"
+        assert not isinstance(
+            value, str
+        ), "got instance of str, but it should be interpreter.Str"
         if isinstance(value, Obj):
             with frame as newframe:
-                newframe['this'] = value
-                to_str = value.GetAttr('to_str')
+                newframe["this"] = value
+                to_str = value.GetAttr("to_str")
                 s = to_str.Call([], newframe).to_py_str()
         else:
             s = value.to_str(frame=frame)
@@ -372,7 +384,6 @@ class Print(Unary):
 
 def newinfix(sym, prio, methname, sametype=True, right=False):
     class Infix(Binary):
-
         def eval(self, frame):
             left = self.left.eval(frame)
             right = self.right.eval(frame)
@@ -385,28 +396,30 @@ def newinfix(sym, prio, methname, sametype=True, right=False):
             try:
                 meth = getattr(left, methname)
             except AttributeError:
-                raise Exception("{} does not have {} method, "
-                                "operation ({}) not supported".format(left, methname, sym))
+                raise Exception(
+                    "{} does not have {} method, "
+                    "operation ({}) not supported".format(left, methname, sym)
+                )
             return meth(right)
+
     func = infix_r if right else infix
     Infix = func(sym, prio)(Infix)
     Infix.__name__ = Infix.__qualname__ = methname
     return Infix
 
 
-newinfix('+', 20, 'Add')
-newinfix('-', 20, 'Sub')
-newinfix('*', 30, 'Mul')
-newinfix('==', 4, 'Eq')
-newinfix('!=', 4, 'NotEq')
-newinfix('>', 3,  'Gt')
-newinfix('<', 3,  'Lt')
-newinfix('<<<', 3, 'Append', sametype=False)
+newinfix("+", 20, "Add")
+newinfix("-", 20, "Sub")
+newinfix("*", 30, "Mul")
+newinfix("==", 4, "Eq")
+newinfix("!=", 4, "NotEq")
+newinfix(">", 3, "Gt")
+newinfix("<", 3, "Lt")
+newinfix("<<<", 3, "Append", sametype=False)
 
 
-@infix_r('=', 2)
+@infix_r("=", 2)
 class Assign(Binary):
-
     def eval(self, frame):
         # TODO: many cases are absolete with tree rewrite
         # code below tries to distinct between
@@ -426,8 +439,10 @@ class Assign(Binary):
             owner.SetItem(key, value)
         else:
             # this is very unlikely and should be caused by syntax error
-            raise Exception("don't know what to do with expression %s = %s" % (
-                self.left, self.right))
+            raise Exception(
+                "don't know what to do with expression %s = %s"
+                % (self.left, self.right)
+            )
         return value
 
 
@@ -435,9 +450,9 @@ class Assign(Binary):
 # LOGIC (BOOLEAN ALGEBRA) #
 ###########################
 
-@infix('and', 2)
-class And(Binary):
 
+@infix("and", 2)
+class And(Binary):
     def eval(self, frame):
         left = self.left.eval(frame)
         if not left.to_bool():
@@ -446,9 +461,8 @@ class And(Binary):
         return right
 
 
-@infix('or', 2)
+@infix("or", 2)
 class Or(Binary):
-
     def eval(self, frame):
         left = self.left.eval(frame)
         if left.to_bool():
@@ -457,9 +471,8 @@ class Or(Binary):
         return right
 
 
-@prefix('not', 3)
+@prefix("not", 3)
 class Not(Unary):
-
     def eval(self, frame):
         value = self.arg.eval(frame)
         if value.to_bool():
@@ -467,9 +480,8 @@ class Not(Unary):
         return TRUE
 
 
-@prefix('-', 100)
+@prefix("-", 100)
 class Minus(Unary):
-
     def eval(self, frame):
         arg = self.arg.eval(frame)
         return arg.Minus()
@@ -479,18 +491,17 @@ class Minus(Unary):
 # PARENS AND SUBSCRIPT #
 ########################
 
-@subscript('[', ']', 1000)
-class Subscript(Binary):
 
+@subscript("[", "]", 1000)
+class Subscript(Binary):
     def eval(self, frame):
         left = self.left.eval(frame)
         right = self.right.eval(frame)
         return left.GetItem(right)
 
 
-@brackets('(', ')')
+@brackets("(", ")")
 class Parens(Unary):
-
     def eval(self, frame):
         return self.arg.eval(frame)
 
@@ -499,16 +510,18 @@ class Parens(Unary):
 # CONTAINERS / COLLECTIONS #
 ############################
 
+
 class CharSepVals(ListNode):
-    """ Parses <whatever>-separated values. It flattens the list,
-        e.g., Comma(1, Comma(2, 3)) transformed into Comma(1, 2, 3).
-        eval() returns new instance.
+    """Parses <whatever>-separated values. It flattens the list,
+    e.g., Comma(1, Comma(2, 3)) transformed into Comma(1, 2, 3).
+    eval() returns new instance.
     """
 
     def __init__(self, *values, flatten=True):
         if flatten:
-            assert len(
-                values) == 2, "in flatten mode only two args accepted (left and right)"
+            assert (
+                len(values) == 2
+            ), "in flatten mode only two args accepted (left and right)"
             values = self.flatten(*values)
         super().__init__(*values)
 
@@ -527,18 +540,17 @@ class CharSepVals(ListNode):
         return self.__class__(*values, flatten=False)
 
 
-@infix(',', 5)
+@infix(",", 5)
 class Comma(CharSepVals):
     pass
 
 
-@infix(':', 6)
+@infix(":", 6)
 class Colon(CharSepVals):
     pass
 
 
 class Dict(ListNode):
-
     def __init__(self, d):
         self.values = d
 
@@ -549,9 +561,8 @@ class Dict(ListNode):
         return ",".join("%s:%s" % (k, v) for k, v in self)
 
 
-@brackets('{', '}')
+@brackets("{", "}")
 class DictTPL(ListNode):
-
     def eval(self, frame):
         result = {}
         for key, value in self:
@@ -568,9 +579,9 @@ class DictTPL(ListNode):
 # FUNCTION CALLS #
 ##################
 
-@postfix('!', 3)
-class Call0(Unary):
 
+@postfix("!", 3)
+class Call0(Unary):
     def eval(self, frame):
         with frame as newframe:
             callee = self.arg.eval(newframe)
@@ -580,20 +591,22 @@ class Call0(Unary):
                 return callee(newframe)
 
 
-@infix('$', 5)  # TODO: does not work
+@infix("$", 5)  # TODO: does not work
 def call_r(left, right):
     return Call(right, left)
 
 
-@infix_r(' . ', 5)
+@infix_r(" . ", 5)
 class Call(Binary):
-
     def eval(self, frame):
         callee = self.left.eval(frame)
         accepted = (Func, Class, NewADT, Union)
-        assert isinstance(callee, accepted) or issubclass(callee, accepted), \
-            "I can only call functions and classes, got %s (%s) instead" % (
-                callee, type(callee))
+        assert isinstance(callee, accepted) or issubclass(
+            callee, accepted
+        ), "I can only call functions and classes, got %s (%s) instead" % (
+            callee,
+            type(callee),
+        )
         args = self.right.eval(frame)
         if not isinstance(args, Comma):
             args = [args]  # TODO: it's not a comma class
@@ -610,16 +623,19 @@ class Call(Binary):
 # ADT #
 #######
 
+
 class NewADT(Node):
-    fields = ['name', 'variants']
+    fields = ["name", "variants"]
 
     def __init__(self, name=None, variants=[]):
         self.name = name
         self.variants = []
         for variant in variants:
+
             class NewUnion(Union):
-                tag = variant['name']
-                members = variant['members'] or []  # TODO: hack
+                tag = variant["name"]
+                members = variant["members"] or []  # TODO: hack
+
             self.variants.append(NewUnion)
 
     def eval(self, frame):
@@ -629,7 +645,7 @@ class NewADT(Node):
 
 
 class Union(Node, CallPython):
-    fields = ['tag', 'members', 'values']
+    fields = ["tag", "members", "values"]
 
     def __init__(self, values):
         self.values = values
@@ -637,9 +653,9 @@ class Union(Node, CallPython):
     @classmethod
     def Call(cls, values, frame):
         l1, l2 = len(cls.members), len(values)
-        assert l1 == l2, \
-            "\"{tag}\" accepts {l1} arguments, but given {l2}" \
-            .format(tag=cls.tag, l1=l1, l2=l2)
+        assert l1 == l2, '"{tag}" accepts {l1} arguments, but given {l2}'.format(
+            tag=cls.tag, l1=l1, l2=l2
+        )
         self = cls(values)
         return self
 
@@ -655,8 +671,9 @@ class Union(Node, CallPython):
 # FUNCTIONS #
 #############
 
+
 class Func(Node):
-    fields = ['name', 'args', 'body']
+    fields = ["name", "args", "body"]
 
     def __init__(self, name, args, body=[]):
         self.name = name
@@ -672,10 +689,12 @@ class Func(Node):
         return self
 
     def Call(self, args, frame):
-        assert len(args) == len(self.args), \
-            "The number of arguments must match the function signature.\n" \
-            "Got {} ({}) instead of {} ({})." \
-            .format(len(args), args, len(self.args), self.args)
+        assert len(args) == len(self.args), (
+            "The number of arguments must match the function signature.\n"
+            "Got {} ({}) instead of {} ({}).".format(
+                len(args), args, len(self.args), self.args
+            )
+        )
         for k, v in zip(self.args, args):
             frame[k] = v
         return self.body.eval(frame)
@@ -688,8 +707,8 @@ class Func(Node):
 # CODE BLOCK #
 ##############
 
-class Block(ListNode):
 
+class Block(ListNode):
     def __init__(self, *args, catch_ret=True, **kwargs):
         self.catch_ret = catch_ret
         super().__init__(*args, **kwargs)
@@ -715,8 +734,9 @@ classes = {}
 
 
 class Class(Node):
-    """ Define a new class. """
-    fields = ['name', 'body']
+    """Define a new class."""
+
+    fields = ["name", "body"]
 
     def __init__(self, name):
         self.name = name
@@ -731,15 +751,14 @@ class Class(Node):
         for member in self.body:
             if isinstance(member, Func) and member.name == methname:
                 return member
-        raise Exception("No such member \"%s\" in class %s" %
-                        (methname, self.name))
+        raise Exception('No such member "%s" in class %s' % (methname, self.name))
 
     def Call(self, args, frame):
         obj = Obj()
-        obj['Class'] = self
+        obj["Class"] = self
         with frame as newframe:
-            newframe['this'] = obj
-            self['New'].Call(args, newframe)
+            newframe["this"] = obj
+            self["New"].Call(args, newframe)
         return obj
 
     def to_str(self, frame=None):
@@ -750,14 +769,14 @@ class Class(Node):
 
 
 class Obj(dict):
-    """ Instance of the class (actually, it's a dict). """
+    """Instance of the class (actually, it's a dict)."""
 
     def GetAttr(self, name):
         if isinstance(name, Str):
             name = name.to_py_str()
         if name in self:
             return self[name]
-        return self['Class'][name]
+        return self["Class"][name]
 
     def SetAttr(self, name, value):
         if isinstance(name, Str):
@@ -768,16 +787,16 @@ class Obj(dict):
         return value
 
     def to_str(self, frame):
-        func = self.GetAttr(Str('to_str'))
+        func = self.GetAttr(Str("to_str"))
         with frame as newframe:
-            newframe['this'] = self
+            newframe["this"] = self
             return func.Call([], newframe)
 
     def to_py_str(self):
         return repr(self)
 
     def __repr__(self):
-        return "(%s)" % (self['Class'].name)
+        return "(%s)" % (self["Class"].name)
 
 
 # This code is not needed atm.
@@ -828,18 +847,18 @@ class CallObj(Node):
         this = self.obj.eval(frame)
         args = self.args.eval(frame)
         with frame as newframe:
-            newframe['this'] = this
+            newframe["this"] = this
             callee = this.GetAttr(self.meth_name)
             return callee.Call(args, newframe)
 
 
-@prefix('@', 6)
+@prefix("@", 6)
 class This(Unary):
     # TODO: absolete method after tree rewrite.
 
     def eval(self, frame):
         # import pdb; pdb.set_trace()
-        this = frame['this']
+        this = frame["this"]
         if isinstance(self.arg, Assign):
             name = self.arg.left.value
             value = self.arg.right.eval(frame)
@@ -849,7 +868,7 @@ class This(Unary):
             return this.GetAttr(name)
 
 
-@infix('@', 5)
+@infix("@", 5)
 class Attr(Binary):
     # TODO: absolete method after tree rewrite
 
@@ -864,9 +883,10 @@ class Attr(Binary):
 # CONTROL FLOW #
 ################
 
+
 @ifelse(lbp=2)
 class IfElse(Node):
-    fields = ['cond', 'then', 'otherwise']
+    fields = ["cond", "then", "otherwise"]
 
     def eval(self, frame):
         cond = self.cond.eval(frame)
@@ -876,9 +896,9 @@ class IfElse(Node):
             return self.otherwise.eval(frame)
 
 
-@prefix('if', 1)
+@prefix("if", 1)
 class If(Node):
-    fields = ['clause', 'body']
+    fields = ["clause", "body"]
 
     def __init__(self, clause, body=None):
         super().__init__(clause, body)
@@ -891,9 +911,9 @@ class If(Node):
             return self.body.eval(frame)
 
 
-@nullary('switch')
+@nullary("switch")
 class Switch(Node):
-    fields = ['body']
+    fields = ["body"]
 
     def __init__(self, unused):
         self.body = Block(catch_ret=False)
@@ -907,9 +927,8 @@ class Switch(Node):
         raise NoMatch("switch statement: no match")
 
 
-@prefix('|', 0)
+@prefix("|", 0)
 class Guard(Unary):
-
     def eval(self, frame):
         return self.arg.eval(frame)
 
@@ -917,9 +936,9 @@ class Guard(Unary):
         return self.arg.match(data, frame)
 
 
-@prefix('match', 0)
+@prefix("match", 0)
 class Match(Node):
-    fields = ['var', 'body']
+    fields = ["var", "body"]
 
     def __init__(self, var):
         self.var = var
@@ -951,9 +970,9 @@ class Match(Node):
         return NONE
 
 
-@infix('=>', 4)
+@infix("=>", 4)
 class Case(Binary):
-    fields = ['cond', 'body']
+    fields = ["cond", "body"]
 
     def __init__(self, cond, body):
         self.cond = pratt_parse(cond)
@@ -974,8 +993,9 @@ class Case(Binary):
 # LOOPS #
 #########
 
+
 class ForLoop(Node):
-    fields = ['var', 'expr', 'body']
+    fields = ["var", "expr", "body"]
 
     def __init__(self, var, expr, body=None):
         self.var = pratt_parse1(var)
@@ -984,8 +1004,9 @@ class ForLoop(Node):
             self.body = Block(pratt_parse1(body), catch_ret=False)
         else:
             self.body = Block(catch_ret=False)
-        log.forloop.debug("got var=%s expr=%s body=%s"
-                          % (self.var, self.expr, self.body))
+        log.forloop.debug(
+            "got var=%s expr=%s body=%s" % (self.var, self.expr, self.body)
+        )
 
     def eval(self, frame):
         expr = self.expr.eval(frame)
@@ -1010,7 +1031,7 @@ class ForLoop(Node):
 
 
 class WhileLoop(Node):
-    fields = ['expr', 'body']
+    fields = ["expr", "body"]
 
     def __init__(self, expr):
         self.expr = pratt_parse1(expr)
@@ -1025,9 +1046,9 @@ class WhileLoop(Node):
 # MISC #
 ########
 
-@prefix('assert', 0)
-class Assert(Unary):
 
+@prefix("assert", 0)
+class Assert(Unary):
     def eval(self, frame):
         r = self.arg.eval(frame)
         if not isinstance(r, Bool):
