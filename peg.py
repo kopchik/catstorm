@@ -5,14 +5,14 @@ import re
 class NoMatch(Exception):
     pass
 
+
 symbols = []
 
 
 def tokenize(text, pos=0):
-    ''' Split input into a bunch of annotated tokens. '''
+    """Split input into a bunch of annotated tokens."""
     result = []
-    mysymbols = sorted(symbols, key=lambda x: (
-        x.prio, x.pattern.pattern), reverse=True)
+    mysymbols = sorted(symbols, key=lambda x: (x.prio, x.pattern.pattern), reverse=True)
     while pos < len(text):
         for p in mysymbols:
             try:
@@ -30,8 +30,8 @@ def tokenize(text, pos=0):
 # PARSER PRIMITIVES #
 #####################
 
-class Grammar:
 
+class Grammar:
     def __add__(self, other):
         if isinstance(self, ALL):
             self.things += [other]
@@ -59,8 +59,8 @@ class Grammar:
 
 
 class RE(Grammar):
-    """ prio -- priority when parsing text so "->"
-        will not be treated as "-" and ">".
+    """prio -- priority when parsing text so "->"
+    will not be treated as "-" and ">".
     """
 
     def __init__(self, pattern, name=None, conv=str, prio=0):
@@ -90,28 +90,25 @@ class RE(Grammar):
         if self.name:
             return self.name
         cls = self.__class__.__name__
-        return "%s(/%s/)" % \
-            (cls, self.pattern.pattern)
+        return "%s(/%s/)" % (cls, self.pattern.pattern)
 
 
 class SYM(RE):
-
     def __init__(self, symbol, *args, **kwargs):
         super().__init__(re.escape(symbol), *args, **kwargs)
         self.symbol = symbol
 
     def __repr__(self):
         cls = self.__class__.__name__
-        return "%s('%s')" % \
-            (cls, self.symbol)
+        return "%s('%s')" % (cls, self.symbol)
 
 
 ########################
 # HIGHER-ORDER PARSERS #
 ########################
 
-class Composer(Grammar):
 
+class Composer(Grammar):
     def __init__(self, *things):
         self.things = list(things)
 
@@ -121,11 +118,11 @@ class Composer(Grammar):
 
 
 class Attr(Composer):
-
     def __init__(self, thing, attr):
         super().__init__(thing)
-        assert isinstance(attr, str) or attr == None, \
-            "Attribute name should be a string or None"
+        assert (
+            isinstance(attr, str) or attr == None
+        ), "Attribute name should be a string or None"
         self.attr = attr
 
     def match(self, tokens, pos=0):
@@ -136,7 +133,6 @@ class Attr(Composer):
 
 
 class MergeAttr(Composer):
-
     def match(self, tokens, pos=0):
         result = {}
         for thing in self.things:
@@ -147,7 +143,7 @@ class MergeAttr(Composer):
 
 
 class Wrap(Composer):
-    """ TODO: arg check and merge with class Attr? """
+    """TODO: arg check and merge with class Attr?"""
 
     def __init__(self, thing, attr):
         super().__init__(thing)
@@ -178,7 +174,6 @@ class Wrap(Composer):
 
 
 class ALL(Composer):
-
     def match(self, tokens, pos=0):
         result = []
         for thing in self.things:
@@ -189,7 +184,6 @@ class ALL(Composer):
 
 
 class SOMEOF(Composer):
-
     def match(self, tokens, pos=0):
         result = []
         while True:
@@ -209,7 +203,6 @@ class SOMEOF(Composer):
 
 
 class CSV(Composer):
-
     def __init__(self, *args, sep=None, **kwargs):
         super().__init__(*args, **kwargs)
         assert sep, "sep is mandatory parameter"
@@ -232,7 +225,6 @@ class CSV(Composer):
 
 # THESE RETURN ONLY ONE ELEMENT AT MOST
 class MAYBE(Composer):
-
     def match(self, tokens, pos=0):
         assert len(self.things) == 1, "accepts only one arg"
         try:
@@ -243,8 +235,7 @@ class MAYBE(Composer):
 
 
 class ANY(Composer):
-    """ First match wins
-    """
+    """First match wins"""
 
     def match(self, tokens, pos=0):
         for thing in self.things:
@@ -261,17 +252,16 @@ def test(expr, text, verbose=True):
         print("tokens:", tokens)
     r, pos = expr.match(tokens)
     if pos != len(tokens):
-        print("not all chars were consumed. Pattern:\n",
-              expr, "\ntext:\n", text)
+        print("not all chars were consumed. Pattern:\n", expr, "\ntext:\n", text)
     if verbose:
         print("result:", r)
     print(r)
     return r
 
 
-if __name__ == '__main__':
-    INT = RE(r'\d+', 'INTCONST', conv=int)
-    PLUS = SYM('+')
+if __name__ == "__main__":
+    INT = RE(r"\d+", "INTCONST", conv=int)
+    PLUS = SYM("+")
     test(INT, "1")
-    test(SOMEOF(PLUS, INT), '+1')
-    test(SOMEOF(PLUS, INT) % 'expr', '+1')
+    test(SOMEOF(PLUS, INT), "+1")
+    test(SOMEOF(PLUS, INT) % "expr", "+1")

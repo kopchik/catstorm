@@ -3,7 +3,6 @@ from collections import OrderedDict
 
 
 class Frame:
-
     def __init__(self, parent=None):
         self.dict = OrderedDict()
         self.parent = parent
@@ -34,7 +33,12 @@ class Frame:
 
     def __repr__(self):
         cls = self.__class__.__name__
-        return "%s(depth=%s, %s, parent=%s)" % (cls, self.depth, self.dict, repr(self.parent))
+        return "%s(depth=%s, %s, parent=%s)" % (
+            cls,
+            self.depth,
+            self.dict,
+            repr(self.parent),
+        )
 
     def __enter__(self):
         return Frame(self)
@@ -43,9 +47,9 @@ class Frame:
         pass
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     frame = Frame()
-    frame['a'] = 1
-    print(frame['a'])
+    frame["a"] = 1
+    print(frame["a"])
     with frame as nested:
-        print(nested['a'])
+        print(nested["a"])

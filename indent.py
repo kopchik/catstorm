@@ -6,7 +6,6 @@ def indent_parse(text):
 
 
 class Str(str):
-
     def __new__(cls, lineno, s):
         self = str.__new__(cls, s)
         self.lineno = lineno
@@ -14,16 +13,16 @@ class Str(str):
 
 
 def annotate(it):
-    """ Annotate text lines with indendation. """
+    """Annotate text lines with indendation."""
     for i, line in enumerate(it, 1):
         depth = len(line) - len(line.lstrip())
         yield Str(i, line.strip()), depth
 
 
 def process(it, cur, blk):
-    """ it  -- iterator
-        cur -- current indent level
-        blk -- block data append to
+    """it  -- iterator
+    cur -- current indent level
+    blk -- block data append to
     """
     pos = 666
     for line, pos in it:
@@ -47,23 +46,23 @@ def process(it, cur, blk):
 
 
 def preprocess(it):
-    """ Remove blank lines, merge lines ending with \. """
-    buf = ''
+    """Remove blank lines, merge lines ending with \."""
+    buf = ""
     for line in it:
         if line.isspace() or not line:
             continue
-        if line.endswith('\\'):
-            buf += line.strip('\\')
+        if line.endswith("\\"):
+            buf += line.strip("\\")
             continue
         if buf:
             yield buf + line
-            buf = ''
+            buf = ""
             continue
         yield line
     assert not buf, "last non-empty line contains '\\'"
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     data = """\
 1
   2

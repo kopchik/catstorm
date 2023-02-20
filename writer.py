@@ -2,8 +2,9 @@
 
 
 class Block:
-
-    def __init__(self, sep='', lvl=0, prepend=None, append=None, comment=None, parent=None):
+    def __init__(
+        self, sep="", lvl=0, prepend=None, append=None, comment=None, parent=None
+    ):
         self.content = []
         self._prepend = prepend
         self._append = append
@@ -49,19 +50,18 @@ class Block:
 
 
 class CBlock(Block):
-
     def __init__(self, *args, **kwargs):
         self.args = args
         self.kwargs = kwargs
         super().__init__(*args, **kwargs)
 
     def cblock(self):
-        return self.newblock(prepend='{', append='}', sep=';', lvl=self._lvl + 1)
+        return self.newblock(prepend="{", append="}", sep=";", lvl=self._lvl + 1)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     b = CBlock()
-    b.add('void test()')
+    b.add("void test()")
     with b.cblock() as nested:
         nested.add(r'printf("hello, hell")')
     print("\n".join(b.to_str()))

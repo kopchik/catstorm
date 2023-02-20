@@ -5,14 +5,16 @@ over an AST tree.
 
 
 class Leaf:
-    """ Base class for AST elements that do not support
-        iteration over them.
+    """Base class for AST elements that do not support
+    iteration over them.
     """
+
     lbp = 1
 
     def __init__(self, value=None):
-        assert not hasattr(self, 'fields'), \
-            "Leaf subclass cannot have fields attribute (it's not a Node)"
+        assert not hasattr(
+            self, "fields"
+        ), "Leaf subclass cannot have fields attribute (it's not a Node)"
         self.value = value
         super().__init__()
 
@@ -29,7 +31,7 @@ class Leaf:
 
 
 class BaseNode:
-    """ Base class for nodes that support iteration over their fields. """
+    """Base class for nodes that support iteration over their fields."""
 
 
 class Node(BaseNode):
@@ -38,6 +40,7 @@ class Node(BaseNode):
     Supports access to the elements through attributes or through iteration.
     Names of attributes to be specified in class.fields.
     """
+
     fields = []
 
     def __init__(self, *args):
@@ -55,8 +58,9 @@ class Node(BaseNode):
 
     def __setattr__(self, name, value):
         if name not in self.fields:
-            raise AttributeError("Unknown attribute \"%s\" for %s (%s)" % (
-                name, type(self), self.fields))
+            raise AttributeError(
+                'Unknown attribute "%s" for %s (%s)' % (name, type(self), self.fields)
+            )
         super().__setattr__(name, value)
 
     def __iter__(self):
@@ -67,13 +71,13 @@ class Node(BaseNode):
 
     def __repr__(self):
         cls = self.__class__.__name__
-        args = ", ".join("%s=%s" % (name, getattr(self, name))
-                         for name in self.fields)
+        args = ", ".join("%s=%s" % (name, getattr(self, name)) for name in self.fields)
         return "(%s %s)" % (cls, repr(args))
 
 
 class ListNode(BaseNode, list):
-    """ Represents a node that is just a list of something. """
+    """Represents a node that is just a list of something."""
+
     fields = None
 
     def __init__(self, *args):
@@ -85,13 +89,15 @@ class ListNode(BaseNode, list):
 
 
 class Unary(Node):
-    """ Base class for unary operators. """
-    fields = ['arg']
+    """Base class for unary operators."""
+
+    fields = ["arg"]
 
 
 class Binary(Node):
-    """ Base class for binary operators. """
-    fields = ['left', 'right']
+    """Base class for binary operators."""
+
+    fields = ["left", "right"]
 
 
 def clsname(node):
@@ -105,11 +111,14 @@ def pprint(node, lvl=0):
     elif isinstance(node, Leaf):
         return indent + "(%s %s)" % (clsname(node), repr(node.value))
     elif isinstance(node, (Node, list)):
-        return indent + "(%s\n" % clsname(node) + \
-            '\n'.join(indent + pprint(e, lvl + 1) for e in node) + ")"
+        return (
+            indent
+            + "(%s\n" % clsname(node)
+            + "\n".join(indent + pprint(e, lvl + 1) for e in node)
+            + ")"
+        )
     # it's a class
     elif type(node) == type(type):
         return indent + node.__name__
     else:
-        raise Exception("don't know how to show node: %s (%s)" %
-                        (node, type(node)))
+        raise Exception("don't know how to show node: %s (%s)" % (node, type(node)))
