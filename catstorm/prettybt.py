@@ -6,8 +6,8 @@ A more informative backtrace printer.
 At least it includes class names.
 """
 
-import traceback
 import inspect
+import traceback
 
 
 def prettybt(exctype, exc_val, tb):

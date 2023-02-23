@@ -1,20 +1,10 @@
-from .pratt import (
-    pratt_parse,
-    pratt_parse1,
-    prefix,
-    infix,
-    infix_r,
-    postfix,
-    nullary,
-    ifelse,
-    brackets,
-    subscript,
-)
-from .syntax_tree import Leaf, Unary, Binary, Node, ListNode
-from .log import Log
-
-from itertools import chain, repeat
 import re
+from itertools import chain, repeat
+
+from .log import Log
+from .pratt import (brackets, ifelse, infix, infix_r, nullary, postfix,
+                    pratt_parse, pratt_parse1, prefix, subscript)
+from .syntax_tree import Binary, Leaf, ListNode, Node, Unary
 
 log = Log("interpreter")
 
@@ -233,8 +223,8 @@ class StrTPL(Value):
 
     def eval(self, frame):
         # TODO: cannot import from top level due to circual dependences
-        from peg import tokenize
         from grammar import PROG
+        from peg import tokenize
 
         # perform string expansion
         string = self.value

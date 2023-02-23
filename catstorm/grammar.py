@@ -1,19 +1,8 @@
 #!/usr/bin/env python3
-from .peg import RE, SYM, ANY, SOMEOF, MAYBE, CSV, test
-from .interpreter import (
-    Int,
-    StrTPL,
-    Func,
-    Var,
-    NewADT,
-    Class,
-    If,
-    ForLoop,
-    WhileLoop,
-    Case,
-)
-from .pratt import symap, pratt_parse
-
+from .interpreter import (Case, Class, ForLoop, Func, If, Int, NewADT, StrTPL,
+                          Var, WhileLoop)
+from .peg import ANY, CSV, MAYBE, RE, SOMEOF, SYM, test
+from .pratt import pratt_parse, symap
 
 # BITS AND PIECES
 EOL = RE(r"$")

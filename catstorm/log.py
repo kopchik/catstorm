@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-from fnmatch import fnmatch
-from copy import copy
 import sys
+from copy import copy
+from fnmatch import fnmatch
 
 try:
     from termcolor import colored

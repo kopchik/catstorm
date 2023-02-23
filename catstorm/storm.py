@@ -1,19 +1,18 @@
 #!/usr/bin/env python3
 
-from .pratt import precedence
-from .indent_parser import indent_parse
-from .log import Log, logfilter
-from .grammar import PROG
-from .peg import tokenize
-from .frame import Frame
-from .syntax_tree import pprint, BaseNode
-
-from .prettybt import prettybt
-from .interpreter import Block, Int, Str, Array, Var, Print, SetAttr, GetAttr
-
-from sys import exit, setrecursionlimit
 import argparse
 import sys
+from sys import exit, setrecursionlimit
+
+from .frame import Frame
+from .grammar import PROG
+from .indent_parser import indent_parse
+from .interpreter import Array, Block, GetAttr, Int, Print, SetAttr, Str, Var
+from .log import Log, logfilter
+from .peg import tokenize
+from .pratt import precedence
+from .prettybt import prettybt
+from .syntax_tree import BaseNode, pprint
 
 log = Log("main")
 
@@ -48,7 +47,8 @@ def traverse(tree, f):
 
 
 def rewrite(tree):
-    from interpreter import This, Assign, Attr, Call0, Call, CallObj, Comma, DictTPL
+    from interpreter import (Assign, Attr, Call, Call0, CallObj, Comma,
+                             DictTPL, This)
 
     def set_attr(elem):
         if not isinstance(elem, Assign) or not isinstance(elem.left, Attr):
