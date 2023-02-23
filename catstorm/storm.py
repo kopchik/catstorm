@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 
-from pratt import precedence
-from indent import indent_parse
-from log import Log, logfilter
-from grammar import PROG
-from peg import tokenize
-from frame import Frame
-from syntax_tree import pprint, BaseNode
+from .pratt import precedence
+from .indent import indent_parse
+from .log import Log, logfilter
+from .grammar import PROG
+from .peg import tokenize
+from .frame import Frame
+from .syntax_tree import pprint, BaseNode
 
-from prettybt import prettybt
-from interpreter import Block, Int, Str, Array, Var, Print, SetAttr, GetAttr
+from .prettybt import prettybt
+from .interpreter import Block, Int, Str, Array, Var, Print, SetAttr, GetAttr
 
 from sys import exit, setrecursionlimit
 import argparse
@@ -131,7 +131,7 @@ def rewrite(tree):
     traverse(tree, dict_rewrite)
 
 
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "-t",
@@ -291,3 +291,7 @@ if __name__ == "__main__":
         exit(ret.value)
     else:
         Print(ret).eval({}) and exit(1)
+
+
+if __name__ == "__main__":
+    main()

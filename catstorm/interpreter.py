@@ -1,4 +1,4 @@
-from pratt import (
+from .pratt import (
     pratt_parse,
     pratt_parse1,
     prefix,
@@ -10,8 +10,8 @@ from pratt import (
     brackets,
     subscript,
 )
-from syntax_tree import Leaf, Unary, Binary, Node, ListNode
-from log import Log
+from .syntax_tree import Leaf, Unary, Binary, Node, ListNode
+from .log import Log
 
 from itertools import chain, repeat
 import re

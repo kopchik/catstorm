@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-from peg import RE, SYM, ANY, SOMEOF, MAYBE, CSV, test
-from interpreter import (
+from .peg import RE, SYM, ANY, SOMEOF, MAYBE, CSV, test
+from .interpreter import (
     Int,
     StrTPL,
     Func,
@@ -12,7 +12,7 @@ from interpreter import (
     WhileLoop,
     Case,
 )
-from pratt import symap, pratt_parse
+from .pratt import symap, pratt_parse
 
 
 # BITS AND PIECES
