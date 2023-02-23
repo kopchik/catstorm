@@ -1,4 +1,4 @@
-#!/usr/bin/env storm.py
+#!/usr/bin/env catstorm
 
 main = progname, args ->
   data = [[1,2], [3,4]]

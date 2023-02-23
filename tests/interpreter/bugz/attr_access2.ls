@@ -1,4 +1,4 @@
-#!/usr/bin/env storm.py
+#!/usr/bin/env catstorm
 
 ::class Test
   New =  ->

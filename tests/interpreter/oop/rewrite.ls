@@ -1,4 +1,4 @@
-#!/usr/bin/env storm.py
+#!/usr/bin/env catstorm
 
 main = name, argv ->
   ::class MyClass

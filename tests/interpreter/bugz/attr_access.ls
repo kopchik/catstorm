@@ -1,6 +1,6 @@
-#!/usr/bin/env storm.py
+#!/usr/bin/env catstorm
 
-# /usr/local/bin/storm.py:130: <module>():
+# catstorm:130: <module>():
 # /home/exe/github/catstorm/interpreter.py:585: Func.Call(self, args, frame):
 # /home/exe/github/catstorm/interpreter.py:604: Block.eval(self, frame):
 # /home/exe/github/catstorm/interpreter.py:321: Print.eval(self, frame):
@@ -11,7 +11,7 @@
 # AttributeError: 'Obj' object has no attribute 'value'
 
 #running tests/bugz/attr_access.ls
-#./storm.py:130: <module>():
+#catstorm:130: <module>():
 #/home/exe/github/catstorm/interpreter.py:610: Func.Call(self, args, frame):
 #/home/exe/github/catstorm/interpreter.py:629: Block.eval(self, frame):
 #/home/exe/github/catstorm/interpreter.py:881: Assert.eval(self, frame):

@@ -1,4 +1,4 @@
-#!/usr/bin/env storm.py
+#!/usr/bin/env catstorm
 
 main = progname, argv ->
   x = 0

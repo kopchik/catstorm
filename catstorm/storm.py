@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from .pratt import precedence
-from .indent import indent_parse
+from .indent_parser import indent_parse
 from .log import Log, logfilter
 from .grammar import PROG
 from .peg import tokenize
