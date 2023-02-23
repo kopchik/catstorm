@@ -162,5 +162,4 @@ http://tutorial.ponylang.org/types/actors/
 "Modern Locking, Apr 2013, at Linux FS/MM/Storage summit. How to get good locking performance. This is an extract from a recent Intel lock performance paper I contributed to."  
 http://en.wikipedia.org/wiki/Uniform_Function_Call_Syntax  
 http://blog.ezyang.com/2010/05/design-patterns-in-haskel/  
-http://habrahabr.ru/post/263575/  
 

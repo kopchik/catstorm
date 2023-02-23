@@ -22,7 +22,7 @@ def parse(tree, blk):
     """Traverse raw AST tree and parse it."""
     for e in tree:
         if isinstance(e, list):
-            assert hasattr(prog, "body"), "cannot add statement %s to %s" % (e, prog)
+            assert hasattr(prog, "body"), f"cannot add statement {e} to {prog}"
             parse(e, prog.body)
         else:
             try:
@@ -36,7 +36,7 @@ def parse(tree, blk):
                     continue
                 blk.append(prog)
             except Exception as err:
-                raise Exception("line %s: %s\n%s" % (e.lineno, e, err))
+                raise Exception(f"line {e.lineno}: {e}\n{err}")
 
 
 def traverse(tree, f):
