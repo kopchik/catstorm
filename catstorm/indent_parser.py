@@ -35,18 +35,22 @@ def _parse_indented_blocks(it, cur_block_level=0, blk=None):
     if blk is None:
         blk = []
 
+    indent_level = cur_block_level
     for line, indent_level in it:
         if indent_level == cur_block_level:
             blk.append(line)
         elif indent_level < cur_block_level:
             return blk, indent_level, [line]
         elif indent_level > cur_block_level:
-            ret, indent_level, rem = _parse_indented_blocks(it, indent_level, [line])
+            ret, indent_level, remaining = _parse_indented_blocks(
+                it, indent_level, [line]
+            )
             if indent_level < cur_block_level:
-                return blk + [ret], indent_level, rem
+                return blk + [ret], indent_level, remaining
             else:
                 blk.append(ret)
-                blk += rem
+                blk += remaining
+
     return blk, indent_level, []
 
 

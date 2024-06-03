@@ -5,7 +5,7 @@ die() {
   exit 1
 }
 
-for file in `find ./tests -name '*.ls'`
+for file in `find ./tests/interpreter -name '*.ls'`
 do
    echo "running $file"
    catstorm -b $file || die "failed on $file"

@@ -2,12 +2,28 @@
 
 import argparse
 import sys
-from sys import exit, setrecursionlimit
 
 from .frame import Frame
 from .grammar import PROG
 from .indent_parser import indent_parse
-from .interpreter import Array, Block, GetAttr, Int, Print, SetAttr, Str, Var
+from .interpreter import (
+    Array,
+    Assign,
+    Attr,
+    Block,
+    Call,
+    Call0,
+    CallObj,
+    Comma,
+    DictTPL,
+    GetAttr,
+    Int,
+    Print,
+    SetAttr,
+    Str,
+    This,
+    Var,
+)
 from .log import Log, logfilter
 from .peg import tokenize
 from .pratt import precedence
@@ -17,18 +33,16 @@ from .syntax_tree import BaseNode, pprint
 log = Log("main")
 
 
-def parse(tree, blk):
+def parse(tree, blk, tokens):
     """Traverse raw AST tree and parse it."""
     for e in tree:
         if isinstance(e, list):
             assert hasattr(prog, "body"), f"cannot add statement {e} to {prog}"
-            parse(e, prog.body)
+            parse(e, prog.body, tokens)
         else:
             try:
                 tokens = tokenize(e)
-                if args.tokens:
-                    print(tokens)
-                prog, r = PROG.match(tokens)  # TODO: check r
+                prog, r = PROG.match(tokens)
                 if r != len(tokens):
                     raise Exception("Not all tokens were consumed. Trailing garbage?")
                 if not prog:  # skip comments # TODO: make it better
@@ -47,9 +61,6 @@ def traverse(tree, f):
 
 
 def rewrite(tree):
-    from interpreter import (Assign, Attr, Call, Call0, CallObj, Comma,
-                             DictTPL, This)
-
     def set_attr(elem):
         if not isinstance(elem, Assign) or not isinstance(elem.left, Attr):
             return elem
@@ -63,7 +74,6 @@ def rewrite(tree):
     def get_attr(elem):
         if not isinstance(elem, This):
             return elem
-        # print("!", elem, type(elem.arg))
         assert isinstance(elem.arg, Var), type(elem.arg)
         obj = Var("this")
         attr_name = elem.arg.value
@@ -208,10 +218,10 @@ def main():
 
     if not (args.cmd or args.raw):
         if args.dry_run:
-            exit("Nothing to do, bye! :-*")
-        exit("please specify [input] or --raw ..")
+            sys.exit("Nothing to do, bye! :-*")
+        sys.exit("please specify [input] or --raw ..")
     if args.cmd and args.raw:
-        exit("[input] and --raw are mutually exclusive")
+        sys.exit("[input] and --raw are mutually exclusive")
 
     logfilter.rules = [
         # ('interpreter.*', False),
@@ -224,7 +234,7 @@ def main():
         logfilter.default = False
 
     if args.recursion_limit:
-        setrecursionlimit(55)
+        sys.setrecursionlimit(55)
 
     if args.pretty_bt:
         sys.excepthook = prettybt
@@ -256,15 +266,16 @@ def main():
                 if not args.dry_run:
                     result = prog.eval(frame)
                     print("result of expr %s:" % i, result)
-        exit()
+        sys.exit()
 
     # INPUT FROM FILE
     # parse the file
-    with open(args.cmd[0]) as fd:
-        src = fd.read()
+    with open(args.cmd[0]) as f:
+        src = f.read()
     indented = indent_parse(src)
     mainblk = Block()
-    parse(indented, mainblk)
+    parse(indented, mainblk, args.tokens)
+
     if args.ast:
         print("BEFORE TREE REWRITE")
         print(pprint(mainblk))
@@ -277,7 +288,7 @@ def main():
 
     # exit if code execution not required
     if args.dry_run:
-        exit(0)
+        sys.exit(0)
 
     # execute the code
     with Frame() as frame:
@@ -288,7 +299,7 @@ def main():
 
     # make proper exit status
     if isinstance(ret, Int):
-        exit(ret.value)
+        sys.exit(ret.value)
     else:
         Print(ret).eval({}) and exit(1)
 

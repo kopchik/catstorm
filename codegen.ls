@@ -1,4 +1,4 @@
-#!/usr/bin/env storm.py
+#!/usr/bin/env catstorm
 
 # This supposed to be a catstorm written ... in castorm.
 # But right now it's a testing area for the language.
